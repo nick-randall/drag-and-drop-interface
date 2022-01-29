@@ -28,6 +28,7 @@ function App() {
                   ...dragStyles,
                 }}
                 src={`./images/${card.image}.jpg`}
+                draggable="false"
               />
             )}
           </Dragger>

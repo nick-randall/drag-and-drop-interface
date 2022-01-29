@@ -1,5 +1,6 @@
 interface State {
   draggedCardId: string;
+  draggedCardSource: { containerId: string; index: number };
 }
 
 type SetDraggedCardId = {
@@ -7,11 +8,20 @@ type SetDraggedCardId = {
   payload: string;
 };
 
-type Action = SetDraggedCardId;
+type SetDraggedCardSource = {
+  type: "SET_DRAGGED_CARD_SOURCE";
+  payload: { containerId: string; index: number };
+};
 
-export const stateReducer = (state: State = { draggedCardId: "" }, action: Action) => {
+type Action = SetDraggedCardId | SetDraggedCardSource;
+
+export const stateReducer = (state: State = { draggedCardId: "", draggedCardSource: { containerId: "", index: -1 } }, action: Action) => {
   switch (action.type) {
     case "SET_DRAGGED_CARD_ID":
       return { ...state, draggedCardId: action.payload };
-  default: return state;}
+    case "SET_DRAGGED_CARD_SOURCE":
+      return { ...state, draggedCardSource: action.payload };
+    default:
+      return state;
+  }
 };

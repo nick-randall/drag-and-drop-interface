@@ -10,12 +10,11 @@ interface DraggerProps {
   children: (ref: Ref<HTMLImageElement>, dragStyles: CSSProperties, handleDragStart: (event: React.MouseEvent) => void) => JSX.Element;
 }
 
-interface DragState {
-  dragged: boolean,
-    translateX: number,
-    translateY: number,
-    offsetX: number,
-    offsetY: number,
+interface DragData {
+  translateX: number;
+  translateY: number;
+  offsetX: number;
+  offsetY: number;
 }
 
 const Dragger = (props: DraggerProps) => {
@@ -26,37 +25,43 @@ const Dragger = (props: DraggerProps) => {
     translateY: 0,
     offsetX: 0,
     offsetY: 0,
+    offsetLeft:0
   });
   const dispatch = useDispatch();
 
   const draggableRef: Ref<HTMLImageElement> = useRef(null);
 
-  const handleDragStart = useCallback(({ clientX, clientY }) => {
-    if (draggableRef && draggableRef.current) {
-      const { left, top } = draggableRef.current.getBoundingClientRect();
-      const { offsetLeft, offsetTop } = draggableRef.current;
-      if (offsetLeft != null && offsetTop != null) {
-        setDragState(prevState => ({
-          ...prevState,
-          dragged: true,
-          // if card is at start position, left and top will be zero,
-          // offsetting mouse coordinates of mouse pointer.
-          // if card is transitioning back to start position,
-          // left and top will capture current position of card
-          offsetX: offsetLeft + (clientX - left),
-          offsetY: offsetTop + (clientY - top),
-          translateX: left - offsetLeft,
-          translateY: top - offsetTop,
-        }));
-        dispatch({type: "SET_DRAGGED_CARD_ID", payload: draggerId })
-      }
-    } else console.log("error getting html node");
-  }, [dispatch, draggerId]);
+  const handleDragStart = useCallback(
+    ({ clientX, clientY }) => {
+      if (draggableRef && draggableRef.current) {
+        const { left, top } = draggableRef.current.getBoundingClientRect();
+        const { offsetLeft, offsetTop } = draggableRef.current;
+        if (offsetLeft != null && offsetTop != null) {
+          setDragState(prevState => ({
+            ...prevState,
+            dragged: true,
+            // if card is at start position, left and top will be zero,
+            // offsetting mouse coordinates of mouse pointer.
+            // if card is transitioning back to start position,
+            // left and top will capture current position of card
+            offsetLeft: offsetLeft,
+            offsetX: offsetLeft + (clientX - left),
+            offsetY: offsetTop + (clientY - top),
+            translateX: left - offsetLeft,
+            translateY: top - offsetTop,
+          }));
+          dispatch({ type: "SET_DRAGGED_CARD_ID", payload: draggerId });
+          dispatch({ type: "SET_DRAGGED_CARD_SOURCE", payload: {index: index, containerId: containerId} });
+        }
+      } else console.log("error getting html node");
+    },
+    [containerId, dispatch, draggerId, index]
+  );
 
   const handleDrag = useCallback(
     ({ clientX, clientY }) => {
       if (dragState.dragged) {
-        setDragState((prevState) => ({
+        setDragState(prevState => ({
           ...prevState,
           translateX: clientX - dragState.offsetX,
           translateY: clientY - dragState.offsetY,
@@ -72,7 +77,7 @@ const Dragger = (props: DraggerProps) => {
         ...prevState,
         dragged: false,
       }));
-      dispatch({type: "SET_DRAGGED_CARD_ID", payload: "" })
+      dispatch({ type: "SET_DRAGGED_CARD_ID", payload: "" });
     }
   }, [dragState, dispatch]);
 
@@ -90,11 +95,24 @@ const Dragger = (props: DraggerProps) => {
   const dragStyles: CSSProperties = {
     transform: dragState.dragged ? `translate(${dragState.translateX}px, ${dragState.translateY}px)` : "",
     pointerEvents: dragState.dragged ? "none" : "auto",
-  }
+    //position:"absolute"
+    // draggable : "false"
+  };
 
-  return (  
-      children(draggableRef, dragStyles, handleDragStart)
-  );
+  const notDraggedStyles: CSSProperties = {
+    transform: "",
+    pointerEvents: "auto",
+  };
+
+  const draggedStyles: CSSProperties = {
+    transform: `translate(${dragState.translateX}px, ${dragState.translateY}px)`,
+    pointerEvents: "none",
+    left: dragState.offsetLeft,
+    position: "absolute"
+  }
+  if(!dragState.dragged)
+  return children(draggableRef, notDraggedStyles, handleDragStart);
+  else return children(draggableRef, draggedStyles, handleDragStart);
 };
 
 export default Dragger;
