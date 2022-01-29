@@ -5,6 +5,7 @@ export interface CardGroupProps {
   cardGroup: CardGroupObj;
   index: number;
   dimensions: AllDimensions;
+  containerId: string
 }
 
 interface CardOffset {
@@ -24,7 +25,7 @@ const CardGroup = (props: CardGroupProps) => {
   };
 
   return (
-    <Dragger draggerId={cardGroup.id} index={index}>
+    <Dragger draggerId={cardGroup.id} index={index} containerId={props.containerId}>
       {ref => (
         <div
           // Container only the size of cardLeftSpread ie. able to be smaller
@@ -43,6 +44,7 @@ const CardGroup = (props: CardGroupProps) => {
           >
             {cardGroup.cards.map((card, cardGroupIndex) => (
               <Card
+                containerId={props.containerId}
                 offsetTop={getOffset(card, cardGroupIndex).top}
                 offsetLeft={getOffset(card, cardGroupIndex).left}
                 //cardGroupIndex={cardGroupIndex}

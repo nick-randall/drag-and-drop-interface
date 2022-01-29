@@ -1,11 +1,13 @@
-import React, { Ref, useCallback, useRef, useState } from "react";
+import React, { CSSProperties, Ref, useCallback, useRef, useState } from "react";
+import { useDispatch } from "react-redux";
 
 interface DraggerProps {
   draggerId: string;
   // customDroppableId?
   //ref: Ref<HTMLDivElement>;
   index: number;
-  children: (ref: Ref<HTMLImageElement>, dragState: DragState) => JSX.Element;
+  containerId: string;
+  children: (ref: Ref<HTMLImageElement>, dragStyles: CSSProperties, handleDragStart: (event: React.MouseEvent) => void) => JSX.Element;
 }
 
 interface DragState {
@@ -17,7 +19,7 @@ interface DragState {
 }
 
 const Dragger = (props: DraggerProps) => {
-  const { children, index, draggerId } = props;
+  const { children, index, draggerId, containerId } = props;
   const [dragState, setDragState] = useState({
     dragged: false,
     translateX: 0,
@@ -25,10 +27,9 @@ const Dragger = (props: DraggerProps) => {
     offsetX: 0,
     offsetY: 0,
   });
+  const dispatch = useDispatch();
 
   const draggableRef: Ref<HTMLImageElement> = useRef(null);
-
-
 
   const handleDragStart = useCallback(({ clientX, clientY }) => {
     if (draggableRef && draggableRef.current) {
@@ -47,9 +48,10 @@ const Dragger = (props: DraggerProps) => {
           translateX: left - offsetLeft,
           translateY: top - offsetTop,
         }));
+        dispatch({type: "SET_DRAGGED_CARD_ID", payload: draggerId })
       }
     } else console.log("error getting html node");
-  }, []);
+  }, [dispatch, draggerId]);
 
   const handleDrag = useCallback(
     ({ clientX, clientY }) => {
@@ -70,8 +72,9 @@ const Dragger = (props: DraggerProps) => {
         ...prevState,
         dragged: false,
       }));
+      dispatch({type: "SET_DRAGGED_CARD_ID", payload: "" })
     }
-  }, [dragState]);
+  }, [dragState, dispatch]);
 
   // adding/cleaning up mouse event listeners
   React.useEffect(() => {
@@ -84,20 +87,13 @@ const Dragger = (props: DraggerProps) => {
     };
   }, [handleDrag, handleDragEnd]);
 
-  return (
-    <div ref={draggableRef} onClick={handleDragStart} 
-    style={{
-      border: "black thin solid",
-      // position:"relative",
-      // transform: dragState.dragged ? `translate(${dragState.translateX}px, 0px)` : ""
-    }}
-    >
-      {children(draggableRef, dragState)}
-      <div style={{fontSize: 100, height: 100}} >
-      {dragState.translateX}
-      {dragState.dragged.toString()}
-      </div>
-    </div>
+  const dragStyles: CSSProperties = {
+    transform: dragState.dragged ? `translate(${dragState.translateX}px, ${dragState.translateY}px)` : "",
+    pointerEvents: dragState.dragged ? "none" : "auto",
+  }
+
+  return (  
+      children(draggableRef, dragStyles, handleDragStart)
   );
 };
 

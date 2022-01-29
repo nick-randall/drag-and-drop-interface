@@ -8,33 +8,41 @@ function App() {
   const [randomCard]: GameCard[] = createSpecialsAndGuests().slice(0, 1);
   const elementWidth = 100;
   console.log(guestCards);
+  const containerOneId = "xxxy2"
+  const containerTwoId = "xxxy1"
+
 
   return (
     <div>
-      <DraggerContainer id="xxyy2" elementWidth={elementWidth}>
+      <DraggerContainer id={containerOneId} elementWidth={elementWidth}>
         {guestCards.map((card, index) => (
-          <img
-            alt={card.name}
-            key={card.id}
-            style={{
-              width: elementWidth,
-            }}
-            src={`./images/${card.image}.jpg`}
-          />
+          <Dragger draggerId={card.id} index={index} containerId = {containerOneId}>
+            {(draggerRef, dragStyles, handleDragStart) => (
+              <img
+                ref={draggerRef}
+                onMouseDown={handleDragStart}
+                alt={card.name}
+                key={card.id}
+                style={{
+                  width: elementWidth,
+                  ...dragStyles,
+                }}
+                src={`./images/${card.image}.jpg`}
+              />
+            )}
+          </Dragger>
         ))}
       </DraggerContainer>
-      <Dragger draggerId={"only"} index={0}>
-        {(draggerRef, dragState) => (
+      <Dragger draggerId={randomCard.id} index={0} containerId={containerTwoId}>
+        {(draggerRef, dragStyles, handleDragStart) => (
           <img
             ref={draggerRef}
             alt={randomCard.name}
             key={randomCard.id}
+            onMouseDown={handleDragStart}
             style={{
               width: elementWidth,
-              border: "black thin solid",
-             // position:"relative",
-              transform: dragState.dragged ? `translate(${dragState.translateX}px, ${dragState.translateY}px)` : "",
-              pointerEvents: dragState.dragged ? "none" : "auto"
+              ...dragStyles,
             }}
             src={`./images/${randomCard.image}.jpg`}
             draggable="false"

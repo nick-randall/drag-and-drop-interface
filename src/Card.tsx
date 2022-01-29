@@ -14,6 +14,7 @@ export interface CardProps {
   offsetTop?: number;
   //cardGroupIndex: number;
   showNotAmongHighlights?: boolean;
+  containerId: string
 }
 
 const Card = (props: CardProps) => {
@@ -44,7 +45,7 @@ const Card = (props: CardProps) => {
   
 
   return (
-    <Dragger draggerId={id} index={index}>
+    <Dragger draggerId={id} index={index} containerId={props.containerId}>
       {ref => (
         <div>
           <div ref={ref}>

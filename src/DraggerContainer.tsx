@@ -1,6 +1,8 @@
 import React, { Children, Ref, useRef } from "react";
 import { useState } from "react";
+import { useSelector } from "react-redux";
 import createSpecialsAndGuests from "./createGuests";
+import { RootState } from "./store";
 
 interface ContainerProps {
   children: JSX.Element[];
@@ -11,20 +13,20 @@ interface ContainerProps {
 const DraggerContainer = (props: ContainerProps) => {
   const { children, elementWidth } = props;
   const [draggedOverIndex, setDraggedOverIndex] = useState(-1);
-  const [touchedX, setTouchedX] = useState(0);
   const containerRef: Ref<HTMLDivElement> = useRef(null);
+  const draggedCard = useSelector((state: RootState) => state).draggedCardId;
+  const dragged = draggedCard !== "";
 
   const totalWidth = Children.count(children) * 50;
-  console.log(totalWidth);
+  // console.log(Children.map(children, child => child.props.draggerId === draggedCard))
 
   const handleMouseOver = ({ clientX }: { clientX: number }) => {
-    console.log(clientX);
+    if (!dragged) return;
     const containerElement = containerRef.current;
     if (containerElement) {
       const { left: boundingBoxLeft, width: boundingBoxWidth } = containerElement.getBoundingClientRect();
       const centerOfCard = elementWidth / 2;
       const touchedX = clientX - boundingBoxLeft;
-      setTouchedX(touchedX);
 
       // could use totalWidth instead to not calculate based on query but rather on num elements * elementWidth
       const newDraggedOverIndex = Math.floor(touchedX / elementWidth);
@@ -46,22 +48,24 @@ const DraggerContainer = (props: ContainerProps) => {
         <div
           style={{
             display: "flex",
+            //position: "relative",
+            transform: draggedCard === child.props.draggerId ? `transformX(${-1}px)` : `transformX(${-elementWidth}px)`,
           }}
         >
           <div
-          // This is the placeholder (ghost card comes in here)
+            // This is the placeholder (ghost card comes in here)
             style={{
-              width: draggedOverIndex === index ? elementWidth : 0,
+              width: draggedOverIndex === index && dragged? elementWidth : 0,
+              
               height: 100,
               position: "relative",
-              transition: "140ms ease"
-              // border: "thin dotted red",
+              transition: "140ms ease",
+              transitionDelay: "60ms",
             }}
           />
           {child}
         </div>
       ))}
-      {touchedX}
     </div>
   );
 };
