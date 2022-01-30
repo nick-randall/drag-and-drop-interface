@@ -39,6 +39,9 @@ const DraggerContainer = (props: ContainerProps) => {
 
   //const getCardRowShapeOnRearrange2 = (indexArray: number[]) => curriedGetCardRowShape(indexArray);
 
+  const tweakRowBreakPoints = (indexArray: number[], sourceIndex: number) =>
+    indexArray.map((e, i) => (i > sourceIndex ? e - elementWidth / 2 : e + elementWidth / 2));
+
   const getCardRowShapeOnRearrange = (indexArray: number[], sourceIndex: number) => curriedGetCardRowShape(sourceIndex)(indexArray);
 
   const handleMouseOver = ({ clientX }: { clientX: number }) => {
@@ -51,16 +54,27 @@ const DraggerContainer = (props: ContainerProps) => {
           Children.map(children, child => child.props.size)
           //draggedSource.index
         );
+        const tweakedRowShape = tweakRowBreakPoints(rowShapee, draggedSource.index);
         setRowShape(rowShapee);
-          
+
+        const centerOfCard = elementWidth / 2;
+        const touchedX = clientX - boundingBoxLeft; //+ toRightOfDraggedSourceOffset;
+        
+        const earlyMoveOffset = elementWidth / 4
+
+        if (Math.floor((touchedX - earlyMoveOffset) / elementWidth) < draggedOverIndex) {
+          setDraggedOverIndex(Math.floor((touchedX - earlyMoveOffset)/ elementWidth));
+        } else if (Math.floor((touchedX + earlyMoveOffset) / elementWidth) > draggedOverIndex) {
+          setDraggedOverIndex(Math.floor((touchedX + earlyMoveOffset) / elementWidth));
+        }
         const newDraggedOverIndex = rowShape.indexOf(rowShape.reduce((prev, curr) => (clientX - boundingBoxLeft < curr ? prev : curr), 0));
 
-        if (draggedOverIndex !== newDraggedOverIndex) setDraggedOverIndex(newDraggedOverIndex);
+        //if (draggedOverIndex !== newDraggedOverIndex) setDraggedOverIndex(newDraggedOverIndex);
       } else {
         const centerOfCard = elementWidth / 2;
         // If rearranging and element is to the right of sourceElement, compensate for missing element
-        const toRightOfDraggedSourceOffset = isRearrange && draggedOverIndex > draggedSource.index ? elementWidth : 0;
-        const touchedX = clientX - boundingBoxLeft - centerOfCard + toRightOfDraggedSourceOffset;
+        //const toRightOfDraggedSourceOffset = isRearrange && draggedOverIndex > draggedSource.index ? elementWidth : 0;
+        const touchedX = clientX - boundingBoxLeft - centerOfCard; //+ toRightOfDraggedSourceOffset;
 
         // could use totalWidth instead to not calculate based on query but rather on num elements * elementWidth
         let newDraggedOverIndex = Math.floor(touchedX / elementWidth);
@@ -81,8 +95,10 @@ const DraggerContainer = (props: ContainerProps) => {
 
   const figureOutWhetherToExpand = (index: number) => {
     if (!isRearrange) {
-      return draggedOverIndex === index ? elementWidth : 0;
-    } else if(isRearrange){
+      if (draggedOverIndex !== -1) {
+        return draggedOverIndex === index ? elementWidth : 0;
+      }
+    } else if (isRearrange) {
       if (draggedOverIndex !== -1) {
         // The element directly to the left of the dragged card provides expansion for it
         if (draggedOverIndex === index - 1 && draggedSource.index === draggedOverIndex) return elementWidth;
@@ -105,9 +121,9 @@ const DraggerContainer = (props: ContainerProps) => {
       }}
       onMouseOver={handleMouseOver}
     >
-      {rowShape.map((b, i) => (
+      {/* {rowShape.map((b, i) => (
         <div style={{ width: 1, height: 150, backgroundColor: "red", position: "absolute", left: b, zIndex: 10 }}>{i}</div>
-      ))}
+      ))} */}
       {Children.map(children, (child: JSX.Element, index) => (
         <div
           // This is the container of dragger plus placeholder.
