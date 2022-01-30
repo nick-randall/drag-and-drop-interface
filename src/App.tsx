@@ -16,7 +16,7 @@ function App() {
     <div>
       <DraggerContainer id={containerOneId} elementWidth={elementWidth}>
         {guestCards.map((card, index) => (
-          <Dragger draggerId={card.id} index={index} containerId = {containerOneId}>
+          <Dragger draggerId={card.id} index={index} containerId = {containerOneId} size={elementWidth}>
             {(draggerRef, dragStyles, handleDragStart) => (
               <img
                 ref={draggerRef}
@@ -34,7 +34,7 @@ function App() {
           </Dragger>
         ))}
       </DraggerContainer>
-      <Dragger draggerId={randomCard.id} index={0} containerId={containerTwoId}>
+      <Dragger draggerId={randomCard.id} index={0} containerId={containerTwoId} size={elementWidth}>
         {(draggerRef, dragStyles, handleDragStart) => (
           <img
             ref={draggerRef}

@@ -7,6 +7,7 @@ interface DraggerProps {
   //ref: Ref<HTMLDivElement>;
   index: number;
   containerId: string;
+  size: number;
   children: (ref: Ref<HTMLImageElement>, dragStyles: CSSProperties, handleDragStart: (event: React.MouseEvent) => void) => JSX.Element;
 }
 
@@ -78,6 +79,8 @@ const Dragger = (props: DraggerProps) => {
         dragged: false,
       }));
       dispatch({ type: "SET_DRAGGED_CARD_ID", payload: "" });
+      dispatch({ type: "SET_DRAGGED_CARD_SOURCE", payload: {index: -1, containerId: ""} });
+
     }
   }, [dragState, dispatch]);
 
@@ -102,13 +105,16 @@ const Dragger = (props: DraggerProps) => {
   const notDraggedStyles: CSSProperties = {
     transform: "",
     pointerEvents: "auto",
+    left: "",
+    position:"relative"
   };
 
   const draggedStyles: CSSProperties = {
     transform: `translate(${dragState.translateX}px, ${dragState.translateY}px)`,
     pointerEvents: "none",
     left: dragState.offsetLeft,
-    position: "absolute"
+    position: "absolute",
+    zIndex: 9
   }
   if(!dragState.dragged)
   return children(draggableRef, notDraggedStyles, handleDragStart);

@@ -45,7 +45,7 @@ const Card = (props: CardProps) => {
   
 
   return (
-    <Dragger draggerId={id} index={index} containerId={props.containerId}>
+    <Dragger draggerId={id} index={index} containerId={props.containerId} size={dimensions.cardWidth}>
       {ref => (
         <div>
           <div ref={ref}>
