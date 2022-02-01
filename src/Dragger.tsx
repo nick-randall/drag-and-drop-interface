@@ -26,17 +26,37 @@ const Dragger = (props: DraggerProps) => {
     translateY: 0,
     offsetX: 0,
     offsetY: 0,
-    offsetLeft:0
+    offsetLeft: 0,
   });
   const dispatch = useDispatch();
 
   const draggableRef: Ref<HTMLImageElement> = useRef(null);
 
+  const getOffset = (a: HTMLElement | null) => {
+    //var a: Element | null = new Element,
+    let b = 0,
+      c = 0;
+    while (a) {
+      if(a){
+        console.log("here");
+        console.log(a.parentElement?.offsetLeft)}
+      b += a.offsetLeft;
+      c += a.offsetTop;
+      a = a.parentElement;
+      
+    }
+    console.log(b, c)
+    return { offsetLeft: b, offsetTop: c };
+  };
+
   const handleDragStart = useCallback(
     ({ clientX, clientY }) => {
       if (draggableRef && draggableRef.current) {
         const { left, top } = draggableRef.current.getBoundingClientRect();
-        const { offsetLeft, offsetTop } = draggableRef.current;
+        const { offsetLeft, offsetTop } = getOffset(draggableRef.current);
+        //const { offsetLeft, offsetTop } = draggableRef.current
+        console.log(left, top)
+
         if (offsetLeft != null && offsetTop != null) {
           setDragState(prevState => ({
             ...prevState,
@@ -45,14 +65,14 @@ const Dragger = (props: DraggerProps) => {
             // offsetting mouse coordinates of mouse pointer.
             // if card is transitioning back to start position,
             // left and top will capture current position of card
-            offsetLeft: offsetLeft,
-            offsetX: offsetLeft + (clientX - left),
-            offsetY: offsetTop + (clientY - top),
-            translateX: left - offsetLeft,
-            translateY: top - offsetTop,
+            offsetLeft: offsetLeft - left - 16,
+            offsetX: left + (clientX - left) ,
+            offsetY: top + (clientY - top),
+            translateX: 0,//left - offsetLeft,
+            translateY: top - offsetTop  + 16,
           }));
           dispatch({ type: "SET_DRAGGED_CARD_ID", payload: draggerId });
-          dispatch({ type: "SET_DRAGGED_CARD_SOURCE", payload: {index: index, containerId: containerId} });
+          dispatch({ type: "SET_DRAGGED_CARD_SOURCE", payload: { index: index, containerId: containerId } });
         }
       } else console.log("error getting html node");
     },
@@ -79,8 +99,7 @@ const Dragger = (props: DraggerProps) => {
         dragged: false,
       }));
       dispatch({ type: "SET_DRAGGED_CARD_ID", payload: "" });
-      dispatch({ type: "SET_DRAGGED_CARD_SOURCE", payload: {index: -1, containerId: ""} });
-
+      dispatch({ type: "SET_DRAGGED_CARD_SOURCE", payload: { index: -1, containerId: "" } });
     }
   }, [dragState, dispatch]);
 
@@ -106,7 +125,7 @@ const Dragger = (props: DraggerProps) => {
     transform: "",
     pointerEvents: "auto",
     left: "",
-    position:"relative"
+    position: "relative",
   };
 
   const draggedStyles: CSSProperties = {
@@ -114,10 +133,9 @@ const Dragger = (props: DraggerProps) => {
     pointerEvents: "none",
     left: dragState.offsetLeft,
     position: "absolute",
-    zIndex: 9
-  }
-  if(!dragState.dragged)
-  return children(draggableRef, notDraggedStyles, handleDragStart);
+    zIndex: 9,
+  };
+  if (!dragState.dragged) return children(draggableRef, notDraggedStyles, handleDragStart);
   else return children(draggableRef, draggedStyles, handleDragStart);
 };
 
