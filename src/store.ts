@@ -9,4 +9,8 @@ const store = createStore(stateReducer);
   export type RootState = ReturnType<typeof store.getState>;
   // // Inferred type: {posts: PostsState, comments: CommentsState, users: UsersState}
 
+  // TodoList.js
+
+
+
 export default store;

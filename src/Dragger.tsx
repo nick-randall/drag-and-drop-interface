@@ -1,7 +1,8 @@
 import React, { CSSProperties, Ref, useCallback, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
+import PropTypes from 'prop-types'
 
-interface DraggerProps {
+export interface DraggerProps {
   draggerId: string;
   // customDroppableId?
   //ref: Ref<HTMLDivElement>;
@@ -54,7 +55,6 @@ const Dragger = (props: DraggerProps) => {
       if (draggableRef && draggableRef.current) {
         const { left, top } = draggableRef.current.getBoundingClientRect();
         const { offsetLeft, offsetTop } = getOffset(draggableRef.current);
-        //const { offsetLeft, offsetTop } = draggableRef.current
         console.log(left, top)
 
         if (offsetLeft != null && offsetTop != null) {
@@ -99,7 +99,7 @@ const Dragger = (props: DraggerProps) => {
         dragged: false,
       }));
       dispatch({ type: "SET_DRAGGED_CARD_ID", payload: "" });
-      dispatch({ type: "SET_DRAGGED_CARD_SOURCE", payload: { index: -1, containerId: "" } });
+      dispatch({ type: "CLEAR_DRAGGED"});
     }
   }, [dragState, dispatch]);
 
@@ -138,5 +138,15 @@ const Dragger = (props: DraggerProps) => {
   if (!dragState.dragged) return children(draggableRef, notDraggedStyles, handleDragStart);
   else return children(draggableRef, draggedStyles, handleDragStart);
 };
+
+// Dragger.propTypes = {
+//   draggerId: PropTypes.string,
+//   // customDroppableId?
+//   //ref: Ref<HTMLDivElement>;
+//   index: PropTypes.number,
+//   containerId: PropTypes.string,
+//   size: PropTypes.number,
+// }
+
 
 export default Dragger;

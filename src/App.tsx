@@ -3,6 +3,14 @@ import createSpecialsAndGuests from "./createGuests";
 import Dragger from "./Dragger";
 import DraggerContainer from "./DraggerContainer";
 import "./App.css";
+import { RootState } from "./store";
+import { connect } from "react-redux";
+
+
+
+//type CombinedAppProps = AppProps & RootState;
+
+
 
 function App() {
   const guestCards: GameCard[] = createSpecialsAndGuests().slice(0, 7);
@@ -11,10 +19,18 @@ function App() {
   console.log(guestCards);
   const containerOneId = "xxxy2"
   const containerTwoId = "xxxy1"
+  
 
 
   return (
     <div>
+      <div style={{left: 200, position:"absolute", top:300}}>
+        {/* {props.draggedCardId} */}
+        {/* source id: {props.draggedState.source?.containerId}<br/>
+        source index: {props.draggedState.source?.index}<br/>
+        destination id:{props.draggedState.destination?.containerId}<br/>
+        destination index:{props.draggedState.destination?.index} */}
+      </div>
       <div style={{left: 200, position:"absolute", top:500}}>
       <DraggerContainer id={containerOneId} elementWidth={elementWidth}>
         {guestCards.map((card, index) => (
@@ -56,5 +72,10 @@ function App() {
     </div>
   );
 }
+function mapStateToProps(state: RootState) {
+  const { draggedState, draggedCardId } = state
+  return { draggedCardId, draggedState }
+}
 
-export default App;
+export default connect(mapStateToProps)(App)
+// export default App;

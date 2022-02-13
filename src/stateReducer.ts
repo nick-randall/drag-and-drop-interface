@@ -3,9 +3,13 @@ interface DragLocation {
   index: number;
 }
 
+export interface DraggedState {
+  source: DragLocation | undefined;
+  destination: DragLocation | undefined
+  }
 interface State {
   draggedCardId: string;
-  draggedState: { source: DragLocation; destination: DragLocation };
+  draggedState: DraggedState
 }
 
 type SetDraggedCardId = {
@@ -26,7 +30,7 @@ type UpdateDragged = {
 
 type Action = SetDraggedCardId | SetdraggedState | UpdateDragged;
 
-export const stateReducer = (state: State = { draggedCardId: "", draggedState: {source: { containerId: "", index: -1 }, destination: { containerId: "", index: -1 } }}, action: Action) => {
+export const stateReducer = (state: State = { draggedCardId: "", draggedState: {source: undefined, destination: undefined}}, action: Action) => {
   switch (action.type) {
     case "SET_DRAGGED_CARD_ID":
       return { ...state, draggedCardId: action.payload };
