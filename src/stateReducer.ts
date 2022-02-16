@@ -17,12 +17,18 @@ type SetDraggedCardId = {
   payload: string;
 };
 
-type SetdraggedState = {
+type SetDraggedSource = {
   type: "SET_DRAGGED_CARD_SOURCE";
   payload: { containerId: string; index: number };
 };
 
-type UpdateDragged = {
+type SetDraggedState = {
+  type: "SET_DRAGGED_STATE";
+  payload: { containerId: string; index: number };
+
+};
+
+type UpdateDraggedDestination = {
   type: "UPDATE_DRAG_DESTINATION";
   // update the destination
   payload: { containerId: string; index: number };
@@ -32,7 +38,7 @@ type CleanUpDraggedState = {
   type: "CLEAN_UP_DRAG_STATE";
 }
 
-type Action = SetDraggedCardId | SetdraggedState | UpdateDragged | CleanUpDraggedState;
+type Action = SetDraggedCardId | SetDraggedSource | SetDraggedState | UpdateDraggedDestination | CleanUpDraggedState;
 
 const initialState = { draggedCardId: "", draggedState: {source: undefined, destination: undefined}}
 
@@ -40,6 +46,9 @@ export const stateReducer = (state: State = initialState, action: Action) => {
   switch (action.type) {
     case "SET_DRAGGED_CARD_ID":
       return { ...state, draggedCardId: action.payload };
+      case "SET_DRAGGED_STATE":{
+        return {...state, draggedState:{ source: action.payload, destination: action.payload}}
+      }
     case "SET_DRAGGED_CARD_SOURCE":
       return { ...state, draggedState: {  ...state.draggedState, source: action.payload }};
       case "UPDATE_DRAG_DESTINATION":

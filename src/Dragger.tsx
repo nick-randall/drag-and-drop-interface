@@ -74,7 +74,7 @@ const Dragger = (props: DraggerProps) => {
             translateY: 0//top - offsetTop,
           }));
           dispatch({ type: "SET_DRAGGED_CARD_ID", payload: draggerId });
-          dispatch({ type: "SET_DRAGGED_CARD_SOURCE", payload: { index: index, containerId: containerId } });
+          dispatch({ type: "SET_DRAGGED_STATE", payload:  { index: index, containerId: containerId } });
         }
       } else console.log("error getting html node");
     },
