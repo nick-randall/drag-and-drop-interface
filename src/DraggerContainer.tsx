@@ -1,13 +1,8 @@
-import React, { Children, Ref, useEffect, useRef } from "react";
-import { useState } from "react";
-import { connect, useDispatch, useSelector } from "react-redux";
-import createSpecialsAndGuests from "./createGuests";
+import React, { Ref, useRef } from "react";
+import { connect, useDispatch } from "react-redux";
 import { RootState } from "./store";
-import { divide, flatten, pipe } from "ramda";
-import { DraggedState } from "./stateReducer";
-import Dragger, { DraggerProps } from "./Dragger";
+import { pipe } from "ramda";
 
-import PropTypes from "prop-types";
 
 const usePrevious = (value: any) => {
   const ref = React.useRef();
@@ -29,8 +24,9 @@ type DraggerContainerProps = {
   elementWidth: number;
   id: string;
 
-  // draggedCardId: string,
-  // draggedOverIndex: number
+  //isRearrangeDisabled
+  //isDropDisabled
+  //isAutoLayoutDisabled --> for the Hand element(then just display the cards as their child wants them to be displayed)
   somethingWhichIsNotRequiredInProps?: any;
 };
 // interface ComponentOwnProps {
@@ -46,6 +42,8 @@ type DraggerContainerProps = {
 type ComponentProps = ComponentReduxProps & DraggerContainerProps;
 
 //props: DraggerContainerProps & typeof mapStateToProps
+
+// 
 const DraggerContainer: React.FC<ComponentProps> = ({ children, elementWidth, id, draggedCardId, draggedOverIndex, originIndex, isRearrange }) => {
   //const { children, elementWidth, id, draggedCardId, draggedOverIndex } = props;
   //const [draggedOverIndex, setDraggedOverIndex] = useState(-1);

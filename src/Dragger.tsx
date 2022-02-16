@@ -101,7 +101,7 @@ const Dragger = (props: DraggerProps) => {
         dragged: false,
       }));
       dispatch({ type: "SET_DRAGGED_CARD_ID", payload: "" });
-      dispatch({ type: "CLEAR_DRAGGED"});
+      dispatch({ type: "CLEAN_UP_DRAG_STATE"});
     }
   }, [dragState, dispatch]);
 
