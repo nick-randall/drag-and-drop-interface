@@ -136,14 +136,18 @@ const DraggerContainer: React.FC<ComponentProps> = ({ children, elementWidth, id
     if (!isRearrange && draggedOverIndex) {
       return draggedOverIndex === index ? elementWidth : 0;
     }
-    if (draggedOverIndex && originIndex) {
+   
+    if (draggedOverIndex !== undefined && originIndex !== undefined) {
+      console.log(originIndex)
+      console.log(draggedOverIndex)
+      // if (originIndex === 0 && draggedOverIndex === index) {console.log("blah"); return elementWidth}
       // The element directly to the left of the dragged card provides expansion for it
       if (draggedOverIndex === index - 1 && draggedOverIndex === originIndex -1 ) return elementWidth;
       // Other elements to the left behave normally
       if (index < originIndex) return draggedOverIndex === index ? elementWidth : 0;
       // Elements to the right of the dragged card expand one card early to compensate for the missing dragged card.
       if (index > originIndex && index === draggedOverIndex + 1) return elementWidth;
-    }
+    }console.log("blah4")
     // index one below dragSource expands to make up for missing dragged card
     return 0;
   };
@@ -170,7 +174,7 @@ const DraggerContainer: React.FC<ComponentProps> = ({ children, elementWidth, id
           // This is the container of dragger plus placeholder.
           style={{
             display: "flex",
-            
+            border:"thin black solid",
             position: child.props.draggerId === draggedCardId ? "absolute" : undefined,
           }}
           draggable="false"

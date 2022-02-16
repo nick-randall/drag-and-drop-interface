@@ -71,7 +71,7 @@ const Dragger = (props: DraggerProps) => {
             offsetX: left + (clientX - left) ,
             offsetY: top + (clientY - top),
             translateX: 0,//left - offsetLeft,
-            translateY: top - offsetTop,
+            translateY: 0//top - offsetTop,
           }));
           dispatch({ type: "SET_DRAGGED_CARD_ID", payload: draggerId });
           dispatch({ type: "SET_DRAGGED_CARD_SOURCE", payload: { index: index, containerId: containerId } });
