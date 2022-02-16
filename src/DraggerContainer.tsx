@@ -7,7 +7,7 @@ import { divide, flatten, pipe } from "ramda";
 import { DraggedState } from "./stateReducer";
 import Dragger, { DraggerProps } from "./Dragger";
 
-import PropTypes from 'prop-types'
+import PropTypes from "prop-types";
 
 const usePrevious = (value: any) => {
   const ref = React.useRef();
@@ -18,23 +18,21 @@ const usePrevious = (value: any) => {
 };
 interface ComponentReduxProps {
   //draggedState: DraggedState;
-  draggedCardId: string
-  draggedOverIndex: number | undefined
+  draggedCardId: string;
+  draggedOverIndex: number | undefined;
   originIndex: number | undefined;
   isRearrange: boolean | undefined;
-
 }
 type DraggerContainerProps = {
   // children: React.FC<DraggerProps>[];
-  children: JSX.Element[]
+  children: JSX.Element[];
   elementWidth: number;
   id: string;
-  
-  // draggedCardId: string, 
+
+  // draggedCardId: string,
   // draggedOverIndex: number
   somethingWhichIsNotRequiredInProps?: any;
-
-}
+};
 // interface ComponentOwnProps {
 //   children: JSX.Element[];
 //   elementWidth: number;
@@ -48,7 +46,7 @@ type DraggerContainerProps = {
 type ComponentProps = ComponentReduxProps & DraggerContainerProps;
 
 //props: DraggerContainerProps & typeof mapStateToProps
-const DraggerContainer : React.FC<ComponentProps> = ({ children, elementWidth, id, draggedCardId, draggedOverIndex, originIndex, isRearrange }) => {
+const DraggerContainer: React.FC<ComponentProps> = ({ children, elementWidth, id, draggedCardId, draggedOverIndex, originIndex, isRearrange }) => {
   //const { children, elementWidth, id, draggedCardId, draggedOverIndex } = props;
   //const [draggedOverIndex, setDraggedOverIndex] = useState(-1);
   const dispatch = useDispatch();
@@ -79,7 +77,6 @@ const DraggerContainer : React.FC<ComponentProps> = ({ children, elementWidth, i
   const getRowShapeWithUpperLowerBounds = (indexArray: number[]): number[][] => indexArray.map(e => (e > 0 ? [e - 35, e + 15] : [0, 25]));
 
   const getCardRowShapeOnRearrange = (indexArray: number[], sourceIndex: number) => curriedGetCardRowShape(sourceIndex)(indexArray);
-
 
   const isInBounds = (breakPointsPair: number[], touchedX: number): boolean => {
     const lowerBound = breakPointsPair[0];
@@ -112,10 +109,10 @@ const DraggerContainer : React.FC<ComponentProps> = ({ children, elementWidth, i
     if (!dragged) return;
     const containerElement = containerRef.current;
     if (containerElement) {
-      const { left: boundingBoxLeft} = containerElement.getBoundingClientRect();
+      const { left: boundingBoxLeft } = containerElement.getBoundingClientRect();
       if (isRearrange) {
-        const childrenSizes = children.map(child => child.props.size ?? 0)
-        
+        const childrenSizes = children.map(child => child.props.size ?? 0);
+
         const rowShape = getCardRowShape2(childrenSizes);
         const rowShapeWithUpperLowerBounds = getRowShapeWithUpperLowerBounds(
           rowShape
@@ -143,9 +140,9 @@ const DraggerContainer : React.FC<ComponentProps> = ({ children, elementWidth, i
         // if(draggedState.containerId === id && draggedState.index < newDraggedOverIndex) newDraggedOverIndex --
         //if (draggedState.containerId === id && draggedState.index === newDraggedOverIndex) newDraggedOverIndex --
 
-        if (draggedOverIndex !== newDraggedOverIndex)  //setDraggedOverIndex(newDraggedOverIndex);
-        dispatch({ type: "UPDATE_DRAG_DESTINATION", payload: { index: newDraggedOverIndex, containerId: id } });
-
+        if (draggedOverIndex !== newDraggedOverIndex)
+          //setDraggedOverIndex(newDraggedOverIndex);
+          dispatch({ type: "UPDATE_DRAG_DESTINATION", payload: { index: newDraggedOverIndex, containerId: id } });
       }
     }
   };
@@ -166,22 +163,19 @@ const DraggerContainer : React.FC<ComponentProps> = ({ children, elementWidth, i
   //console.log(prevdraggedState.current.source.containerId, " prevdraggedState container id");
 
   const figureOutWhetherToExpand = (index: number) => {
-    if (!isRearrange) {
-      //if (draggedOverIndex !== -1) {
-        if(draggedOverIndex) {
-        return draggedOverIndex === index ? elementWidth : 0;
-      }
-    } else if (isRearrange && draggedOverIndex) {
+    if (!isRearrange && draggedOverIndex) {
+      return draggedOverIndex === index ? elementWidth : 0;
+    }
+    if (draggedOverIndex && originIndex) {
       //if(initialTransitionSuppressed)
-     // if (draggedOverIndex !== -1 && draggedState.source) {
+      // if (draggedOverIndex !== -1 && draggedState.source) {
 
-        // The element directly to the left of the dragged card provides expansion for it
-        if (draggedOverIndex === index - 1) return elementWidth;
-        // Other elements to the left behave normally
-        if (originIndex && index < originIndex) return draggedOverIndex === index ? elementWidth : 0;
-        // Elements to the right of the dragged card expand one card early to compensate for the missing dragged card.
-        if (originIndex && index > originIndex && index === draggedOverIndex + 1) return elementWidth;
-      
+      // The element directly to the left of the dragged card provides expansion for it
+      if (draggedOverIndex === index - 1) return elementWidth;
+      // Other elements to the left behave normally
+      if (index < originIndex) return draggedOverIndex === index ? elementWidth : 0;
+      // Elements to the right of the dragged card expand one card early to compensate for the missing dragged card.
+      if (index > originIndex && index === draggedOverIndex + 1) return elementWidth;
     }
     // index one below dragSource expands to make up for missing dragged card
     return 0;
@@ -222,9 +216,9 @@ const DraggerContainer : React.FC<ComponentProps> = ({ children, elementWidth, i
               // This code fixes jumpiness for cards to the right of source card
               // transition: draggedOverIndex === index - 1 && draggedState.index === draggedOverIndex ? "" : "140ms ease",
               //(prevdraggedState.current.source.containerId === "" && isRearrange) ? "" :
-              transition: //isRearrangeStart && index === draggedState.source.index  ?  "" :
-              
-              "140ms ease",
+              //isRearrangeStart && index === draggedState.source.index  ?  "" :
+
+              transition: "140ms ease",
               //(prevdraggedState.current.source.containerId === "" && isRearrange) ? "" :
               //transitionDelay: "60ms",
               //   backgroundColor:
@@ -245,20 +239,17 @@ const DraggerContainer : React.FC<ComponentProps> = ({ children, elementWidth, i
 
 // export default DraggerContainer;
 
-const  mapStateToProps = (state: RootState, ownProps: DraggerContainerProps)  => {
-  const { draggedState, draggedCardId } = state
-  const draggedOverIndex = draggedState.destination ? draggedState.destination.index : undefined
-  const originIndex = draggedState.source ? draggedState.source.index : undefined
+const mapStateToProps = (state: RootState, ownProps: DraggerContainerProps) => {
+  const { draggedState, draggedCardId } = state;
+  const draggedOverIndex = draggedState.destination ? draggedState.destination.index : undefined;
+  const originIndex = draggedState.source ? draggedState.source.index : undefined;
   const isRearrange = draggedState.source && draggedState.source.containerId === ownProps.id;
-  return {  draggedOverIndex, draggedCardId, originIndex, isRearrange }
-}
-
-
-
+  return { draggedOverIndex, draggedCardId, originIndex, isRearrange };
+};
 
 // class Component extends React.Component<ComponentProps, {}> {...}
 
-// function mapStateToProps(state, props) { 
+// function mapStateToProps(state, props) {
 //     return { somethingFromState };
 // }
 
@@ -267,11 +258,10 @@ const  mapStateToProps = (state: RootState, ownProps: DraggerContainerProps)  =>
 //     mapDispatchToProps
 // )(Component);
 
-
 // ReturnType<typeof mapStateToProps>,
 //   typeof dispatchProps, // use "undefined" if NOT using dispatchProps
 //   Diff<BaseProps, InjectedProps>,
 //   RootState
 
 // export default connect<ReturnType<typeof mapStateToProps>, undefined>(mapStateToProps)(DraggerContainer)
-export default connect(mapStateToProps)(DraggerContainer)
+export default connect(mapStateToProps)(DraggerContainer);

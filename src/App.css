@@ -1,4 +1,11 @@
 body {
-  margin:0px;
-
+  margin: 0px;
+}
+div {
+  margin: 0px;
+  user-select: none;
+  -moz-user-select: none;
+  -webkit-user-drag: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
 }

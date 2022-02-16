@@ -66,7 +66,7 @@ const Dragger = (props: DraggerProps) => {
             // if card is transitioning back to start position,
             // left and top will capture current position of card
 
-            // but if body has a margin this will not work correctly!
+            // Boddy should be set to margin: 0px
             offsetLeft: offsetLeft - left,
             offsetX: left + (clientX - left) ,
             offsetY: top + (clientY - top),
