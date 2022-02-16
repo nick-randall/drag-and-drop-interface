@@ -23,41 +23,13 @@ type DraggerContainerProps = {
   children: JSX.Element[];
   elementWidth: number;
   id: string;
-
-  //isRearrangeDisabled
-  //isDropDisabled
-  //isAutoLayoutDisabled --> for the Hand element(then just display the cards as their child wants them to be displayed)
-  somethingWhichIsNotRequiredInProps?: any;
 };
-// interface ComponentOwnProps {
-//   children: JSX.Element[];
-//   elementWidth: number;
-//   id: string;
-//   // somethingWhichIsRequiredInProps: any;
-//   somethingWhichIsNotRequiredInProps?: any;
-// }
-
-// not necessary to combine them into another type, but it cleans up the next line
-// type ComponentProps = ComponentReduxProps & ComponentDispatchProps & ComponentOwnProps;
 type ComponentProps = ComponentReduxProps & DraggerContainerProps;
 
-//props: DraggerContainerProps & typeof mapStateToProps
-
-// 
 const DraggerContainer: React.FC<ComponentProps> = ({ children, elementWidth, id, draggedCardId, draggedOverIndex, originIndex, isRearrange }) => {
-  //const { children, elementWidth, id, draggedCardId, draggedOverIndex } = props;
-  //const [draggedOverIndex, setDraggedOverIndex] = useState(-1);
   const dispatch = useDispatch();
   const containerRef: Ref<HTMLDivElement> = useRef(null);
-  //const draggedCardId = useSelector((state: RootState) => state).draggedCardId;
   const dragged = draggedCardId !== "";
-  //const draggedState = useSelector((state: RootState) => state.draggedState);
-
-  //const draggedOverIndex = draggedState.destination ? draggedState.destination.index : undefined
-  //const originIndex = draggedState.source ? draggedState.source.index : undefined
-  //const prevdraggedState = useRef(draggedState);
-
-  //const isRearrange = draggedState.source && draggedState.source.containerId === id;
 
   const removeSourceIndex = (sourceIndex: number) => (array: any[]) => array.filter((_, index) => index !== sourceIndex);
 
@@ -165,11 +137,8 @@ const DraggerContainer: React.FC<ComponentProps> = ({ children, elementWidth, id
       return draggedOverIndex === index ? elementWidth : 0;
     }
     if (draggedOverIndex && originIndex) {
-      //if(initialTransitionSuppressed)
-      // if (draggedOverIndex !== -1 && draggedState.source) {
-
       // The element directly to the left of the dragged card provides expansion for it
-      if (draggedOverIndex === index - 1) return elementWidth;
+      if (draggedOverIndex === index - 1 && draggedOverIndex === originIndex -1 ) return elementWidth;
       // Other elements to the left behave normally
       if (index < originIndex) return draggedOverIndex === index ? elementWidth : 0;
       // Elements to the right of the dragged card expand one card early to compensate for the missing dragged card.
@@ -201,6 +170,7 @@ const DraggerContainer: React.FC<ComponentProps> = ({ children, elementWidth, id
           // This is the container of dragger plus placeholder.
           style={{
             display: "flex",
+            
             position: child.props.draggerId === draggedCardId ? "absolute" : undefined,
           }}
           draggable="false"
@@ -215,7 +185,6 @@ const DraggerContainer: React.FC<ComponentProps> = ({ children, elementWidth, id
               // transition: draggedOverIndex === index - 1 && draggedState.index === draggedOverIndex ? "" : "140ms ease",
               //(prevdraggedState.current.source.containerId === "" && isRearrange) ? "" :
               //isRearrangeStart && index === draggedState.source.index  ?  "" :
-
               transition: "140ms ease",
               //(prevdraggedState.current.source.containerId === "" && isRearrange) ? "" :
               //transitionDelay: "60ms",
