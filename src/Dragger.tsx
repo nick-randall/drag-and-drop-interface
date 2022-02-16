@@ -65,11 +65,13 @@ const Dragger = (props: DraggerProps) => {
             // offsetting mouse coordinates of mouse pointer.
             // if card is transitioning back to start position,
             // left and top will capture current position of card
-            offsetLeft: offsetLeft - left - 16,
+
+            // but if body has a margin this will not work correctly!
+            offsetLeft: offsetLeft - left,
             offsetX: left + (clientX - left) ,
             offsetY: top + (clientY - top),
             translateX: 0,//left - offsetLeft,
-            translateY: top - offsetTop  + 16,
+            translateY: top - offsetTop,
           }));
           dispatch({ type: "SET_DRAGGED_CARD_ID", payload: draggerId });
           dispatch({ type: "SET_DRAGGED_CARD_SOURCE", payload: { index: index, containerId: containerId } });
@@ -139,14 +141,6 @@ const Dragger = (props: DraggerProps) => {
   else return children(draggableRef, draggedStyles, handleDragStart);
 };
 
-// Dragger.propTypes = {
-//   draggerId: PropTypes.string,
-//   // customDroppableId?
-//   //ref: Ref<HTMLDivElement>;
-//   index: PropTypes.number,
-//   containerId: PropTypes.string,
-//   size: PropTypes.number,
-// }
 
 
 export default Dragger;
