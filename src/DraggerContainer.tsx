@@ -11,8 +11,7 @@ const usePrevious = (value: any) => {
   return ref.current;
 };
 interface ComponentReduxProps {
-  //draggedState: DraggedState;
-  draggedCardId: string;
+  draggedCardId: string | undefined;
   draggedOverIndex: number | undefined;
   originIndex: number | undefined;
   isRearrange: boolean | undefined;
@@ -23,6 +22,8 @@ type DraggerContainerProps = {
   children: JSX.Element[];
   elementWidth: number;
   id: string;
+  // isLayoutDisabled: boolean
+  // isDropDisabled: boolean
 };
 type ComponentProps = ComponentReduxProps & DraggerContainerProps;
 
@@ -38,24 +39,13 @@ const DraggerContainer: React.FC<ComponentProps> = ({
 }) => {
   const dispatch = useDispatch();
   const containerRef: Ref<HTMLDivElement> = useRef(null);
-  const dragged = draggedCardId !== "";
-
-  const removeSourceIndex = (sourceIndex: number) => (array: any[]) => array.filter((_, index) => index !== sourceIndex);
+  const dragged = draggedCardId !== undefined;
 
   const cumulativeSum = (sum: number) => (value: number) => (sum += value);
 
   const getCumulativeSum = (indexArray: number[]) => indexArray.map(cumulativeSum(0));
 
   const addZeroAtFirstIndex = (indexArray: number[]) => [0].concat(indexArray);
-
-  const curriedGetCardRowShape = (sourceIndex: number) => (indexArray: number[]) =>
-    pipe(removeSourceIndex(sourceIndex), addZeroAtFirstIndex, getCumulativeSum)(indexArray);
-
-  const getCardRowShape = (indexArray: number[]) => getCumulativeSum(indexArray);
-
-  const getRowShapeWithUpperLowerBounds = (indexArray: number[]): number[][] => indexArray.map(e => (e > 0 ? [e - 35, e + 15] : [0, 25]));
-
-  const getCardRowShapeOnRearrange = (indexArray: number[], sourceIndex: number) => curriedGetCardRowShape(sourceIndex)(indexArray);
 
   const isInBounds = (breakPointsPair: number[], touchedX: number): boolean => {
     const lowerBound = breakPointsPair[0];
@@ -84,32 +74,26 @@ const DraggerContainer: React.FC<ComponentProps> = ({
     return -1;
   };
 
-  const handleMouseOver = ({ clientX }: { clientX: number }) => {
+  const handleMouseMove = ({ clientX }: { clientX: number }) => {
     if (!dragged) return;
+
     const containerElement = containerRef.current;
     if (containerElement) {
       const { left: boundingBoxLeft } = containerElement.getBoundingClientRect();
-      // if (isRearrange || !isRearrange) {
+      const touchedX = clientX - boundingBoxLeft;
+
       const childrenSizes = children.map(child => child.props.size ?? 0);
       let rowShape = getCumulativeSum(childrenSizes);
 
-      // handling non-rearrange case:
+      // Handle non-rearrange case:
       if (!isRearrange) {
         rowShape = addZeroAtFirstIndex(rowShape);
         rowShape = rowShape.map(ele => (ele += elementWidth / 2));
       }
-      const leftBreakPoint = 0.35 * elementWidth;
-      const rightBreakPoint = 0.15 * elementWidth;
+      const leftBreakPointFactor = 0.35 * elementWidth;
+      const rightBreakPointFactor = 0.15 * elementWidth;
       const initialRightBreakPoint = 0.25 * elementWidth;
-      const rowShapeWithUpperLowerBounds: number[][] =  rowShape.map(e => (e > 0 ? [e - leftBreakPoint, e + rightBreakPoint] : [0, initialRightBreakPoint]));
-
-      // const rowShapeWithUpperLowerBounds = getRowShapeWithUpperLowerBounds(
-      //   rowShape
-      //   //draggedState.index
-      // );
-      console.log(rowShapeWithUpperLowerBounds);
-
-      const touchedX = clientX - boundingBoxLeft;
+      const rowShapeWithUpperLowerBounds: number[][] =  rowShape.map(e => (e > 0 ? [e - leftBreakPointFactor, e + rightBreakPointFactor] : [0, initialRightBreakPoint]));
 
       const newDraggedOverIndex = findNewDraggedOverIndex(rowShapeWithUpperLowerBounds, touchedX);
 
@@ -160,8 +144,6 @@ const DraggerContainer: React.FC<ComponentProps> = ({
 
   const figureOutWhetherToExpand = (index: number) => {
     if (!isRearrange && draggedOverIndex !== undefined) {
-      // index 0 is handled as a special case
-      //  if (draggedOverIndex === 0) return 0;
       return draggedOverIndex === index ? elementWidth : 0;
     }
 
@@ -183,12 +165,12 @@ const DraggerContainer: React.FC<ComponentProps> = ({
 
   return (
     <div
-      // this is the container of all draggers
+      // This is the container of all draggers
       ref={containerRef}
       style={{
         display: "flex",
       }}
-      onMouseMove={handleMouseOver}
+      onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
     >
       {/* {rowShape.map((b, i) => (
@@ -197,9 +179,6 @@ const DraggerContainer: React.FC<ComponentProps> = ({
           <div style={{ width: 1, height: 150, backgroundColor: "blue", position: "absolute", left: b[1], zIndex: 10 }}>{b[i]}</div>
         </div>
       ))} */}
-
-      {/*speical index 0 case*/}
-      {/* <div style={{ transition: "140ms ease", width: !isRearrange && draggedOverIndex === 0 ? elementWidth : 0 }}></div> */}
       {children.map((child, index) => (
         <div
           // This is the container of dragger plus placeholder.
