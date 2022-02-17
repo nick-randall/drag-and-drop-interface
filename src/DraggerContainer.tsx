@@ -3,7 +3,6 @@ import { connect, useDispatch } from "react-redux";
 import { RootState } from "./store";
 import { pipe } from "ramda";
 
-
 const usePrevious = (value: any) => {
   const ref = React.useRef();
   React.useEffect(() => {
@@ -27,7 +26,16 @@ type DraggerContainerProps = {
 };
 type ComponentProps = ComponentReduxProps & DraggerContainerProps;
 
-const DraggerContainer: React.FC<ComponentProps> = ({ children, elementWidth, id, draggedCardId, draggedOverIndex, originIndex, isRearrange }) => {
+const DraggerContainer: React.FC<ComponentProps> = ({
+  children,
+  elementWidth,
+  id,
+  draggedCardId,
+  draggedOverIndex,
+  originIndex,
+  isRearrange,
+  isDraggingOver,
+}) => {
   const dispatch = useDispatch();
   const containerRef: Ref<HTMLDivElement> = useRef(null);
   const dragged = draggedCardId !== "";
@@ -118,6 +126,12 @@ const DraggerContainer: React.FC<ComponentProps> = ({ children, elementWidth, id
     }
   };
 
+  const handleMouseLeave = () => {
+    if (isDraggingOver) {
+      dispatch({ type: "UPDATE_DRAG_DESTINATION", payload: undefined });
+    }
+  };
+
   //const isRearrangeStart = prevdraggedState.current.source && prevdraggedState.current.source.containerId === "" && isRearrange;
 
   // useEffect(() => {
@@ -134,16 +148,17 @@ const DraggerContainer: React.FC<ComponentProps> = ({ children, elementWidth, id
   //console.log(prevdraggedState.current.source.containerId, " prevdraggedState container id");
 
   const figureOutWhetherToExpand = (index: number) => {
-    if (!isRearrange && draggedOverIndex) {
+    if (!isRearrange && draggedOverIndex !== undefined) {
+      // index 0 is handled as a special case
+      if (draggedOverIndex === 0) return 0;
       return draggedOverIndex === index ? elementWidth : 0;
     }
-   
+
     if (draggedOverIndex !== undefined && originIndex !== undefined) {
-      console.log(originIndex)
-      console.log(draggedOverIndex)
       // if (originIndex === 0 && draggedOverIndex === index) {console.log("blah"); return elementWidth}
+
       // The element directly to the left of the dragged card provides expansion for it
-      if (draggedOverIndex === index - 1 && draggedOverIndex === originIndex -1 ) return elementWidth;
+      if (draggedOverIndex === index - 1 && draggedOverIndex === originIndex - 1) return elementWidth;
       // Other elements to the left behave normally
       if (index < originIndex) return draggedOverIndex === index ? elementWidth : 0;
       // Elements to the right of the dragged card expand one card early to compensate for the missing dragged card.
@@ -163,6 +178,7 @@ const DraggerContainer: React.FC<ComponentProps> = ({ children, elementWidth, id
         display: "flex",
       }}
       onMouseMove={handleMouseOver}
+      onMouseLeave={handleMouseLeave}
     >
       {/* {rowShape.map((b, i) => (
         <div>
@@ -170,12 +186,15 @@ const DraggerContainer: React.FC<ComponentProps> = ({ children, elementWidth, id
           <div style={{ width: 1, height: 150, backgroundColor: "blue", position: "absolute", left: b[1], zIndex: 10 }}>{b[i]}</div>
         </div>
       ))} */}
+
+      {/*speical index 0 case*/}
+      <div style={{ transition: "140ms ease", width: !isRearrange && draggedOverIndex === 0 ? elementWidth : 0 }}></div>
       {children.map((child, index) => (
         <div
           // This is the container of dragger plus placeholder.
           style={{
             display: "flex",
-            border:"thin black solid",
+
             position: child.props.draggerId === draggedCardId ? "absolute" : undefined,
           }}
           draggable="false"
@@ -213,14 +232,17 @@ const DraggerContainer: React.FC<ComponentProps> = ({ children, elementWidth, id
 
 const mapStateToProps = (state: RootState, ownProps: DraggerContainerProps) => {
   const { draggedState, draggedCardId } = state;
-  let draggedOverIndex, originIndex, isRearrange, isDraggingOver = undefined;
-  if(draggedState.source){
-    originIndex = draggedState.source.index
+  let draggedOverIndex,
+    originIndex,
+    isRearrange,
+    isDraggingOver = undefined;
+  if (draggedState.source) {
+    originIndex = draggedState.source.index;
     isRearrange = draggedState.source.containerId === ownProps.id;
   }
-  if(draggedState.destination){
-    isDraggingOver = draggedState.destination.containerId === ownProps.id
-    draggedOverIndex = isDraggingOver ? draggedState.destination.index : undefined
+  if (draggedState.destination) {
+    isDraggingOver = draggedState.destination.containerId === ownProps.id;
+    draggedOverIndex = isDraggingOver ? draggedState.destination.index : undefined;
   }
   return { draggedOverIndex, draggedCardId, originIndex, isRearrange, isDraggingOver };
 };
