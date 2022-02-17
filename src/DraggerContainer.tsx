@@ -17,6 +17,7 @@ interface ComponentReduxProps {
   draggedOverIndex: number | undefined;
   originIndex: number | undefined;
   isRearrange: boolean | undefined;
+  isDraggingOver: boolean | undefined;
 }
 type DraggerContainerProps = {
   // children: React.FC<DraggerProps>[];
@@ -212,9 +213,15 @@ const DraggerContainer: React.FC<ComponentProps> = ({ children, elementWidth, id
 
 const mapStateToProps = (state: RootState, ownProps: DraggerContainerProps) => {
   const { draggedState, draggedCardId } = state;
-  const draggedOverIndex = draggedState.destination && draggedState.destination.containerId === ownProps.id ? draggedState.destination.index : undefined;
-  const originIndex = draggedState.source ? draggedState.source.index : undefined;
-  const isRearrange = draggedState.source && draggedState.source.containerId === ownProps.id;
-  return { draggedOverIndex, draggedCardId, originIndex, isRearrange };
+  let draggedOverIndex, originIndex, isRearrange, isDraggingOver = undefined;
+  if(draggedState.source){
+    originIndex = draggedState.source.index
+    isRearrange = draggedState.source.containerId === ownProps.id;
+  }
+  if(draggedState.destination){
+    isDraggingOver = draggedState.destination.containerId === ownProps.id
+    draggedOverIndex = isDraggingOver ? draggedState.destination.index : undefined
+  }
+  return { draggedOverIndex, draggedCardId, originIndex, isRearrange, isDraggingOver };
 };
 export default connect(mapStateToProps)(DraggerContainer);
