@@ -51,7 +51,7 @@ const DraggerContainer: React.FC<ComponentProps> = ({
   const curriedGetCardRowShape = (sourceIndex: number) => (indexArray: number[]) =>
     pipe(removeSourceIndex(sourceIndex), addZeroAtFirstIndex, getCumulativeSum)(indexArray);
 
-  const getCardRowShape2 = (indexArray: number[]) => pipe(getCumulativeSum)(indexArray);
+  const getCardRowShape = (indexArray: number[]) => getCumulativeSum(indexArray);
 
   const getRowShapeWithUpperLowerBounds = (indexArray: number[]): number[][] => indexArray.map(e => (e > 0 ? [e - 35, e + 15] : [0, 25]));
 
@@ -89,41 +89,52 @@ const DraggerContainer: React.FC<ComponentProps> = ({
     const containerElement = containerRef.current;
     if (containerElement) {
       const { left: boundingBoxLeft } = containerElement.getBoundingClientRect();
-      if (isRearrange) {
-        const childrenSizes = children.map(child => child.props.size ?? 0);
+      // if (isRearrange || !isRearrange) {
+      const childrenSizes = children.map(child => child.props.size ?? 0);
+      let rowShape = getCumulativeSum(childrenSizes);
 
-        const rowShape = getCardRowShape2(childrenSizes);
-        const rowShapeWithUpperLowerBounds = getRowShapeWithUpperLowerBounds(
-          rowShape
-          //draggedState.index
-        );
+      // handling non-rearrange case:
+      if (!isRearrange) {
+        rowShape = addZeroAtFirstIndex(rowShape);
+        rowShape = rowShape.map(ele => (ele += elementWidth / 2));
+      }
+      const leftBreakPoint = 0.35 * elementWidth;
+      const rightBreakPoint = 0.15 * elementWidth;
+      const initialRightBreakPoint = 0.25 * elementWidth;
+      const rowShapeWithUpperLowerBounds: number[][] =  rowShape.map(e => (e > 0 ? [e - leftBreakPoint, e + rightBreakPoint] : [0, initialRightBreakPoint]));
 
-        const touchedX = clientX - boundingBoxLeft;
+      // const rowShapeWithUpperLowerBounds = getRowShapeWithUpperLowerBounds(
+      //   rowShape
+      //   //draggedState.index
+      // );
+      console.log(rowShapeWithUpperLowerBounds);
 
-        const newDraggedOverIndex = findNewDraggedOverIndex(rowShapeWithUpperLowerBounds, touchedX);
+      const touchedX = clientX - boundingBoxLeft;
 
-        if (draggedOverIndex !== newDraggedOverIndex && newDraggedOverIndex !== -1) {
-          // setDraggedOverIndex(newDraggedOverIndex);
-          dispatch({ type: "UPDATE_DRAG_DESTINATION", payload: { index: newDraggedOverIndex, containerId: id } });
-        }
-      } else {
-        const centerOfCard = elementWidth / 2;
-        // If rearranging and element is to the right of sourceElement, compensate for missing element
-        //const toRightOfdraggedStateOffset = isRearrange && draggedOverIndex > draggedState.index ? elementWidth : 0;
-        const touchedX = clientX - boundingBoxLeft - centerOfCard; //+ toRightOfdraggedStateOffset;
+      const newDraggedOverIndex = findNewDraggedOverIndex(rowShapeWithUpperLowerBounds, touchedX);
 
-        // could use totalWidth instead to not calculate based on query but rather on num elements * elementWidth
-        let newDraggedOverIndex = Math.floor(touchedX / elementWidth);
-        // if rearranging, remove sourcde index
-        // if (draggedState.containerId === id && draggedState.index >= newDraggedOverIndex) newDraggedOverIndex--
-        // if(draggedState.containerId === id && draggedState.index < newDraggedOverIndex) newDraggedOverIndex --
-        //if (draggedState.containerId === id && draggedState.index === newDraggedOverIndex) newDraggedOverIndex --
-
-        if (draggedOverIndex !== newDraggedOverIndex)
-          //setDraggedOverIndex(newDraggedOverIndex);
-          dispatch({ type: "UPDATE_DRAG_DESTINATION", payload: { index: newDraggedOverIndex, containerId: id } });
+      if (draggedOverIndex !== newDraggedOverIndex && newDraggedOverIndex !== -1) {
+        dispatch({ type: "UPDATE_DRAG_DESTINATION", payload: { index: newDraggedOverIndex, containerId: id } });
       }
     }
+    //    else {
+    //     const centerOfCard = elementWidth / 2;
+    //     // If rearranging and element is to the right of sourceElement, compensate for missing element
+    //     //const toRightOfdraggedStateOffset = isRearrange && draggedOverIndex > draggedState.index ? elementWidth : 0;
+    //     const touchedX = clientX - boundingBoxLeft - centerOfCard; //+ toRightOfdraggedStateOffset;
+
+    //     // could use totalWidth instead to not calculate based on query but rather on num elements * elementWidth
+    //     let newDraggedOverIndex = Math.floor(touchedX / elementWidth);
+    //     // if rearranging, remove sourcde index
+    //     // if (draggedState.containerId === id && draggedState.index >= newDraggedOverIndex) newDraggedOverIndex--
+    //     // if(draggedState.containerId === id && draggedState.index < newDraggedOverIndex) newDraggedOverIndex --
+    //     //if (draggedState.containerId === id && draggedState.index === newDraggedOverIndex) newDraggedOverIndex --
+
+    //     if (draggedOverIndex !== newDraggedOverIndex)
+    //       //setDraggedOverIndex(newDraggedOverIndex);
+    //       dispatch({ type: "UPDATE_DRAG_DESTINATION", payload: { index: newDraggedOverIndex, containerId: id } });
+    //   }
+    // }
   };
 
   const handleMouseLeave = () => {
@@ -150,7 +161,7 @@ const DraggerContainer: React.FC<ComponentProps> = ({
   const figureOutWhetherToExpand = (index: number) => {
     if (!isRearrange && draggedOverIndex !== undefined) {
       // index 0 is handled as a special case
-      if (draggedOverIndex === 0) return 0;
+      //  if (draggedOverIndex === 0) return 0;
       return draggedOverIndex === index ? elementWidth : 0;
     }
 
@@ -188,7 +199,7 @@ const DraggerContainer: React.FC<ComponentProps> = ({
       ))} */}
 
       {/*speical index 0 case*/}
-      <div style={{ transition: "140ms ease", width: !isRearrange && draggedOverIndex === 0 ? elementWidth : 0 }}></div>
+      {/* <div style={{ transition: "140ms ease", width: !isRearrange && draggedOverIndex === 0 ? elementWidth : 0 }}></div> */}
       {children.map((child, index) => (
         <div
           // This is the container of dragger plus placeholder.
