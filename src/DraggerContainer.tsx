@@ -147,7 +147,7 @@ const DraggerContainer: React.FC<ComponentProps> = ({ children, elementWidth, id
       if (index < originIndex) return draggedOverIndex === index ? elementWidth : 0;
       // Elements to the right of the dragged card expand one card early to compensate for the missing dragged card.
       if (index > originIndex && index === draggedOverIndex + 1) return elementWidth;
-    }console.log("blah4")
+    }
     // index one below dragSource expands to make up for missing dragged card
     return 0;
   };
@@ -212,27 +212,9 @@ const DraggerContainer: React.FC<ComponentProps> = ({ children, elementWidth, id
 
 const mapStateToProps = (state: RootState, ownProps: DraggerContainerProps) => {
   const { draggedState, draggedCardId } = state;
-  const draggedOverIndex = draggedState.destination ? draggedState.destination.index : undefined;
+  const draggedOverIndex = draggedState.destination && draggedState.destination.containerId === ownProps.id ? draggedState.destination.index : undefined;
   const originIndex = draggedState.source ? draggedState.source.index : undefined;
   const isRearrange = draggedState.source && draggedState.source.containerId === ownProps.id;
   return { draggedOverIndex, draggedCardId, originIndex, isRearrange };
 };
-
-// class Component extends React.Component<ComponentProps, {}> {...}
-
-// function mapStateToProps(state, props) {
-//     return { somethingFromState };
-// }
-
-// export default connect<ComponentStateProps, ComponentDispatchProps, ComponentOwnProps>(
-//     mapStateToProps,
-//     mapDispatchToProps
-// )(Component);
-
-// ReturnType<typeof mapStateToProps>,
-//   typeof dispatchProps, // use "undefined" if NOT using dispatchProps
-//   Diff<BaseProps, InjectedProps>,
-//   RootState
-
-// export default connect<ReturnType<typeof mapStateToProps>, undefined>(mapStateToProps)(DraggerContainer)
 export default connect(mapStateToProps)(DraggerContainer);

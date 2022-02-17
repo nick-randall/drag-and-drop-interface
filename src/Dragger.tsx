@@ -1,4 +1,4 @@
-import React, { CSSProperties, Ref, useCallback, useRef, useState } from "react";
+import React, { CSSProperties, Ref, useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import PropTypes from 'prop-types'
 
@@ -29,6 +29,13 @@ const Dragger = (props: DraggerProps) => {
     offsetY: 0,
     offsetLeft: 0,
   });
+
+  const [isReturning, setIsReturning] = useState(false);
+
+  useEffect(() => {
+    setIsReturning(false);
+  }, [setIsReturning, index])
+
   const dispatch = useDispatch();
 
   const draggableRef: Ref<HTMLImageElement> = useRef(null);
@@ -102,6 +109,7 @@ const Dragger = (props: DraggerProps) => {
       }));
       dispatch({ type: "SET_DRAGGED_CARD_ID", payload: "" });
       dispatch({ type: "CLEAN_UP_DRAG_STATE"});
+      setIsReturning(true);
     }
   }, [dragState, dispatch]);
 
@@ -116,18 +124,13 @@ const Dragger = (props: DraggerProps) => {
     };
   }, [handleDrag, handleDragEnd]);
 
-  const dragStyles: CSSProperties = {
-    transform: dragState.dragged ? `translate(${dragState.translateX}px, ${dragState.translateY}px)` : "",
-    pointerEvents: dragState.dragged ? "none" : "auto",
-    //position:"absolute"
-    // draggable : "false"
-  };
-
   const notDraggedStyles: CSSProperties = {
     transform: "",
     pointerEvents: "auto",
     left: "",
     position: "relative",
+    zIndex: isReturning? 9 : "",
+    transition: isReturning? "280ms" : ""
   };
 
   const draggedStyles: CSSProperties = {
@@ -135,7 +138,8 @@ const Dragger = (props: DraggerProps) => {
     pointerEvents: "none",
     left: dragState.offsetLeft,
     position: "absolute",
-    zIndex: 9,
+    zIndex: 10,
+    transition: ""
   };
   if (!dragState.dragged) return children(draggableRef, notDraggedStyles, handleDragStart);
   else return children(draggableRef, draggedStyles, handleDragStart);
