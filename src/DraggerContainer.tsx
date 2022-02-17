@@ -11,11 +11,11 @@ const usePrevious = (value: any) => {
   return ref.current;
 };
 interface ComponentReduxProps {
-  draggedCardId: string | undefined;
-  draggedOverIndex: number | undefined;
-  originIndex: number | undefined;
-  isRearrange: boolean | undefined;
-  isDraggingOver: boolean | undefined;
+  draggedCardId?: string;
+  draggedOverIndex?: number;
+  originIndex?: number;
+  isRearrange?: boolean;
+  isDraggingOver?: boolean;
 }
 type DraggerContainerProps = {
   // children: React.FC<DraggerProps>[];

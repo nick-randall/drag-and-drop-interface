@@ -2,7 +2,7 @@ import { connect } from "react-redux";
 import { RootState } from "./store";
 
 interface ReduxProps  {
-  draggedCardId: string;
+  draggedCardId: string | undefined;
   sourceIndex: number | undefined;
   destinationIndex: number | undefined;
 }

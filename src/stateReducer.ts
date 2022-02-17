@@ -4,11 +4,11 @@ interface DragLocation {
 }
 
 export interface DraggedState {
-  source: DragLocation | undefined;
-  destination: DragLocation | undefined
+  source?: DragLocation;
+  destination?: DragLocation
   }
 interface State {
-  draggedCardId: string;
+  draggedCardId?: string;
   draggedState: DraggedState
 }
 
@@ -40,7 +40,7 @@ type CleanUpDraggedState = {
 
 type Action = SetDraggedCardId | SetDraggedSource | SetDraggedState | UpdateDraggedDestination | CleanUpDraggedState;
 
-const initialState = { draggedCardId: "", draggedState: {source: undefined, destination: undefined}}
+const initialState = { draggedCardId: undefined, draggedState: {source: undefined, destination: undefined}}
 
 export const stateReducer = (state: State = initialState, action: Action) => {
   switch (action.type) {
@@ -54,7 +54,7 @@ export const stateReducer = (state: State = initialState, action: Action) => {
       case "UPDATE_DRAG_DESTINATION":
       return { ...state, draggedState: {  ...state.draggedState, destination: action.payload }}; 
     case "CLEAN_UP_DRAG_STATE":
-      return {...state, draggedState: initialState.draggedState}
+      return {...state, draggedState: initialState.draggedState, draggedCardId: initialState.draggedCardId}
     default:
       return state;
   }
