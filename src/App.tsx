@@ -3,20 +3,7 @@ import createSpecialsAndGuests from "./createGuests";
 import Dragger from "./Dragger";
 import DraggerContainer from "./DraggerContainer";
 import "./App.css";
-import { RootState } from "./store";
-import { connect } from "react-redux";
 import Infos from "./Infos";
-
-//type CombinedAppProps = AppProps & RootState;
-
-interface ReduxProps {
-  draggedCardId: string;
-  sourceIndex: number | undefined;
-  destinationIndex: number | undefined;
-}
-interface InfoProps {}
-
-type ComponentProps = ReduxProps & InfoProps;
 
 
 const CardContainers: React.FC = () => {
@@ -31,7 +18,7 @@ const CardContainers: React.FC = () => {
       <div style={{ left: 200, position: "absolute", top: 500 }}>
         <DraggerContainer id={containerOneId} elementWidth={elementWidth}>
           {guestCards.map((card, index) => (
-            <Dragger draggerId={card.id} index={index} containerId={containerOneId} size={elementWidth}>
+            <Dragger draggerId={card.id} index={index} containerId={containerOneId} size={elementWidth} key={card.id}>
               {(draggerRef, dragStyles, handleDragStart) => (
                 <img
                   ref={draggerRef}

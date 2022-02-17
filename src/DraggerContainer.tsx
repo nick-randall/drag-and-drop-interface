@@ -11,7 +11,7 @@ const usePrevious = (value: any) => {
   return ref.current;
 };
 interface ComponentReduxProps {
-  draggedCardId?: string;
+  draggedId?: string;
   draggedOverIndex?: number;
   originIndex?: number;
   isRearrange?: boolean;
@@ -31,7 +31,7 @@ const DraggerContainer: React.FC<ComponentProps> = ({
   children,
   elementWidth,
   id,
-  draggedCardId,
+  draggedId,
   draggedOverIndex,
   originIndex,
   isRearrange,
@@ -39,7 +39,7 @@ const DraggerContainer: React.FC<ComponentProps> = ({
 }) => {
   const dispatch = useDispatch();
   const containerRef: Ref<HTMLDivElement> = useRef(null);
-  const dragged = draggedCardId !== undefined;
+  const dragged = draggedId !== undefined;
 
   const cumulativeSum = (sum: number) => (value: number) => (sum += value);
 
@@ -181,11 +181,12 @@ const DraggerContainer: React.FC<ComponentProps> = ({
       ))} */}
       {children.map((child, index) => (
         <div
+        key={id + "-container-" +  index}
           // This is the container of dragger plus placeholder.
           style={{
             display: "flex",
 
-            position: child.props.draggerId === draggedCardId ? "absolute" : undefined,
+            position: child.props.draggerId === draggedId ? "absolute" : undefined,
           }}
           draggable="false"
         >
@@ -221,7 +222,7 @@ const DraggerContainer: React.FC<ComponentProps> = ({
 // export default DraggerContainer;
 
 const mapStateToProps = (state: RootState, ownProps: DraggerContainerProps) => {
-  const { draggedState, draggedCardId } = state;
+  const { draggedState, draggedId } = state;
   let draggedOverIndex,
     originIndex,
     isRearrange,
@@ -234,6 +235,6 @@ const mapStateToProps = (state: RootState, ownProps: DraggerContainerProps) => {
     isDraggingOver = draggedState.destination.containerId === ownProps.id;
     draggedOverIndex = isDraggingOver ? draggedState.destination.index : undefined;
   }
-  return { draggedOverIndex, draggedCardId, originIndex, isRearrange, isDraggingOver };
+  return { draggedOverIndex, draggedId, originIndex, isRearrange, isDraggingOver };
 };
 export default connect(mapStateToProps)(DraggerContainer);

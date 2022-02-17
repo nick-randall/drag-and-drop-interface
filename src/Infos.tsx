@@ -2,9 +2,9 @@ import { connect } from "react-redux";
 import { RootState } from "./store";
 
 interface ReduxProps  {
-  draggedCardId: string | undefined;
-  sourceIndex: number | undefined;
-  destinationIndex: number | undefined;
+  draggedId?: string;
+  sourceIndex?: number;
+  destinationIndex?: number;
 }
 interface InfoProps {}
 
@@ -17,7 +17,7 @@ const Infos: React.FC<ComponentProps> = ({ sourceIndex, destinationIndex }) => {
       <div style={{ left: 200, position: "absolute", top: 300 }}>
         source index: {sourceIndex}
         destination index: {destinationIndex}
-        {/* {props.draggedCardId} */}
+        {/* {props.draggedId} */}
         {/* source id: {props.draggedState.source?.containerId}<br/>
         source index: {props.draggedState.source?.index}<br/>
         destination id:{props.draggedState.destination?.containerId}<br/>
@@ -28,13 +28,13 @@ const Infos: React.FC<ComponentProps> = ({ sourceIndex, destinationIndex }) => {
 };
 
 function mapStateToProps(state: RootState) {
-  const { draggedState, draggedCardId } = state;
+  const { draggedState, draggedId } = state;
   const { source, destination } = draggedState;
   let sourceIndex,
     destinationIndex = undefined;
   if (source) sourceIndex = source.index;
   if (destination) destinationIndex = destination.index;
-  return { draggedCardId, sourceIndex, destinationIndex };
+  return { draggedId, sourceIndex, destinationIndex };
 }
 
 
