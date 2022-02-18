@@ -10,6 +10,39 @@ const usePrevious = (value: any) => {
   });
   return ref.current;
 };
+
+const cumulativeSum = (sum: number) => (value: number) => (sum += value);
+
+const getCumulativeSum = (indexArray: number[]) => indexArray.map(cumulativeSum(0));
+
+const addZeroAtFirstIndex = (indexArray: number[]) => [0].concat(indexArray);
+
+const isInBounds = (breakPointsPair: number[], touchedX: number): boolean => {
+  const lowerBound = breakPointsPair[0];
+  const upperBound = breakPointsPair[1];
+  return touchedX >= lowerBound && touchedX <= upperBound;
+};
+
+const findNewDraggedOverIndex = (breakPointsPairs: number[][], touchedX: number): number => {
+  for (let i = 0; i < breakPointsPairs.length; i++) {
+    if (isInBounds(breakPointsPairs[i], touchedX)) return i;
+    const lowerBound = breakPointsPairs[i][0];
+    const upperBound = breakPointsPairs[i][1];
+    if (i === 0) {
+      if (isInBounds([0, lowerBound], touchedX)) return 0;
+    }
+    if (i > 0) {
+      const leftUpperBound = breakPointsPairs[i - 1][1];
+      if (isInBounds([leftUpperBound, lowerBound], touchedX)) return i - 1;
+    }
+
+    if (i < breakPointsPairs.length - 1) {
+      const rightLowerBound = breakPointsPairs[i + 1][0];
+      if (isInBounds([upperBound, rightLowerBound], touchedX)) return i + 1;
+    }
+  }
+  return -1;
+};
 interface ComponentReduxProps {
   draggedId?: string;
   draggedOverIndex?: number;
@@ -22,8 +55,8 @@ type DraggerContainerProps = {
   children: JSX.Element[];
   elementWidth: number;
   id: string;
-  // isLayoutDisabled: boolean
-  // isDropDisabled: boolean
+  isLayoutDisabled?: boolean;
+  isDropDisabled?: boolean;
 };
 type ComponentProps = ComponentReduxProps & DraggerContainerProps;
 
@@ -35,7 +68,9 @@ const DraggerContainer: React.FC<ComponentProps> = ({
   draggedOverIndex,
   originIndex,
   isRearrange,
+  isLayoutDisabled = false,
   isDraggingOver,
+  isDropDisabled = false,
 }) => {
   const dispatch = useDispatch();
   const containerRef: Ref<HTMLDivElement> = useRef(null);
@@ -43,41 +78,9 @@ const DraggerContainer: React.FC<ComponentProps> = ({
   const prevDraggedOverIndex = usePrevious(draggedOverIndex);
   const isInitialRearrange = prevDraggedOverIndex === undefined && isRearrange;
 
-  const cumulativeSum = (sum: number) => (value: number) => (sum += value);
-
-  const getCumulativeSum = (indexArray: number[]) => indexArray.map(cumulativeSum(0));
-
-  const addZeroAtFirstIndex = (indexArray: number[]) => [0].concat(indexArray);
-
-  const isInBounds = (breakPointsPair: number[], touchedX: number): boolean => {
-    const lowerBound = breakPointsPair[0];
-    const upperBound = breakPointsPair[1];
-    return touchedX >= lowerBound && touchedX <= upperBound;
-  };
-
-  const findNewDraggedOverIndex = (breakPointsPairs: number[][], touchedX: number): number => {
-    for (let i = 0; i < breakPointsPairs.length; i++) {
-      if (isInBounds(breakPointsPairs[i], touchedX)) return i;
-      const lowerBound = breakPointsPairs[i][0];
-      const upperBound = breakPointsPairs[i][1];
-      if (i === 0) {
-        if (isInBounds([0, lowerBound], touchedX)) return 0;
-      }
-      if (i > 0) {
-        const leftUpperBound = breakPointsPairs[i - 1][1];
-        if (isInBounds([leftUpperBound, lowerBound], touchedX)) return i - 1;
-      }
-
-      if (i < breakPointsPairs.length - 1) {
-        const rightLowerBound = breakPointsPairs[i + 1][0];
-        if (isInBounds([upperBound, rightLowerBound], touchedX)) return i + 1;
-      }
-    }
-    return -1;
-  };
-
   const handleMouseMove = ({ clientX }: { clientX: number }) => {
     if (!dragged) return;
+    if (isDropDisabled) return;
 
     const containerElement = containerRef.current;
     if (containerElement) {
@@ -85,7 +88,7 @@ const DraggerContainer: React.FC<ComponentProps> = ({
       const touchedX = clientX - boundingBoxLeft;
 
       //
-      // Caclulate the left position of each element , add it to an array  
+      // Caclulate the left position of each element , add it to an array
       const childrenSizes = children.map(child => child.props.size ?? 0);
       let rowShape = getCumulativeSum(childrenSizes);
 
@@ -138,7 +141,7 @@ const DraggerContainer: React.FC<ComponentProps> = ({
       // This is the container of all draggers
       ref={containerRef}
       style={{
-        display: "flex",
+        display: isLayoutDisabled ? "block" : "flex",
       }}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
@@ -149,7 +152,6 @@ const DraggerContainer: React.FC<ComponentProps> = ({
           // This is the container of dragger plus placeholder.
           style={{
             display: "flex",
-
             position: child.props.draggerId === draggedId ? "absolute" : undefined,
           }}
           draggable="false"
