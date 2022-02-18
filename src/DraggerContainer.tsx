@@ -40,6 +40,8 @@ const DraggerContainer: React.FC<ComponentProps> = ({
   const dispatch = useDispatch();
   const containerRef: Ref<HTMLDivElement> = useRef(null);
   const dragged = draggedId !== undefined;
+  const prevDraggedOverIndex = usePrevious(draggedOverIndex);
+  const isInitialRearrange = prevDraggedOverIndex === undefined && isRearrange;
 
   const cumulativeSum = (sum: number) => (value: number) => (sum += value);
 
@@ -82,6 +84,8 @@ const DraggerContainer: React.FC<ComponentProps> = ({
       const { left: boundingBoxLeft } = containerElement.getBoundingClientRect();
       const touchedX = clientX - boundingBoxLeft;
 
+      //
+      // Caclulate the left position of each element , add it to an array  
       const childrenSizes = children.map(child => child.props.size ?? 0);
       let rowShape = getCumulativeSum(childrenSizes);
 
@@ -90,10 +94,14 @@ const DraggerContainer: React.FC<ComponentProps> = ({
         rowShape = addZeroAtFirstIndex(rowShape);
         rowShape = rowShape.map(ele => (ele += elementWidth / 2));
       }
+
+      // Create break points where dragging over causes draggedOverIndex to ++ or --
       const leftBreakPointFactor = 0.35 * elementWidth;
       const rightBreakPointFactor = 0.15 * elementWidth;
       const initialRightBreakPoint = 0.25 * elementWidth;
-      const rowShapeWithUpperLowerBounds: number[][] =  rowShape.map(e => (e > 0 ? [e - leftBreakPointFactor, e + rightBreakPointFactor] : [0, initialRightBreakPoint]));
+      const rowShapeWithUpperLowerBounds: number[][] = rowShape.map(e =>
+        e > 0 ? [e - leftBreakPointFactor, e + rightBreakPointFactor] : [0, initialRightBreakPoint]
+      );
 
       const newDraggedOverIndex = findNewDraggedOverIndex(rowShapeWithUpperLowerBounds, touchedX);
 
@@ -101,24 +109,6 @@ const DraggerContainer: React.FC<ComponentProps> = ({
         dispatch({ type: "UPDATE_DRAG_DESTINATION", payload: { index: newDraggedOverIndex, containerId: id } });
       }
     }
-    //    else {
-    //     const centerOfCard = elementWidth / 2;
-    //     // If rearranging and element is to the right of sourceElement, compensate for missing element
-    //     //const toRightOfdraggedStateOffset = isRearrange && draggedOverIndex > draggedState.index ? elementWidth : 0;
-    //     const touchedX = clientX - boundingBoxLeft - centerOfCard; //+ toRightOfdraggedStateOffset;
-
-    //     // could use totalWidth instead to not calculate based on query but rather on num elements * elementWidth
-    //     let newDraggedOverIndex = Math.floor(touchedX / elementWidth);
-    //     // if rearranging, remove sourcde index
-    //     // if (draggedState.containerId === id && draggedState.index >= newDraggedOverIndex) newDraggedOverIndex--
-    //     // if(draggedState.containerId === id && draggedState.index < newDraggedOverIndex) newDraggedOverIndex --
-    //     //if (draggedState.containerId === id && draggedState.index === newDraggedOverIndex) newDraggedOverIndex --
-
-    //     if (draggedOverIndex !== newDraggedOverIndex)
-    //       //setDraggedOverIndex(newDraggedOverIndex);
-    //       dispatch({ type: "UPDATE_DRAG_DESTINATION", payload: { index: newDraggedOverIndex, containerId: id } });
-    //   }
-    // }
   };
 
   const handleMouseLeave = () => {
@@ -127,29 +117,12 @@ const DraggerContainer: React.FC<ComponentProps> = ({
     }
   };
 
-  //const isRearrangeStart = prevdraggedState.current.source && prevdraggedState.current.source.containerId === "" && isRearrange;
-
-  // useEffect(() => {
-  //   dispatch(draggedState.source.index)
-  // }, [draggedState.source.index]);
-
-  // useEffect(() => {
-  //   // currently does nothing
-  //   if (prevdraggedState.current.source.containerId === "" && isRearrange) {
-  //     setInitialTransitionSuppressed(true);
-  //   }
-  // }, [draggedState, isRearrange]);
-
-  //console.log(prevdraggedState.current.source.containerId, " prevdraggedState container id");
-
   const figureOutWhetherToExpand = (index: number) => {
     if (!isRearrange && draggedOverIndex !== undefined) {
       return draggedOverIndex === index ? elementWidth : 0;
     }
 
     if (draggedOverIndex !== undefined && originIndex !== undefined) {
-      // if (originIndex === 0 && draggedOverIndex === index) {console.log("blah"); return elementWidth}
-
       // The element directly to the left of the dragged card provides expansion for it
       if (draggedOverIndex === index - 1 && draggedOverIndex === originIndex - 1) return elementWidth;
       // Other elements to the left behave normally
@@ -157,11 +130,8 @@ const DraggerContainer: React.FC<ComponentProps> = ({
       // Elements to the right of the dragged card expand one card early to compensate for the missing dragged card.
       if (index > originIndex && index === draggedOverIndex + 1) return elementWidth;
     }
-    // index one below dragSource expands to make up for missing dragged card
     return 0;
   };
-
-  //console.log(isRearrangeStart)
 
   return (
     <div
@@ -173,15 +143,9 @@ const DraggerContainer: React.FC<ComponentProps> = ({
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
     >
-      {/* {rowShape.map((b, i) => (
-        <div>
-          <div style={{ width: 1, height: 150, backgroundColor: "red", position: "absolute", left: b[0], zIndex: 10 }}>{b[0]}</div>
-          <div style={{ width: 1, height: 150, backgroundColor: "blue", position: "absolute", left: b[1], zIndex: 10 }}>{b[i]}</div>
-        </div>
-      ))} */}
       {children.map((child, index) => (
         <div
-        key={id + "-container-" +  index}
+          key={id + "-container-" + index}
           // This is the container of dragger plus placeholder.
           style={{
             display: "flex",
@@ -192,21 +156,12 @@ const DraggerContainer: React.FC<ComponentProps> = ({
         >
           <div
             // This is the placeholder (ghost card comes in here)
-            // This code causes card before draggedCard to left to expand
+            // This code causes card before dragged element to left to expand
             style={{
               width: figureOutWhetherToExpand(index),
               height: 150,
-              // This code fixes jumpiness for cards to the right of source card
-              // transition: draggedOverIndex === index - 1 && draggedState.index === draggedOverIndex ? "" : "140ms ease",
-              //(prevdraggedState.current.source.containerId === "" && isRearrange) ? "" :
-              //isRearrangeStart && index === draggedState.source.index  ?  "" :
-              transition: "140ms ease",
-              //(prevdraggedState.current.source.containerId === "" && isRearrange) ? "" :
-              //transitionDelay: "60ms",
-              //   backgroundColor:
-              //     isRearrange && draggedOverIndex === index - 1 && draggedOverIndex !== -1 && draggedState.index === draggedOverIndex
-              //       ? "blue"
-              //       : "transparent",
+              // Suppress transition if this is the first time an element is being dragged in this container
+              transition: !isInitialRearrange ? "140ms ease" : "",
             }}
             draggable="false"
           />
@@ -218,8 +173,6 @@ const DraggerContainer: React.FC<ComponentProps> = ({
     </div>
   );
 };
-
-// export default DraggerContainer;
 
 const mapStateToProps = (state: RootState, ownProps: DraggerContainerProps) => {
   const { draggedState, draggedId } = state;
