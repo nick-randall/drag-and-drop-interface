@@ -19,15 +19,15 @@ const CardContainers: React.FC = () => {
         <DraggerContainer id={containerOneId} elementWidth={elementWidth}>
           {guestCards.map((card, index) => (
             <Dragger draggerId={card.id} index={index} containerId={containerOneId} size={elementWidth} key={card.id}>
-              {(draggerRef, dragStyles, handleDragStart) => (
+              {(handleDragStart, dragged) => (
                 <img
-                  ref={draggerRef}
                   onMouseDown={handleDragStart}
                   alt={card.name}
                   key={card.id}
                   style={{
                     width: elementWidth,
-                    ...dragStyles,
+                    // transform: dragged ? "" : "rotate(30deg)",
+                    // transition: "300ms"
                   }}
                   src={`./images/${card.image}.jpg`}
                   draggable="false"
@@ -38,15 +38,15 @@ const CardContainers: React.FC = () => {
         </DraggerContainer>
       </div>
       <Dragger draggerId={randomCard.id} index={0} containerId={containerTwoId} size={elementWidth}>
-        {(draggerRef, dragStyles, handleDragStart) => (
+        {(handleDragStart, dragged) => (
           <img
-            ref={draggerRef}
             alt={randomCard.name}
             key={randomCard.id}
             onMouseDown={handleDragStart}
             style={{
               width: elementWidth,
-              ...dragStyles,
+              transform: dragged ? "" : "rotate(30deg)",
+              transition: "300ms"
             }}
             src={`./images/${randomCard.image}.jpg`}
             draggable="false"

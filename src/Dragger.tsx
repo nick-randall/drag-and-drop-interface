@@ -1,6 +1,6 @@
 import React, { CSSProperties, Ref, useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
-import PropTypes from 'prop-types'
+import PropTypes from "prop-types";
 
 export interface DraggerProps {
   draggerId: string;
@@ -9,7 +9,8 @@ export interface DraggerProps {
   index: number;
   containerId: string;
   size: number;
-  children: (ref: Ref<HTMLImageElement>, dragStyles: CSSProperties, handleDragStart: (event: React.MouseEvent) => void) => JSX.Element;
+  // children: (ref: Ref<HTMLImageElement>, dragStyles: CSSProperties, handleDragStart: (event: React.MouseEvent) => void) => JSX.Element;
+  children: (handleDragStart: (event: React.MouseEvent) => void, dragged: boolean) => JSX.Element;
 }
 
 interface DragData {
@@ -34,7 +35,7 @@ const Dragger = (props: DraggerProps) => {
 
   useEffect(() => {
     setIsReturning(false);
-  }, [setIsReturning, index])
+  }, [setIsReturning, index]);
 
   const dispatch = useDispatch();
 
@@ -45,15 +46,15 @@ const Dragger = (props: DraggerProps) => {
     let b = 0,
       c = 0;
     while (a) {
-      if(a){
+      if (a) {
         console.log("here");
-        console.log(a.parentElement?.offsetLeft)}
+        console.log(a.parentElement?.offsetLeft);
+      }
       b += a.offsetLeft;
       c += a.offsetTop;
       a = a.parentElement;
-      
     }
-    console.log(b, c)
+    console.log(b, c);
     return { offsetLeft: b, offsetTop: c };
   };
 
@@ -62,7 +63,7 @@ const Dragger = (props: DraggerProps) => {
       if (draggableRef && draggableRef.current) {
         const { left, top } = draggableRef.current.getBoundingClientRect();
         const { offsetLeft, offsetTop } = getOffset(draggableRef.current);
-        console.log(left, top)
+        console.log(left, top);
 
         if (offsetLeft != null && offsetTop != null) {
           setDragState(prevState => ({
@@ -75,13 +76,13 @@ const Dragger = (props: DraggerProps) => {
 
             // Boddy should be set to margin: 0px
             offsetLeft: offsetLeft - left,
-            offsetX: left + (clientX - left) ,
+            offsetX: left + (clientX - left),
             offsetY: top + (clientY - top),
-            translateX: 0,//left - offsetLeft,
-            translateY: 0//top - offsetTop,
+            translateX: 0, //left - offsetLeft,
+            translateY: 0, //top - offsetTop,
           }));
           dispatch({ type: "SET_DRAGGED_CARD_ID", payload: draggerId });
-          dispatch({ type: "SET_DRAGGED_STATE", payload:  { index: index, containerId: containerId } });
+          dispatch({ type: "SET_DRAGGED_STATE", payload: { index: index, containerId: containerId } });
         }
       } else console.log("error getting html node");
     },
@@ -108,7 +109,7 @@ const Dragger = (props: DraggerProps) => {
         dragged: false,
       }));
       dispatch({ type: "SET_DRAGGED_CARD_ID", payload: "" });
-      dispatch({ type: "CLEAN_UP_DRAG_STATE"});
+      dispatch({ type: "CLEAN_UP_DRAG_STATE" });
       setIsReturning(true);
     }
   }, [dragState, dispatch]);
@@ -129,8 +130,8 @@ const Dragger = (props: DraggerProps) => {
     pointerEvents: "auto",
     left: "",
     position: "relative",
-    zIndex: isReturning? 9 : "",
-    transition: isReturning? "280ms" : ""
+    zIndex: isReturning ? 9 : "",
+    transition: isReturning ? "280ms" : "",
   };
 
   const draggedStyles: CSSProperties = {
@@ -139,12 +140,16 @@ const Dragger = (props: DraggerProps) => {
     left: dragState.offsetLeft,
     position: "absolute",
     zIndex: 10,
-    transition: ""
+    transition: "",
   };
-  if (!dragState.dragged) return children(draggableRef, notDraggedStyles, handleDragStart);
-  else return children(draggableRef, draggedStyles, handleDragStart);
+
+  const styles = dragState.dragged ? draggedStyles : notDraggedStyles;
+
+  return (
+    <div ref={draggableRef} style={{ ...styles }}>
+      {children(handleDragStart, dragState.dragged)}
+    </div>
+  );
 };
-
-
 
 export default Dragger;
