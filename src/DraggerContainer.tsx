@@ -64,6 +64,12 @@ type DraggerContainerProps = {
 };
 type ComponentProps = ComponentReduxProps & DraggerContainerProps;
 
+// This container has several jobs:
+// 1. It listens to dragEvents and updates the redux dragState (draggedOverIndex and draggedOVerId)
+// 2. It moves its children around to give the user feedback about where they are placing the dragged item
+// 3. to improve UX, it expands a hidden box so that dragEvents can be detected no based on the dragged item position, 
+// NOT based only on the mouse position
+
 const DraggerContainer: React.FC<ComponentProps> = ({
   children,
   elementWidth,
