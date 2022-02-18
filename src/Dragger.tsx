@@ -61,9 +61,8 @@ const Dragger = (props: DraggerProps) => {
   const handleDragStart = useCallback(
     ({ clientX, clientY }) => {
       if (draggableRef && draggableRef.current) {
-        const { left, top } = draggableRef.current.getBoundingClientRect();
+        const { left, top, height, width } = draggableRef.current.getBoundingClientRect();
         const { offsetLeft, offsetTop } = getOffset(draggableRef.current);
-        console.log(left, top);
 
         if (offsetLeft != null && offsetTop != null) {
           setDragState(prevState => ({
@@ -81,6 +80,15 @@ const Dragger = (props: DraggerProps) => {
             translateX: 0, //left - offsetLeft,
             translateY: 0, //top - offsetTop,
           }));
+
+           // // this gets the middle as 0, above the middle is positive, below is negative
+          const touchedPointY = (clientY - top);
+          const touchedPointX = (clientX - left);
+          const dragContainerExpandHeight = (height / 2 - touchedPointY) * 2;
+          const dragContainerExpandWidth = (width / 2 - touchedPointX);
+
+
+          dispatch({type:"SET_DRAG_CONTAINER_EXPAND", payload: {height: dragContainerExpandHeight, width: dragContainerExpandWidth}})
           dispatch({ type: "SET_DRAGGED_CARD_ID", payload: draggerId });
           dispatch({ type: "SET_DRAGGED_STATE", payload: { index: index, containerId: containerId } });
         }

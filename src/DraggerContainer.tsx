@@ -49,6 +49,10 @@ interface ComponentReduxProps {
   originIndex?: number;
   isRearrange?: boolean;
   isDraggingOver?: boolean;
+  expandAbove: number,
+  expandBelow: number,
+  expandLeft: number,
+  expandRight: number
 }
 type DraggerContainerProps = {
   // children: React.FC<DraggerProps>[];
@@ -68,6 +72,10 @@ const DraggerContainer: React.FC<ComponentProps> = ({
   draggedOverIndex,
   originIndex,
   isRearrange,
+  expandAbove,
+  expandBelow,
+  expandLeft,
+  expandRight,
   isLayoutDisabled = false,
   isDraggingOver,
   isDropDisabled = false,
@@ -141,7 +149,17 @@ const DraggerContainer: React.FC<ComponentProps> = ({
       // This is the container of all draggers
       ref={containerRef}
       style={{
+        position:"absolute",
         display: isLayoutDisabled ? "block" : "flex",
+        paddingTop: expandAbove,
+        marginTop: -expandAbove,
+        paddingBottom: expandBelow,
+        marginBottom: -expandBelow,
+        // paddingLeft: expandLeft,
+        // marginLeft: -expandLeft,
+        // paddingRight: expandRight,
+        // marginRight: -expandRight,
+        // backgroundColor:"black"
       }}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
@@ -177,7 +195,7 @@ const DraggerContainer: React.FC<ComponentProps> = ({
 };
 
 const mapStateToProps = (state: RootState, ownProps: DraggerContainerProps) => {
-  const { draggedState, draggedId } = state;
+  const { draggedState, draggedId, dragContainerExpand } = state;
   let draggedOverIndex,
     originIndex,
     isRearrange,
@@ -190,6 +208,14 @@ const mapStateToProps = (state: RootState, ownProps: DraggerContainerProps) => {
     isDraggingOver = draggedState.destination.containerId === ownProps.id;
     draggedOverIndex = isDraggingOver ? draggedState.destination.index : undefined;
   }
-  return { draggedOverIndex, draggedId, originIndex, isRearrange, isDraggingOver };
+  let expandAbove = 0
+  let expandBelow = 0
+  let expandLeft = 0;
+  let expandRight = 0;
+  if(dragContainerExpand.height > 0) expandAbove = dragContainerExpand.height;
+  else expandBelow  = dragContainerExpand.height * -1;
+  if(dragContainerExpand.width < 0) expandRight = dragContainerExpand.width;
+  else expandLeft  = dragContainerExpand.width * -1;
+  return { draggedOverIndex, draggedId, originIndex, isRearrange, isDraggingOver, expandAbove, expandBelow, expandLeft, expandRight };
 };
 export default connect(mapStateToProps)(DraggerContainer);

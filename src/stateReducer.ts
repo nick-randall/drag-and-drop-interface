@@ -5,11 +5,12 @@ interface DragLocation {
 
 export interface DraggedState {
   source?: DragLocation;
-  destination?: DragLocation
-  }
+  destination?: DragLocation;
+}
 interface State {
   draggedId?: string;
-  draggedState: DraggedState
+  draggedState: DraggedState;
+  dragContainerExpand: { width: number; height: number };
 }
 
 type SetDraggedId = {
@@ -25,7 +26,6 @@ type SetDraggedSource = {
 type SetDraggedState = {
   type: "SET_DRAGGED_STATE";
   payload: { containerId: string; index: number };
-
 };
 
 type UpdateDraggedDestination = {
@@ -36,25 +36,42 @@ type UpdateDraggedDestination = {
 
 type CleanUpDraggedState = {
   type: "CLEAN_UP_DRAG_STATE";
-}
+};
 
-type Action = SetDraggedId | SetDraggedSource | SetDraggedState | UpdateDraggedDestination | CleanUpDraggedState;
+type SetDragContainerExpand = {
+  type: "SET_DRAG_CONTAINER_EXPAND";
+  payload: { width: number; height: number };
+};
 
-const initialState = { draggedId: undefined, draggedState: {source: undefined, destination: undefined}}
+type Action = SetDraggedId | SetDraggedSource | SetDraggedState | UpdateDraggedDestination | CleanUpDraggedState | SetDragContainerExpand;
+
+const initialState = {
+  draggedId: undefined,
+  draggedState: { source: undefined, destination: undefined },
+  dragContainerExpand: { width: 0, height: 0 },
+};
 
 export const stateReducer = (state: State = initialState, action: Action) => {
   switch (action.type) {
     case "SET_DRAGGED_CARD_ID":
       return { ...state, draggedId: action.payload };
-      case "SET_DRAGGED_STATE":{
-        return {...state, draggedState:{ source: action.payload, destination: action.payload}}
-      }
+    case "SET_DRAGGED_STATE": {
+      return { ...state, draggedState: { source: action.payload, destination: action.payload } };
+    }
     case "SET_DRAGGED_CARD_SOURCE":
-      return { ...state, draggedState: {  ...state.draggedState, source: action.payload }};
-      case "UPDATE_DRAG_DESTINATION":
-      return { ...state, draggedState: {  ...state.draggedState, destination: action.payload }}; 
+      return { ...state, draggedState: { ...state.draggedState, source: action.payload } };
+    case "UPDATE_DRAG_DESTINATION":
+      return { ...state, draggedState: { ...state.draggedState, destination: action.payload } };
     case "CLEAN_UP_DRAG_STATE":
-      return {...state, draggedState: initialState.draggedState, draggedId: initialState.draggedId}
+      return {
+        ...state,
+        draggedState: initialState.draggedState,
+        draggedId: initialState.draggedId,
+        dragContainerExpandY: initialState.dragContainerExpand,
+      };
+    case "SET_DRAG_CONTAINER_EXPAND":
+      console.log(action.payload);
+      return { ...state, dragContainerExpand: action.payload };
     default:
       return state;
   }
