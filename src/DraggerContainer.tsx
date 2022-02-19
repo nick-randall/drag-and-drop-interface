@@ -1,4 +1,4 @@
-import React, { Ref, useRef } from "react";
+import React, { Ref, useRef, useState } from "react";
 import { connect, useDispatch } from "react-redux";
 import { RootState } from "./store";
 import { pipe } from "ramda";
@@ -89,8 +89,8 @@ const DraggerContainer: React.FC<ComponentProps> = ({
   const dispatch = useDispatch();
   const containerRef: Ref<HTMLDivElement> = useRef(null);
   const dragged = draggedId !== undefined;
-  const prevDraggedOverIndex = usePrevious(draggedOverIndex);
-  const isInitialRearrange = prevDraggedOverIndex === undefined && isRearrange;
+  const prevOriginIndex = usePrevious(originIndex);
+  const isInitialRearrange = prevOriginIndex === undefined && isRearrange
 
   const handleMouseMove = ({ clientX }: { clientX: number }) => {
     if (!dragged) return;
