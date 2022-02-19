@@ -89,8 +89,7 @@ const DraggerContainer: React.FC<ComponentProps> = ({
   const dispatch = useDispatch();
   const containerRef: Ref<HTMLDivElement> = useRef(null);
   const dragged = draggedId !== undefined;
-  const prevOriginIndex = usePrevious(originIndex);
-  const isInitialRearrange = prevOriginIndex === undefined && isRearrange
+  const isInitialRearrange = usePrevious(originIndex) === undefined
 
   const handleMouseMove = ({ clientX }: { clientX: number }) => {
     if (!dragged) return;

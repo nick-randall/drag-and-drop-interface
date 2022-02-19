@@ -10,7 +10,7 @@ export interface DraggerProps {
   containerId: string;
   size: number;
   // children: (ref: Ref<HTMLImageElement>, dragStyles: CSSProperties, handleDragStart: (event: React.MouseEvent) => void) => JSX.Element;
-  children: (handleDragStart: (event: React.MouseEvent) => void, dragged: boolean) => JSX.Element;
+  children: (handleDragStart: (event: React.MouseEvent) => void, dragged: boolean, ref: Ref<HTMLImageElement>) => JSX.Element;
 }
 
 interface DragData {
@@ -47,14 +47,11 @@ const Dragger = (props: DraggerProps) => {
       c = 0;
     while (a) {
       if (a) {
-        console.log("here");
-        console.log(a.parentElement?.offsetLeft);
       }
       b += a.offsetLeft;
       c += a.offsetTop;
       a = a.parentElement;
     }
-    console.log(b, c);
     return { offsetLeft: b, offsetTop: c };
   };
 
@@ -77,13 +74,20 @@ const Dragger = (props: DraggerProps) => {
             offsetLeft: offsetLeft - left,
             offsetX: left + (clientX - left),
             offsetY: top + (clientY - top),
-            translateX: 0, //left - offsetLeft,
-            translateY: 0, //top - offsetTop,
+            // For elements outside of DraggerContainers we need:
+            // translateX: 0, //left - offsetLeft,
+            // translateY: 0, //top - offsetTop,
+            // Within DraggerContainer:
+            translateX: 0, 
+            translateY: 0, 
           }));
 
            // // this gets the middle as 0, above the middle is positive, below is negative
           const touchedPointY = (clientY - top);
           const touchedPointX = (clientX - left);
+          console.log("touched point y ", touchedPointY)
+          console.log("left", left);
+          console.log("top", top);
           const dragContainerExpandHeight = (height / 2 - touchedPointY) * 2;
           const dragContainerExpandWidth = (width / 2 - touchedPointX);
 
@@ -154,8 +158,8 @@ const Dragger = (props: DraggerProps) => {
   const styles = dragState.dragged ? draggedStyles : notDraggedStyles;
 
   return (
-    <div ref={draggableRef} style={{ ...styles }}>
-      {children(handleDragStart, dragState.dragged)}
+    <div style={{ ...styles }}>
+      {children(handleDragStart, dragState.dragged, draggableRef)}
     </div>
   );
 };

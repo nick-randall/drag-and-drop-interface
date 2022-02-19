@@ -5,10 +5,10 @@ import DraggerContainer from "./DraggerContainer";
 import "./App.css";
 import Infos from "./Infos";
 
-
 const CardContainers: React.FC = () => {
   const guestCards: GameCard[] = createSpecialsAndGuests().slice(0, 7);
   const [randomCard]: GameCard[] = createSpecialsAndGuests().slice(0, 1);
+  const handCards: GameCard[] = createSpecialsAndGuests().slice(8, 15);
   const elementWidth = 100;
   console.log(guestCards);
   const containerOneId = "xxxy2";
@@ -19,8 +19,9 @@ const CardContainers: React.FC = () => {
         <DraggerContainer id={containerOneId} elementWidth={elementWidth}>
           {guestCards.map((card, index) => (
             <Dragger draggerId={card.id} index={index} containerId={containerOneId} size={elementWidth} key={card.id}>
-              {(handleDragStart, dragged) => (
+              {(handleDragStart, dragged, draggerRef) => (
                 <img
+                ref={draggerRef}
                   onMouseDown={handleDragStart}
                   alt={card.name}
                   key={card.id}
@@ -37,31 +38,40 @@ const CardContainers: React.FC = () => {
           ))}
         </DraggerContainer>
       </div>
-      <Dragger draggerId={randomCard.id} index={0} containerId={containerTwoId} size={elementWidth}>
-        {(handleDragStart, dragged) => (
-          <img
-            alt={randomCard.name}
-            key={randomCard.id}
-            onMouseDown={handleDragStart}
-            style={{
-              width: elementWidth,
-              transform: dragged ? "" : "rotate(30deg)",
-              transition: "300ms"
-            }}
-            src={`./images/${randomCard.image}.jpg`}
-            draggable="false"
-          />
-        )}
-      </Dragger>
+      <div className="hand">
+      {handCards.map((card, index) => (
+        <Dragger draggerId={card.id} index={index} containerId={containerTwoId} size={elementWidth}>
+          {(handleDragStart, dragged, draggerRef) => (
+            <img
+              ref={draggerRef}
+              alt={card.name}
+              key={card.id}
+              onMouseDown={handleDragStart}
+              style={{
+                position: "absolute",
+                left: index * 30,
+                width: elementWidth,
+                transform: dragged ? "" : `rotate(${10 * index - (handCards.length / 2 - 0.5) * 10}deg)`,
+                transition: "300ms",
+                zIndex: dragged ? 10: 0,
+              }}
+              src={`./images/${card.image}.jpg`}
+              draggable="false"
+            />
+          )}
+        </Dragger>
+      ))}
+      </div>
     </div>
   );
 };
 
- const  App = () => {
-  return(
-  <div>
-    <CardContainers />
-    <Infos />
-  </div>);
+const App = () => {
+  return (
+    <div>
+      <CardContainers />
+      <Infos />
+    </div>
+  );
 };
 export default App;
