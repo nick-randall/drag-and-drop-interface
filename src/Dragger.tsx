@@ -4,12 +4,10 @@ import PropTypes from "prop-types";
 
 export interface DraggerProps {
   draggerId: string;
-  // customDroppableId?
-  //ref: Ref<HTMLDivElement>;
   index: number;
   containerId: string;
   size: number;
-  // children: (ref: Ref<HTMLImageElement>, dragStyles: CSSProperties, handleDragStart: (event: React.MouseEvent) => void) => JSX.Element;
+  isOutsideContainer?: boolean;
   children: (handleDragStart: (event: React.MouseEvent) => void, dragged: boolean, ref: Ref<HTMLImageElement>) => JSX.Element;
 }
 
@@ -21,7 +19,7 @@ interface DragData {
 }
 
 const Dragger = (props: DraggerProps) => {
-  const { children, index, draggerId, containerId } = props;
+  const { children, index, draggerId, containerId, isOutsideContainer } = props;
   const [dragState, setDragState] = useState({
     dragged: false,
     translateX: 0,
@@ -78,8 +76,8 @@ const Dragger = (props: DraggerProps) => {
             // translateX: 0, //left - offsetLeft,
             // translateY: 0, //top - offsetTop,
             // Within DraggerContainer:
-            translateX: 0, 
-            translateY: 0, 
+            translateX: isOutsideContainer ? left - offsetLeft : 0, 
+            translateY: isOutsideContainer ? top - offsetTop: 0, 
           }));
 
            // // this gets the middle as 0, above the middle is positive, below is negative
@@ -98,7 +96,7 @@ const Dragger = (props: DraggerProps) => {
         }
       } else console.log("error getting html node");
     },
-    [containerId, dispatch, draggerId, index]
+    [containerId, dispatch, draggerId, index, isOutsideContainer]
   );
 
   const handleDrag = useCallback(

@@ -40,7 +40,7 @@ const CardContainers: React.FC = () => {
       </div>
       <div className="hand">
       {handCards.map((card, index) => (
-        <Dragger draggerId={card.id} index={index} containerId={containerTwoId} size={elementWidth}>
+        <Dragger draggerId={card.id} index={index} containerId={containerTwoId} size={elementWidth} isOutsideContainer>
           {(handleDragStart, dragged, draggerRef) => (
             <img
               ref={draggerRef}
