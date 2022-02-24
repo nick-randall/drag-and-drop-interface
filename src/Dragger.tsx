@@ -11,8 +11,7 @@ export interface DraggerProps {
   // Whether this dragger is a child of a DraggerContainer
   isOutsideContainer?: boolean;
   isDragDisabled?: boolean;
-  children: (handleDragStart: (event: React.MouseEvent) => void, dragged: boolean, ref: Ref<HTMLImageElement>) => JSX.Element;
-  // children: (handleDragStart: (event: React.MouseEvent) => void, dragged: boolean, innerDraggedStyles: CSSProperties, ref: Ref<HTMLImageElement>) => JSX.Element;
+  children: (handleDragStart: (event: React.MouseEvent) => void, ref: Ref<HTMLImageElement>, dragged: boolean) => JSX.Element;
 
 }
 
@@ -164,7 +163,7 @@ const Dragger: React.FC<CombinedProps> = ({ children, index, draggerId, containe
 
   const styles = dragState.dragged ? draggedStyles : notDraggedStyles;
 
-  return <div style={{ ...styles }}>{children(handleDragStart, dragState.dragged, draggableRef)}</div>;
+  return <div style={{ ...styles }}>{children(handleDragStart,  draggableRef, dragState.dragged)}</div>;
 };
 
 // export default Dragger;

@@ -13,7 +13,7 @@ const Hand:React.FC = () => {
     <div style={{ left: 200, position: "absolute", top: -300 }} onMouseMove={() => setSpread(120)} onMouseLeave={() => setSpread(30)}>
       {handCards.map((card, index) => (
         <Dragger draggerId={card.id} index={index} containerId={containerTwoId} size={elementWidth * 1.2} isOutsideContainer>
-          {(handleDragStart, dragged, draggerRef) => (
+          {(handleDragStart, draggerRef, dragged) => (
             <img
               ref={draggerRef}
               alt={card.name}
@@ -22,11 +22,12 @@ const Hand:React.FC = () => {
               style={{
                 position: "absolute",
                 width: elementWidth * 1.2,
-                left: dragged ? 0 : spread * index,
+                // Since the Dragger wrapper sets the correct left property when dragged, here we just have no left
+                // when the element is dragged
+                left: dragged ? "" : spread * index - (spread * handCards.length / 2),
                 transform: dragged ? "" : `rotate(${10 * index - (handCards.length / 2 - 0.5) * 10}deg)`,
                 transition: dragged ? "transform 300ms" : "left 300ms" ,
                 zIndex: dragged ? 10: 0,
-                // ...innerStyles
               }}
               src={`./images/${card.image}.jpg`}
               draggable="false"

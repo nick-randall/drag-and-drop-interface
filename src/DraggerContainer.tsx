@@ -173,7 +173,7 @@ const DraggerContainer: React.FC<ComponentProps> = ({
         // marginLeft: -expandLeft,
         // paddingRight: expandRight,
         // marginRight: -expandRight,
-        backgroundColor: "black",
+        // backgroundColor: "black",
       }}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}

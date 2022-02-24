@@ -20,7 +20,7 @@ const CardContainers: React.FC = () => {
         <DraggerContainer id={containerOneId} elementWidth={elementWidth}>
           {guestCards.map((card, index) => (
             <Dragger draggerId={card.id} index={index} containerId={containerOneId} size={elementWidth} key={card.id}>
-              {(handleDragStart, dragged, draggerRef) => (
+              {(handleDragStart, draggerRef) => (
                 <img
                   ref={draggerRef}
                   onMouseDown={handleDragStart}
@@ -28,8 +28,6 @@ const CardContainers: React.FC = () => {
                   key={card.id}
                   style={{
                     width: elementWidth,
-                    // transform: dragged ? "" : "rotate(30deg)",
-                    // transition: "300ms"
                   }}
                   src={`./images/${card.image}.jpg`}
                   draggable="false"
