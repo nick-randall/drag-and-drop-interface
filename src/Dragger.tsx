@@ -1,6 +1,5 @@
 import React, { CSSProperties, Ref, useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
-import PropTypes from "prop-types";
 
 export interface DraggerProps {
   draggerId: string;
@@ -8,25 +7,25 @@ export interface DraggerProps {
   containerId: string;
   size: number;
   isOutsideContainer?: boolean;
+  isDragDisabled?:boolean;
   children: (handleDragStart: (event: React.MouseEvent) => void, dragged: boolean, ref: Ref<HTMLImageElement>) => JSX.Element;
 }
 
 interface DragData {
+  dragged: boolean;
   translateX: number;
   translateY: number;
   offsetX: number;
   offsetY: number;
 }
 
-const Dragger = (props: DraggerProps) => {
-  const { children, index, draggerId, containerId, isOutsideContainer } = props;
+const Dragger : React.FC<DraggerProps> = ({ children, index, draggerId, containerId, isOutsideContainer, isDragDisabled }) => {
   const [dragState, setDragState] = useState({
     dragged: false,
     translateX: 0,
     translateY: 0,
     offsetX: 0,
     offsetY: 0,
-    offsetLeft: 0,
   });
 
   const [isReturning, setIsReturning] = useState(false);
@@ -68,29 +67,25 @@ const Dragger = (props: DraggerProps) => {
             // if card is transitioning back to start position,
             // left and top will capture current position of card
 
-            // Boddy should be set to margin: 0px
-            offsetLeft: offsetLeft - left,
-            offsetX: left + (clientX - left),
+            // Body should be set to margin: 0px
+            offsetLeft: 0,
+
+            // offsetLeft: offsetLeft - left,
+
+            offsetX: left + (clientX - left) - (offsetLeft - left),
             offsetY: top + (clientY - top),
             // For elements outside of DraggerContainers we need:
-            // translateX: 0, //left - offsetLeft,
-            // translateY: 0, //top - offsetTop,
-            // Within DraggerContainer:
-            translateX: isOutsideContainer ? left - offsetLeft : 0, 
-            translateY: isOutsideContainer ? top - offsetTop: 0, 
+            translateX: isOutsideContainer ?  0 : offsetLeft - left , //left - offsetLeft,
+            translateY: 0, //top - offsetTop,
           }));
 
-           // // this gets the middle as 0, above the middle is positive, below is negative
-          const touchedPointY = (clientY - top);
-          const touchedPointX = (clientX - left);
-          console.log("touched point y ", touchedPointY)
-          console.log("left", left);
-          console.log("top", top);
+          // this gets the middle as 0, above the middle is positive, below is negative
+          const touchedPointY = clientY - top;
+          const touchedPointX = clientX - left;
           const dragContainerExpandHeight = (height / 2 - touchedPointY) * 2;
-          const dragContainerExpandWidth = (width / 2 - touchedPointX);
+          const dragContainerExpandWidth = width / 2 - touchedPointX;
 
-
-          dispatch({type:"SET_DRAG_CONTAINER_EXPAND", payload: {height: dragContainerExpandHeight, width: dragContainerExpandWidth}})
+          dispatch({ type: "SET_DRAG_CONTAINER_EXPAND", payload: { height: dragContainerExpandHeight, width: dragContainerExpandWidth } });
           dispatch({ type: "SET_DRAGGED_CARD_ID", payload: draggerId });
           dispatch({ type: "SET_DRAGGED_STATE", payload: { index: index, containerId: containerId } });
         }
@@ -142,24 +137,20 @@ const Dragger = (props: DraggerProps) => {
     position: "relative",
     zIndex: isReturning ? 9 : "",
     transition: isReturning ? "280ms" : "",
+    cursor: isDragDisabled? "auto" : "grab",
   };
 
   const draggedStyles: CSSProperties = {
     transform: `translate(${dragState.translateX}px, ${dragState.translateY}px)`,
     pointerEvents: "none",
-    left: dragState.offsetLeft,
     position: "absolute",
     zIndex: 10,
-    transition: "",
+    transition: "",    
   };
 
   const styles = dragState.dragged ? draggedStyles : notDraggedStyles;
 
-  return (
-    <div style={{ ...styles }}>
-      {children(handleDragStart, dragState.dragged, draggableRef)}
-    </div>
-  );
+  return <div style={{ ...styles }}>{children(handleDragStart, dragState.dragged, draggableRef)}</div>;
 };
 
 export default Dragger;

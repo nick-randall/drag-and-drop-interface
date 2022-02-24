@@ -101,12 +101,12 @@ const DraggerContainer: React.FC<ComponentProps> = ({
       const { left: boundingBoxLeft } = containerElement.getBoundingClientRect();
       const touchedX = clientX - boundingBoxLeft;
 
+      // Caclulate the left position of each element, add it to an array
       //
-      // Caclulate the left position of each element , add it to an array
       const childrenSizes = children.map(child => child.props.size ?? 0);
       let rowShape = getCumulativeSum(childrenSizes);
 
-      // Handle non-rearrange case:
+      // Handle non-rearrange case (dragged element comes from outside of this drag container):
       if (!isRearrange) {
         rowShape = addZeroAtFirstIndex(rowShape);
         rowShape = rowShape.map(ele => (ele += elementWidth / 2));
@@ -187,7 +187,8 @@ const DraggerContainer: React.FC<ComponentProps> = ({
               width: figureOutWhetherToExpand(index),
               height: 150,
               // Suppress transition if this is the first time an element is being dragged in this container
-              transition: isInitialRearrange || isDragEnd ? "" : "140ms ease",
+              transition: isInitialRearrange || isDragEnd ? "" : "200ms ease",
+              // transitionDelay: "120ms"
             }}
             draggable="false"
           />
