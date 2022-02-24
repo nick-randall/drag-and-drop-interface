@@ -145,9 +145,9 @@ const Dragger: React.FC<CombinedProps> = ({ children, index, draggerId, containe
     position: "relative",
     zIndex: isReturning ? 9 : "",
     transition: "280ms",
-    // left: "",
+    left: "",
     cursor: isDragDisabled ? "auto" : "grab",
-    backgroundColor:"black"
+  
   };
 
   const draggedStyles: CSSProperties = {
@@ -157,7 +157,6 @@ const Dragger: React.FC<CombinedProps> = ({ children, index, draggerId, containe
     left:  dragState.draggerContainerOffsetLeft,
     zIndex: 10,
     transition: "",
-    backgroundColor:"black"
   };
 
 

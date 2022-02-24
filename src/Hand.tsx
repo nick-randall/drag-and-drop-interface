@@ -10,7 +10,7 @@ const handCards: GameCard[] = createSpecialsAndGuests().slice(8, 15);
 const Hand:React.FC = () => {
   const [spread, setSpread] = useState(30);
   return (
-    <div style={{ left: 200, position: "absolute", top: -300 }} onMouseMove={() => setSpread(120)} onMouseLeave={() => setSpread(30)}>
+    <div style={{ left: 200, position: "absolute", top: -300 }} >
       {handCards.map((card, index) => (
         <Dragger draggerId={card.id} index={index} containerId={containerTwoId} size={elementWidth * 1.2} isOutsideContainer>
           {(handleDragStart, draggerRef, dragged) => (
@@ -19,6 +19,7 @@ const Hand:React.FC = () => {
               alt={card.name}
               key={card.id}
               onMouseDown={handleDragStart}
+              onMouseMove={() => setSpread(120)} onMouseLeave={() => setSpread(30)}
               style={{
                 position: "absolute",
                 width: elementWidth * 1.2,
