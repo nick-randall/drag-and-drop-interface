@@ -40,7 +40,7 @@ const CardContainers: React.FC = () => {
       </div>
       <div className="hand">
       {handCards.map((card, index) => (
-        <Dragger draggerId={card.id} index={index} containerId={containerTwoId} size={elementWidth} isOutsideContainer>
+        <Dragger draggerId={card.id} index={index} containerId={containerTwoId} size={elementWidth * 1.2} isOutsideContainer>
           {(handleDragStart, dragged, draggerRef) => (
             <img
               ref={draggerRef}
@@ -50,7 +50,7 @@ const CardContainers: React.FC = () => {
               style={{
                 position: "absolute",
                 left: index * 30,
-                width: elementWidth,
+                width: elementWidth * 1.2,
                 transform: dragged ? "" : `rotate(${10 * index - (handCards.length / 2 - 0.5) * 10}deg)`,
                 transition: "300ms",
                 zIndex: dragged ? 10: 0,

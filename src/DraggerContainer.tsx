@@ -49,10 +49,10 @@ interface ComponentReduxProps {
   originIndex?: number;
   isRearrange?: boolean;
   isDraggingOver?: boolean;
-  expandAbove: number,
-  expandBelow: number,
-  expandLeft: number,
-  expandRight: number
+  expandAbove: number;
+  expandBelow: number;
+  expandLeft: number;
+  expandRight: number;
 }
 type DraggerContainerProps = {
   // children: React.FC<DraggerProps>[];
@@ -67,7 +67,7 @@ type ComponentProps = ComponentReduxProps & DraggerContainerProps;
 // This container has several jobs:
 // 1. It listens to dragEvents and updates the redux dragState (draggedOverIndex and draggedOVerId)
 // 2. It moves its children around to give the user feedback about where they are placing the dragged item
-// 3. to improve UX, it expands a hidden box so that dragEvents can be detected no based on the dragged item position, 
+// 3. to improve UX, it expands a hidden box so that dragEvents can be detected no based on the dragged item position,
 // NOT based only on the mouse position
 
 const DraggerContainer: React.FC<ComponentProps> = ({
@@ -87,40 +87,48 @@ const DraggerContainer: React.FC<ComponentProps> = ({
   isDropDisabled = false,
 }) => {
   const dispatch = useDispatch();
+  const [rowShape, setRowShape] = useState<number[][]>([]);
   const containerRef: Ref<HTMLDivElement> = useRef(null);
   const dragged = draggedId !== undefined;
   const isInitialRearrange = usePrevious(originIndex) === undefined;
-  const isDragEnd = usePrevious(originIndex) !== undefined && originIndex === undefined
+  const isDragEnd = usePrevious(originIndex) !== undefined && originIndex === undefined;
 
   const handleMouseMove = ({ clientX }: { clientX: number }) => {
     if (!dragged) return;
     if (isDropDisabled) return;
+    let newDraggedOverIndex = 0;
 
     const containerElement = containerRef.current;
     if (containerElement) {
       const { left: boundingBoxLeft } = containerElement.getBoundingClientRect();
       const touchedX = clientX - boundingBoxLeft;
 
-      // Caclulate the left position of each element, add it to an array
-      //
-      const childrenSizes = children.map(child => child.props.size ?? 0);
-      let rowShape = getCumulativeSum(childrenSizes);
+      // Set rowShape if this is the first time the container is being dragged over
+      if (rowShape.length === 0) {
+        // Caclulate the left position of each element, add it to an array
+        //
+        const childrenSizes = children.map(child => child.props.size ?? 0);
+        let newRowShape = getCumulativeSum(childrenSizes);
 
-      // Handle non-rearrange case (dragged element comes from outside of this drag container):
-      if (!isRearrange) {
-        rowShape = addZeroAtFirstIndex(rowShape);
-        rowShape = rowShape.map(ele => (ele += elementWidth / 2));
+        // Handle non-rearrange case (ie. if dragged element comes from outside of this drag container):
+        //
+        if (!isRearrange) {
+          newRowShape = addZeroAtFirstIndex(newRowShape);
+          newRowShape = newRowShape.map(ele => (ele += elementWidth / 2));
+        }
+
+        // Create break points where dragging over causes draggedOverIndex to ++ or --
+        //
+        const leftBreakPointFactor = 0.35 * elementWidth;
+        const rightBreakPointFactor = 0.15 * elementWidth;
+        const initialRightBreakPoint = 0.25 * elementWidth;
+        const newRowShapeWithUpperLowerBounds: number[][] = newRowShape.map(e =>
+          e > 0 ? [e - leftBreakPointFactor, e + rightBreakPointFactor] : [0, initialRightBreakPoint]
+        );
+        setRowShape(newRowShapeWithUpperLowerBounds);
+      } else {
+        newDraggedOverIndex = findNewDraggedOverIndex(rowShape, touchedX);
       }
-
-      // Create break points where dragging over causes draggedOverIndex to ++ or --
-      const leftBreakPointFactor = 0.35 * elementWidth;
-      const rightBreakPointFactor = 0.15 * elementWidth;
-      const initialRightBreakPoint = 0.25 * elementWidth;
-      const rowShapeWithUpperLowerBounds: number[][] = rowShape.map(e =>
-        e > 0 ? [e - leftBreakPointFactor, e + rightBreakPointFactor] : [0, initialRightBreakPoint]
-      );
-
-      const newDraggedOverIndex = findNewDraggedOverIndex(rowShapeWithUpperLowerBounds, touchedX);
 
       if (draggedOverIndex !== newDraggedOverIndex && newDraggedOverIndex !== -1) {
         dispatch({ type: "UPDATE_DRAG_DESTINATION", payload: { index: newDraggedOverIndex, containerId: id } });
@@ -155,7 +163,7 @@ const DraggerContainer: React.FC<ComponentProps> = ({
       // This is the container of all draggers
       ref={containerRef}
       style={{
-        position:"absolute",
+        position: "absolute",
         display: isLayoutDisabled ? "block" : "flex",
         paddingTop: expandAbove,
         marginTop: -expandAbove,
@@ -215,14 +223,14 @@ const mapStateToProps = (state: RootState, ownProps: DraggerContainerProps) => {
     isDraggingOver = draggedState.destination.containerId === ownProps.id;
     draggedOverIndex = isDraggingOver ? draggedState.destination.index : undefined;
   }
-  let expandAbove = 0
-  let expandBelow = 0
+  let expandAbove = 0;
+  let expandBelow = 0;
   let expandLeft = 0;
   let expandRight = 0;
-  if(dragContainerExpand.height > 0) expandAbove = dragContainerExpand.height;
-  else expandBelow  = dragContainerExpand.height * -1;
-  if(dragContainerExpand.width < 0) expandRight = dragContainerExpand.width;
-  else expandLeft  = dragContainerExpand.width * -1;
+  if (dragContainerExpand.height > 0) expandAbove = dragContainerExpand.height;
+  else expandBelow = dragContainerExpand.height * -1;
+  if (dragContainerExpand.width < 0) expandRight = dragContainerExpand.width;
+  else expandLeft = dragContainerExpand.width * -1;
   return { draggedOverIndex, draggedId, originIndex, isRearrange, isDraggingOver, expandAbove, expandBelow, expandLeft, expandRight };
 };
 export default connect(mapStateToProps)(DraggerContainer);

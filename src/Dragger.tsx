@@ -1,11 +1,13 @@
 import React, { CSSProperties, Ref, useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
+import { RootState } from "./store";
 
 export interface DraggerProps {
   draggerId: string;
   index: number;
   containerId: string;
   size: number;
+  // Whether this dragger is a child a DraggerContainer 
   isOutsideContainer?: boolean;
   isDragDisabled?:boolean;
   children: (handleDragStart: (event: React.MouseEvent) => void, dragged: boolean, ref: Ref<HTMLImageElement>) => JSX.Element;
@@ -26,6 +28,7 @@ const Dragger : React.FC<DraggerProps> = ({ children, index, draggerId, containe
     translateY: 0,
     offsetX: 0,
     offsetY: 0,
+    offsetLeft: 0
   });
 
   const [isReturning, setIsReturning] = useState(false);
@@ -68,15 +71,15 @@ const Dragger : React.FC<DraggerProps> = ({ children, index, draggerId, containe
             // left and top will capture current position of card
 
             // Body should be set to margin: 0px
-            offsetLeft: 0,
+            // offsetLeft: 0,
 
-            // offsetLeft: offsetLeft - left,
+            // This is important for elements in a DraggerContainer: it offsets based on the left position within the container
+            offsetLeft: offsetLeft - left,
 
-            offsetX: left + (clientX - left) - (offsetLeft - left),
+            offsetX: left + (clientX - left),
             offsetY: top + (clientY - top),
-            // For elements outside of DraggerContainers we need:
-            translateX: isOutsideContainer ?  0 : offsetLeft - left , //left - offsetLeft,
-            translateY: 0, //top - offsetTop,
+            translateX: 0,
+            translateY: 0, 
           }));
 
           // this gets the middle as 0, above the middle is positive, below is negative
@@ -133,10 +136,10 @@ const Dragger : React.FC<DraggerProps> = ({ children, index, draggerId, containe
   const notDraggedStyles: CSSProperties = {
     transform: "",
     pointerEvents: "auto",
-    left: "",
     position: "relative",
     zIndex: isReturning ? 9 : "",
     transition: isReturning ? "280ms" : "",
+    left: "",
     cursor: isDragDisabled? "auto" : "grab",
   };
 
@@ -144,6 +147,7 @@ const Dragger : React.FC<DraggerProps> = ({ children, index, draggerId, containe
     transform: `translate(${dragState.translateX}px, ${dragState.translateY}px)`,
     pointerEvents: "none",
     position: "absolute",
+    left: isOutsideContainer ? 0: dragState.offsetLeft,
     zIndex: 10,
     transition: "",    
   };
@@ -154,3 +158,4 @@ const Dragger : React.FC<DraggerProps> = ({ children, index, draggerId, containe
 };
 
 export default Dragger;
+
