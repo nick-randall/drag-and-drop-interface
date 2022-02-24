@@ -173,7 +173,7 @@ const DraggerContainer: React.FC<ComponentProps> = ({
         // marginLeft: -expandLeft,
         // paddingRight: expandRight,
         // marginRight: -expandRight,
-        // backgroundColor:"black"
+        backgroundColor: "black",
       }}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
@@ -227,8 +227,12 @@ const mapStateToProps = (state: RootState, ownProps: DraggerContainerProps) => {
   let expandBelow = 0;
   let expandLeft = 0;
   let expandRight = 0;
-  if (dragContainerExpand.height > 0) expandAbove = dragContainerExpand.height;
-  else expandBelow = dragContainerExpand.height * -1;
+  if (dragContainerExpand.height > 0) {
+    expandAbove = dragContainerExpand.height * 2;
+  } else {
+    expandBelow = dragContainerExpand.height * -2;
+  }
+  // Left and right expand not implemented yet
   if (dragContainerExpand.width < 0) expandRight = dragContainerExpand.width;
   else expandLeft = dragContainerExpand.width * -1;
   return { draggedOverIndex, draggedId, originIndex, isRearrange, isDraggingOver, expandAbove, expandBelow, expandLeft, expandRight };

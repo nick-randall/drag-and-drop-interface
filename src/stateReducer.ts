@@ -1,4 +1,4 @@
-interface DragLocation {
+export interface DragLocation {
   containerId: string;
   index: number;
 }

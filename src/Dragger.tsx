@@ -1,5 +1,6 @@
 import React, { CSSProperties, Ref, useCallback, useEffect, useRef, useState } from "react";
-import { useDispatch } from "react-redux";
+import { connect, useDispatch } from "react-redux";
+import { DragLocation } from "./stateReducer";
 import { RootState } from "./store";
 
 export interface DraggerProps {
@@ -7,28 +8,28 @@ export interface DraggerProps {
   index: number;
   containerId: string;
   size: number;
-  // Whether this dragger is a child a DraggerContainer 
+  // Whether this dragger is a child of a DraggerContainer 
   isOutsideContainer?: boolean;
   isDragDisabled?:boolean;
   children: (handleDragStart: (event: React.MouseEvent) => void, dragged: boolean, ref: Ref<HTMLImageElement>) => JSX.Element;
 }
 
-interface DragData {
-  dragged: boolean;
-  translateX: number;
-  translateY: number;
-  offsetX: number;
-  offsetY: number;
+interface DraggerReduxProps {
+  source: DragLocation | undefined,
+  destination: DragLocation | undefined
 }
 
-const Dragger : React.FC<DraggerProps> = ({ children, index, draggerId, containerId, isOutsideContainer, isDragDisabled }) => {
+
+type CombinedProps = DraggerProps & DraggerReduxProps;
+
+const Dragger : React.FC<CombinedProps> = ({ children, index, draggerId, containerId, isOutsideContainer, isDragDisabled }) => {
   const [dragState, setDragState] = useState({
     dragged: false,
     translateX: 0,
     translateY: 0,
     offsetX: 0,
     offsetY: 0,
-    offsetLeft: 0
+    draggerContainerOffsetLeft: 0
   });
 
   const [isReturning, setIsReturning] = useState(false);
@@ -71,10 +72,9 @@ const Dragger : React.FC<DraggerProps> = ({ children, index, draggerId, containe
             // left and top will capture current position of card
 
             // Body should be set to margin: 0px
-            // offsetLeft: 0,
 
             // This is important for elements in a DraggerContainer: it offsets based on the left position within the container
-            offsetLeft: offsetLeft - left,
+            draggerContainerOffsetLeft: offsetLeft - left,
 
             offsetX: left + (clientX - left),
             offsetY: top + (clientY - top),
@@ -85,7 +85,9 @@ const Dragger : React.FC<DraggerProps> = ({ children, index, draggerId, containe
           // this gets the middle as 0, above the middle is positive, below is negative
           const touchedPointY = clientY - top;
           const touchedPointX = clientX - left;
-          const dragContainerExpandHeight = (height / 2 - touchedPointY) * 2;
+          const dragContainerExpandHeight = (height / 2 - touchedPointY);
+          // Left and right expand not implemented yet
+          //
           const dragContainerExpandWidth = width / 2 - touchedPointX;
 
           dispatch({ type: "SET_DRAG_CONTAINER_EXPAND", payload: { height: dragContainerExpandHeight, width: dragContainerExpandWidth } });
@@ -94,7 +96,7 @@ const Dragger : React.FC<DraggerProps> = ({ children, index, draggerId, containe
         }
       } else console.log("error getting html node");
     },
-    [containerId, dispatch, draggerId, index, isOutsideContainer]
+    [containerId, dispatch, draggerId, index]
   );
 
   const handleDrag = useCallback(
@@ -147,7 +149,7 @@ const Dragger : React.FC<DraggerProps> = ({ children, index, draggerId, containe
     transform: `translate(${dragState.translateX}px, ${dragState.translateY}px)`,
     pointerEvents: "none",
     position: "absolute",
-    left: isOutsideContainer ? 0: dragState.offsetLeft,
+    left: isOutsideContainer ? 0: dragState.draggerContainerOffsetLeft,
     zIndex: 10,
     transition: "",    
   };
@@ -157,5 +159,13 @@ const Dragger : React.FC<DraggerProps> = ({ children, index, draggerId, containe
   return <div style={{ ...styles }}>{children(handleDragStart, dragState.dragged, draggableRef)}</div>;
 };
 
-export default Dragger;
+// export default Dragger;
+
+const mapStateToProps = (state: RootState) =>{
+  const { draggedState } = state;
+  const {source, destination} = draggedState;
+  return {source, destination}
+}
+
+export default connect(mapStateToProps)(Dragger)
 
