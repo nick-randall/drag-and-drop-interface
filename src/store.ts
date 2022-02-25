@@ -1,15 +1,15 @@
-import { createStore } from "@reduxjs/toolkit";
+import { AnyAction, applyMiddleware, createStore, compose } from "@reduxjs/toolkit";
 import { stateReducer } from "./stateReducer";
+import thunkMiddleware, { ThunkDispatch } from 'redux-thunk'
+const composedEnhancer = compose(applyMiddleware<ThunkDispatch<any, undefined, AnyAction>>(thunkMiddleware))
 
 
 
-const store = createStore(stateReducer);
 
-  // // Infer the `RootState` and `AppDispatch` types from the store itself
+const store = createStore(stateReducer, composedEnhancer);
+
   export type RootState = ReturnType<typeof store.getState>;
-  // // Inferred type: {posts: PostsState, comments: CommentsState, users: UsersState}
-
-  // TodoList.js
+  export type AppDispatch = ThunkDispatch<any, undefined, AnyAction>;
 
 
 
