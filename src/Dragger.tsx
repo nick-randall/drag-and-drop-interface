@@ -1,6 +1,6 @@
 import React, { CSSProperties, Ref, useCallback, useEffect, useRef, useState } from "react";
 import { connect, useDispatch } from "react-redux";
-import { dragStartThunk } from "./dragEventThunks";
+import { dragEndThunk, dragStartThunk } from "./dragEventThunks";
 import { DragLocation } from "./stateReducer";
 import { RootState } from "./store";
 
@@ -62,6 +62,7 @@ const Dragger: React.FC<CombinedProps> = ({ children, index, draggerId, containe
         const { left, top, height, width } = draggableRef.current.getBoundingClientRect();
         const { offsetLeft, offsetTop } = getOffset(draggableRef.current);
         const { offsetLeft: simpleOffsetLeft } = draggableRef.current;
+        console.log(offsetLeft)
         if (offsetLeft != null && offsetTop != null) {
           if (index === 2) console.log("onfirstclick" + (offsetLeft - left));
           setDragState(prevState => ({
@@ -92,12 +93,9 @@ const Dragger: React.FC<CombinedProps> = ({ children, index, draggerId, containe
           //
           const dragContainerExpandWidth = width / 2 - touchedPointX;
 
-          dispatch({ type: "SET_DRAG_CONTAINER_EXPAND", payload: { height: dragContainerExpandHeight, width: dragContainerExpandWidth } });
-          const dragSourceAndDestination = { containerId: containerId, index: index }
+          const dragSourceAndDestination = { containerId: containerId, index: index };
           dispatch(dragStartThunk(draggerId, dragSourceAndDestination));
-          // dispatch({ type: "SET_DRAGGED_STATE", payload: { index: index, containerId: containerId } });
-          console.log(draggerId)
-          //dispatch({ type: "SET_INITIAL_DRAGGED_STATE", payload: { index: index, containerId: containerId }  });
+          dispatch({ type: "SET_DRAG_CONTAINER_EXPAND", payload: { height: dragContainerExpandHeight, width: dragContainerExpandWidth } });
         }
       } else console.log("error getting html node");
     },
@@ -116,21 +114,24 @@ const Dragger: React.FC<CombinedProps> = ({ children, index, draggerId, containe
     },
     [dragState]
   );
-  // if(index === 2)console.log("dragstate" + dragState.draggerContainerOffsetLeft)
   const handleDragEnd = useCallback(() => {
+    let dropLocation = { left: 0, top: 0 };
+    if (draggableRef && draggableRef.current) {
+      const { left, top } = draggableRef.current.getBoundingClientRect();
+      dropLocation = { left: left, top: top };
+    }
     if (dragState.dragged) {
-      if (source !== destination) {
-        console.log("moved from " + source?.index + " in " + source?.containerId + " to " + destination?.index + " in " + destination?.containerId);
-      }
       setDragState(prevState => ({
         ...prevState,
         dragged: false,
       }));
+    
+      dispatch(dragEndThunk(dropLocation));
       dispatch({ type: "SET_DRAGGED_CARD_ID", payload: "" });
       dispatch({ type: "CLEAN_UP_DRAG_STATE" });
       setIsReturning(true);
     }
-  }, [dragState.dragged, source, destination, dispatch]);
+  }, [dragState.dragged, dispatch]);
 
   // adding/cleaning up mouse event listeners
   React.useEffect(() => {

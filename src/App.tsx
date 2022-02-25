@@ -5,10 +5,11 @@ import DraggerContainer from "./DraggerContainer";
 import "./App.css";
 import Infos from "./Infos";
 import Hand from "./Hand";
+import { useSelector } from "react-redux";
+import { RootState } from "./store";
 
 const CardContainers: React.FC = () => {
-
-  const guestCards: GameCard[] = createSpecialsAndGuests().slice(0, 7);
+  const guestCards = useSelector((state: RootState) => state.snapshot.xxxy2)
   const [randomCard]: GameCard[] = createSpecialsAndGuests().slice(0, 1);
   const elementWidth = 100;
   // console.log(guestCards);

@@ -1,3 +1,4 @@
+import createSpecialsAndGuests from "./createGuests";
 import { SetDraggedId, SetInitialDraggedState } from "./dragEventThunks";
 
 export interface DragLocation {
@@ -9,19 +10,18 @@ export interface DraggedState {
   source?: DragLocation;
   destination?: DragLocation;
 }
+
+export interface Snapshot  {
+  [id: string] : GameCard[],
+
+}
+
 interface State {
   draggedId?: string;
   draggedState: DraggedState;
   dragContainerExpand: { width: number; height: number };
+  snapshot: Snapshot
 }
-
-type SetDraggedSource = {
-  type: "SET_DRAGGED_CARD_SOURCE";
-  payload: { containerId: string; index: number };
-};
-
-
-
 type UpdateDraggedDestination = {
   type: "UPDATE_DRAG_DESTINATION";
   // update the destination
@@ -37,26 +37,28 @@ type SetDragContainerExpand = {
   payload: { width: number; height: number };
 };
 
-type Action = SetDraggedId | SetDraggedSource | SetInitialDraggedState | UpdateDraggedDestination | CleanUpDraggedState | SetDragContainerExpand;
+type UpdateSnapshot = {
+  type: "UPDATE_SNAPSHOT",
+  payload: Snapshot
+}
+
+type Action = SetDraggedId | SetInitialDraggedState | UpdateDraggedDestination | CleanUpDraggedState | SetDragContainerExpand;
 
 const initialState = {
   draggedId: undefined,
   draggedState: { source: undefined, destination: undefined },
   dragContainerExpand: { width: 0, height: 0 },
+  snapshot: {"xxxy1" : createSpecialsAndGuests().slice(8, 15), 
+  "xxxy2" : createSpecialsAndGuests().slice(0, 7)}
 };
 
 export const stateReducer = (state: State = initialState, action: Action) => {
-  console.log(action)
   switch (action.type) {
     case "SET_DRAGGED_ID":
-      console.log(action.payload + " set")
       return { ...state, draggedId: action.payload };
     case "SET_INITIAL_DRAGGED_STATE": {
-      console.log("reducer " + action.payload)
       return { ...state, draggedState: { source: action.payload, destination: action.payload } };
     }
-    case "SET_DRAGGED_CARD_SOURCE":
-      return { ...state, draggedState: { ...state.draggedState, source: action.payload } };
     case "UPDATE_DRAG_DESTINATION":
       return { ...state, draggedState: { ...state.draggedState, destination: action.payload } };
     case "CLEAN_UP_DRAG_STATE":

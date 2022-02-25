@@ -1,14 +1,17 @@
 import { useState } from "react";
+import { useSelector } from "react-redux";
 import createSpecialsAndGuests from "./createGuests";
 import Dragger from "./Dragger";
 import DraggerContainer from "./DraggerContainer";
+import { RootState } from "./store";
 const containerTwoId = "xxxy1";
 const elementWidth = 100;
 
-const handCards: GameCard[] = createSpecialsAndGuests().slice(8, 15);
+// const handCards: GameCard[] = createSpecialsAndGuests().slice(8, 15);
 // eslint-disable-next-line react-hooks/rules-of-hooks
 
 const Hand: React.FC = () => {
+  const handCards = useSelector((state: RootState) => state.snapshot.xxxy1)
   const [spread, setSpread] = useState(30);
   return (
     <div

@@ -1,8 +1,8 @@
 import { AppDispatch,  RootState } from "./store";
 
 interface LastLocation {
-  x: number;
-  y: number;
+  left: number;
+  top: number;
 }
 
 export type SetDraggedId = {
@@ -28,13 +28,12 @@ const setInitialDraggedState = (sourceAndDestination: LocationData): SetInitialD
 
 export const dragStartThunk = (id: string, source: LocationData) => ( dispatch: Function, getState: () => RootState) => {
   dispatch(setDraggedId(id));
-  console.log("id " + id)
   dispatch(setInitialDraggedState(source));
-  dispatch({type: "test"})
-  
-
 };
 
-export const dragEndThunk = (lastLocation: LastLocation) => (dispatch: Function, getState: Function) => {
-  console.log("last location " + lastLocation.x + " " + lastLocation.y);
+export const dragEndThunk = (lastLocation: LastLocation) => (dispatch: Function, getState: ()=>RootState) => {
+  const {source, destination} = getState().draggedState;
+  console.log("source === destination " +  (source === destination))
+  
+  console.log("last location " + lastLocation.left + " " + lastLocation.top);
 };
