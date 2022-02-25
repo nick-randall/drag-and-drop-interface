@@ -1,5 +1,6 @@
 import React, { CSSProperties, Ref, useCallback, useEffect, useRef, useState } from "react";
 import { connect, useDispatch } from "react-redux";
+import { setDraggedId } from "./dragEventThunks";
 import { DragLocation } from "./stateReducer";
 import { RootState } from "./store";
 
@@ -92,7 +93,7 @@ const Dragger: React.FC<CombinedProps> = ({ children, index, draggerId, containe
           const dragContainerExpandWidth = width / 2 - touchedPointX;
 
           dispatch({ type: "SET_DRAG_CONTAINER_EXPAND", payload: { height: dragContainerExpandHeight, width: dragContainerExpandWidth } });
-          dispatch({ type: "SET_DRAGGED_CARD_ID", payload: draggerId });
+          dispatch(setDraggedId(draggerId));
           dispatch({ type: "SET_DRAGGED_STATE", payload: { index: index, containerId: containerId } });
         }
       } else console.log("error getting html node");

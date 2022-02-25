@@ -1,3 +1,5 @@
+import { SetDraggedId } from "./dragEventThunks";
+
 export interface DragLocation {
   containerId: string;
   index: number;
@@ -12,11 +14,6 @@ interface State {
   draggedState: DraggedState;
   dragContainerExpand: { width: number; height: number };
 }
-
-type SetDraggedId = {
-  type: "SET_DRAGGED_CARD_ID";
-  payload: string;
-};
 
 type SetDraggedSource = {
   type: "SET_DRAGGED_CARD_SOURCE";
@@ -53,7 +50,8 @@ const initialState = {
 
 export const stateReducer = (state: State = initialState, action: Action) => {
   switch (action.type) {
-    case "SET_DRAGGED_CARD_ID":
+    case "SET_DRAGGED_ID":
+      console.log(action.payload + " set")
       return { ...state, draggedId: action.payload };
     case "SET_DRAGGED_STATE": {
       return { ...state, draggedState: { source: action.payload, destination: action.payload } };
