@@ -77,6 +77,7 @@ const Dragger: React.FC<CombinedProps> = ({ children, index, draggerId, containe
 
             // This is important for elements in a DraggerContainer: it offsets based on the left position within the container
             draggerContainerOffsetLeft: isOutsideContainer ? simpleOffsetLeft  : offsetLeft - left,
+            //  draggerContainerOffsetLeft: offsetLeft - left,
 
             offsetX: left + (clientX - left),
             offsetY: top + (clientY - top),
