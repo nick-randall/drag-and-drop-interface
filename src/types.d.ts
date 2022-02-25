@@ -98,7 +98,7 @@ type CardAction = {
   placeHighlightType?: PlaceType;
 };
 
-type LocationData = {droppableId: string, index: number}
+type LocationData = {containerId: string, index: number}
 
 type DropResultEvent = {
   source: LocationData,

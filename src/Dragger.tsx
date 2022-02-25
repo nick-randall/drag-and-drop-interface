@@ -1,6 +1,6 @@
 import React, { CSSProperties, Ref, useCallback, useEffect, useRef, useState } from "react";
 import { connect, useDispatch } from "react-redux";
-import { setDraggedId } from "./dragEventThunks";
+import { dragStartThunk } from "./dragEventThunks";
 import { DragLocation } from "./stateReducer";
 import { RootState } from "./store";
 
@@ -13,7 +13,6 @@ export interface DraggerProps {
   isOutsideContainer?: boolean;
   isDragDisabled?: boolean;
   children: (handleDragStart: (event: React.MouseEvent) => void, ref: Ref<HTMLImageElement>, dragged: boolean) => JSX.Element;
-
 }
 
 interface DraggerReduxProps {
@@ -62,9 +61,9 @@ const Dragger: React.FC<CombinedProps> = ({ children, index, draggerId, containe
       if (draggableRef && draggableRef.current) {
         const { left, top, height, width } = draggableRef.current.getBoundingClientRect();
         const { offsetLeft, offsetTop } = getOffset(draggableRef.current);
-        const { offsetLeft: simpleOffsetLeft} = draggableRef.current
+        const { offsetLeft: simpleOffsetLeft } = draggableRef.current;
         if (offsetLeft != null && offsetTop != null) {
-          if(index === 2) console.log("onfirstclick" + (offsetLeft - left))
+          if (index === 2) console.log("onfirstclick" + (offsetLeft - left));
           setDragState(prevState => ({
             ...prevState,
             dragged: true,
@@ -76,7 +75,7 @@ const Dragger: React.FC<CombinedProps> = ({ children, index, draggerId, containe
             // Body should be set to margin: 0px
 
             // This is important for elements in a DraggerContainer: it offsets based on the left position within the container
-            draggerContainerOffsetLeft: isOutsideContainer ? simpleOffsetLeft  : offsetLeft - left,
+            draggerContainerOffsetLeft: isOutsideContainer ? simpleOffsetLeft : offsetLeft - left,
             //  draggerContainerOffsetLeft: offsetLeft - left,
 
             offsetX: left + (clientX - left),
@@ -94,8 +93,11 @@ const Dragger: React.FC<CombinedProps> = ({ children, index, draggerId, containe
           const dragContainerExpandWidth = width / 2 - touchedPointX;
 
           dispatch({ type: "SET_DRAG_CONTAINER_EXPAND", payload: { height: dragContainerExpandHeight, width: dragContainerExpandWidth } });
-          dispatch(setDraggedId(draggerId));
-          dispatch({ type: "SET_DRAGGED_STATE", payload: { index: index, containerId: containerId } });
+          const dragSourceAndDestination = { containerId: containerId, index: index }
+          dispatch(dragStartThunk(draggerId, dragSourceAndDestination));
+          // dispatch({ type: "SET_DRAGGED_STATE", payload: { index: index, containerId: containerId } });
+          console.log(draggerId)
+          //dispatch({ type: "SET_INITIAL_DRAGGED_STATE", payload: { index: index, containerId: containerId }  });
         }
       } else console.log("error getting html node");
     },
@@ -114,7 +116,7 @@ const Dragger: React.FC<CombinedProps> = ({ children, index, draggerId, containe
     },
     [dragState]
   );
-// if(index === 2)console.log("dragstate" + dragState.draggerContainerOffsetLeft)
+  // if(index === 2)console.log("dragstate" + dragState.draggerContainerOffsetLeft)
   const handleDragEnd = useCallback(() => {
     if (dragState.dragged) {
       if (source !== destination) {
@@ -149,22 +151,20 @@ const Dragger: React.FC<CombinedProps> = ({ children, index, draggerId, containe
     transition: "280ms",
     left: "",
     cursor: isDragDisabled ? "auto" : "grab",
-  
   };
 
   const draggedStyles: CSSProperties = {
     transform: `translate(${dragState.translateX}px, ${dragState.translateY}px)`,
     pointerEvents: "none",
     position: "absolute",
-    left:  dragState.draggerContainerOffsetLeft,
+    left: dragState.draggerContainerOffsetLeft,
     zIndex: 10,
     transition: "",
   };
 
-
   const styles = dragState.dragged ? draggedStyles : notDraggedStyles;
 
-  return <div style={{ ...styles }}>{children(handleDragStart,  draggableRef, dragState.dragged)}</div>;
+  return <div style={{ ...styles }}>{children(handleDragStart, draggableRef, dragState.dragged)}</div>;
 };
 
 // export default Dragger;
