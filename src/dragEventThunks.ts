@@ -33,7 +33,6 @@ export const dragStartThunk = (id: string, source: LocationData) => ( dispatch: 
 
 export const dragEndThunk = (lastLocation: LastLocation) => (dispatch: Function, getState: ()=>RootState) => {
   const {source, destination} = getState().draggedState;
-  console.log("source === destination " +  (source === destination))
-  
-  console.log("last location " + lastLocation.left + " " + lastLocation.top);
-};
+  console.log(source)
+  console.log(destination)
+  };

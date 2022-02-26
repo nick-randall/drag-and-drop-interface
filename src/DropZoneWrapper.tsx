@@ -5,14 +5,14 @@ import { RootState } from "./store";
 interface ComponentReduxProps {
   draggedId?: string;
   isDraggingOver?: boolean;
-  
+
   expandAbove: number;
   expandBelow: number;
   expandLeft: number;
   expandRight: number;
 }
 type DropZoneWrapperProps = {
-  children: JSX.Element[];
+  children: JSX.Element;
   providedIndex: number;
   id: string;
   isDropDisabled?: boolean;
@@ -62,11 +62,13 @@ const DropZoneWrapper: React.FC<ComponentProps> = ({
         // marginLeft: -expandLeft,
         // paddingRight: expandRight,
         // marginRight: -expandRight,
-        // backgroundColor: "black",
+        border: "thin black solid",
       }}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-    >{children}</div>
+    >
+      {children}
+    </div>
   );
 };
 

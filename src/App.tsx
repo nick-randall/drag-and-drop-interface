@@ -7,21 +7,21 @@ import Infos from "./Infos";
 import Hand from "./Hand";
 import { useSelector } from "react-redux";
 import { RootState } from "./store";
+import DropZoneWrapper from "./DropZoneWrapper";
 
 const CardContainers: React.FC = () => {
   const guestCards = useSelector((state: RootState) => state.snapshot.xxxy2)
-  const [randomCard]: GameCard[] = createSpecialsAndGuests().slice(0, 1);
   const elementWidth = 100;
-  // console.log(guestCards);
   const containerOneId = "xxxy2";
  
   return (
     <div>
       <div style={{ left: 200, position: "absolute", top: 500 }}>
-        <DraggerContainer id={containerOneId} elementWidth={elementWidth}>
+        <DraggerContainer id={containerOneId} elementWidth={elementWidth} isDropDisabled>
           {guestCards.map((card, index) => (
             <Dragger draggerId={card.id} index={index} containerId={containerOneId} size={elementWidth} key={card.id}>
               {(handleDragStart, draggerRef) => (
+                <DropZoneWrapper id={card.id} providedIndex={index}>
                 <img
                   ref={draggerRef}
                   onMouseDown={handleDragStart}
@@ -32,7 +32,7 @@ const CardContainers: React.FC = () => {
                   }}
                   src={`./images/${card.image}.jpg`}
                   draggable="false"
-                />
+                /></DropZoneWrapper>
               )}
             </Dragger>
           ))}
