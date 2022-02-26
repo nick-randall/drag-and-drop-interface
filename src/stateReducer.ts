@@ -1,5 +1,5 @@
 import createSpecialsAndGuests from "./createGuests";
-import { CleanUpDragState, SetDragContainerExpand, SetDraggedId, SetInitialDraggedState } from "./dragEventThunks";
+import { CleanUpDragState, SetDragContainerExpand, SetDraggedId, SetInitialDraggedState, UpdateDragDestination } from "./dragEventThunks";
 
 export interface DragLocation {
   containerId: string;
@@ -9,39 +9,32 @@ export interface DragLocation {
 export interface DraggedState {
   source?: DragLocation;
   destination?: DragLocation;
+  isDropZone?: boolean;
 }
 
-export interface Snapshot  {
-  [id: string] : GameCard[],
-
+export interface Snapshot {
+  [id: string]: GameCard[];
 }
 
 interface State {
   draggedId?: string;
   draggedState: DraggedState;
   dragContainerExpand: { width: number; height: number };
-  snapshot: Snapshot
+  snapshot: Snapshot;
 }
-type UpdateDraggedDestination = {
-  type: "UPDATE_DRAG_DESTINATION";
-  // update the destination
-  payload: { containerId: string; index: number };
-};
-
 
 type UpdateSnapshot = {
-  type: "UPDATE_SNAPSHOT",
-  payload: Snapshot
-}
+  type: "UPDATE_SNAPSHOT";
+  payload: Snapshot;
+};
 
-type Action = SetDraggedId | SetInitialDraggedState | UpdateDraggedDestination | CleanUpDragState | SetDragContainerExpand;
+type Action = SetDraggedId | SetInitialDraggedState | UpdateDragDestination | CleanUpDragState | SetDragContainerExpand;
 
 const initialState = {
   draggedId: undefined,
   draggedState: { source: undefined, destination: undefined },
   dragContainerExpand: { width: 0, height: 0 },
-  snapshot: {"xxxy1" : createSpecialsAndGuests().slice(8, 15), 
-  "xxxy2" : createSpecialsAndGuests().slice(0, 7)}
+  snapshot: { xxxy1: createSpecialsAndGuests().slice(8, 15), xxxy2: createSpecialsAndGuests().slice(0, 7) },
 };
 
 export const stateReducer = (state: State = initialState, action: Action) => {
@@ -49,10 +42,11 @@ export const stateReducer = (state: State = initialState, action: Action) => {
     case "SET_DRAGGED_ID":
       return { ...state, draggedId: action.payload };
     case "SET_INITIAL_DRAGGED_STATE": {
-      return { ...state, draggedState: { source: action.payload, destination: action.payload } };
+      return { ...state, draggedState: { source: action.payload, destination: action.payload, isDropZone: false } };
     }
     case "UPDATE_DRAG_DESTINATION":
-      return { ...state, draggedState: { ...state.draggedState, destination: action.payload } };
+      const { destination, isDropZone } = action.payload;
+      return { ...state, draggedState: { ...state.draggedState, destination: destination, isDropZone: isDropZone } };
     case "CLEAN_UP_DRAG_STATE":
       return {
         ...state,
@@ -61,7 +55,6 @@ export const stateReducer = (state: State = initialState, action: Action) => {
         dragContainerExpand: initialState.dragContainerExpand,
       };
     case "SET_DRAG_CONTAINER_EXPAND":
-      console.log(action.payload);
       return { ...state, dragContainerExpand: action.payload };
     default:
       return state;

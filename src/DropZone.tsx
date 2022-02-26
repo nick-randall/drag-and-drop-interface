@@ -1,5 +1,6 @@
 import React from "react";
 import { connect, useDispatch } from "react-redux";
+import { dragUpateThunk } from "./dragEventThunks";
 import { RootState } from "./store";
 
 interface ComponentReduxProps {
@@ -42,12 +43,12 @@ const DropZone: React.FC<ComponentProps> = ({
     if (!dragged) return;
     if (isDropDisabled) return;
 
-    dispatch({ type: "UPDATE_DRAG_DESTINATION", payload: { index: providedIndex, containerId: id } });
+    dispatch(dragUpateThunk({index: providedIndex, containerId:id}, true))
   };
 
   const handleMouseLeave = () => {
     if (isDraggingOver) {
-      dispatch({ type: "UPDATE_DRAG_DESTINATION", payload: undefined });
+      dispatch(dragUpateThunk(undefined, false));
     }
   };
 

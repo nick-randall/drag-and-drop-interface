@@ -18,11 +18,11 @@ const CardContainers: React.FC = () => {
   return (
     <div>
       <div style={{ left: 200, position: "absolute", top: 500 }}>
-        <DraggerContainer id={containerOneId} elementWidth={elementWidth}>
+        <DraggerContainer id={containerOneId} elementWidth={elementWidth} isDropDisabled>
           {guestCards.map((card, index) => (
-            <Dragger draggerId={card.id} index={index} containerId={containerOneId} size={elementWidth} key={card.id} >
+            <Dragger draggerId={card.id} index={index} containerId={containerOneId} size={elementWidth} key={card.id}>
               {(handleDragStart, draggerRef) => (
-                <DropZoneWrapper id={card.id} providedIndex={index} isDropDisabled>
+                <DropZoneWrapper id={card.id} providedIndex={index}>
                   <img
                     ref={draggerRef}
                     onMouseDown={handleDragStart}

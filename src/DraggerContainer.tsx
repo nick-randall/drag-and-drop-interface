@@ -1,5 +1,6 @@
 import React, { Ref, useRef, useState } from "react";
 import { connect, useDispatch } from "react-redux";
+import { dragUpateThunk } from "./dragEventThunks";
 import { RootState } from "./store";
 
 const usePrevious = (value: any) => {
@@ -130,14 +131,14 @@ const DraggerContainer: React.FC<ComponentProps> = ({
       }
 
       if (draggedOverIndex !== newDraggedOverIndex && newDraggedOverIndex !== -1) {
-        dispatch({ type: "UPDATE_DRAG_DESTINATION", payload: { index: newDraggedOverIndex, containerId: id } });
+        dispatch(dragUpateThunk({index: newDraggedOverIndex, containerId:id}, false))
       }
     }
   };
 
   const handleMouseLeave = () => {
     if (isDraggingOver) {
-      dispatch({ type: "UPDATE_DRAG_DESTINATION", payload: undefined });
+      dispatch(dragUpateThunk(undefined, false))
     }
   };
 
