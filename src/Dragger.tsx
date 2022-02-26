@@ -58,6 +58,7 @@ const Dragger: React.FC<CombinedProps> = ({ children, index, draggerId, containe
 
   const handleDragStart = useCallback(
     ({ clientX, clientY }) => {
+      if(isDragDisabled) return;
       if (draggableRef && draggableRef.current) {
         const { left, top, height, width } = draggableRef.current.getBoundingClientRect();
         const { offsetLeft: absoluteOffsetLeft, offsetTop } = getOffset(draggableRef.current);

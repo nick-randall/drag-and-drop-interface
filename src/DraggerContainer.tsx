@@ -1,7 +1,6 @@
 import React, { Ref, useRef, useState } from "react";
 import { connect, useDispatch } from "react-redux";
 import { RootState } from "./store";
-import { pipe } from "ramda";
 
 const usePrevious = (value: any) => {
   const ref = React.useRef();
@@ -165,10 +164,10 @@ const DraggerContainer: React.FC<ComponentProps> = ({
       style={{
         position: "absolute",
         display: isLayoutDisabled ? "block" : "flex",
-        paddingTop: expandAbove,
-        marginTop: -expandAbove,
-        paddingBottom: expandBelow,
-        marginBottom: -expandBelow,
+        paddingTop: isDropDisabled ? 0 : expandAbove,
+        marginTop: isDropDisabled ? 0 : -expandAbove,
+        paddingBottom: isDropDisabled ? 0 : expandBelow,
+        marginBottom: isDropDisabled ? 0 : -expandBelow,
         // paddingLeft: expandLeft,
         // marginLeft: -expandLeft,
         // paddingRight: expandRight,

@@ -20,7 +20,7 @@ type ComponentProps = ComponentReduxProps & DropZoneProps;
 
 // This container has only one job:
 // 1. It listens to dragEvents and updates the redux dragState (draggedOverIndex and draggedOVerId)
-// Unlike the DropZone, it can be given an index, and this index is passed into the redux dragState
+// Unlike the DraggerContainer, it can be given an index, and this index is passed into the redux dragState
 
 const DropZone: React.FC<ComponentProps> = ({
   children,
@@ -56,10 +56,10 @@ const DropZone: React.FC<ComponentProps> = ({
       style={{
         width: dimensions.cardWidth,
         height: dimensions.cardHeight,
-        paddingTop: expandAbove,
-        marginTop: -expandAbove,
-        paddingBottom: expandBelow,
-        marginBottom: -expandBelow,
+        paddingTop: isDropDisabled ? 0 : expandAbove,
+        marginTop: isDropDisabled ? 0 : -expandAbove,
+        paddingBottom: isDropDisabled ? 0 : expandBelow,
+        marginBottom: isDropDisabled ? 0 : -expandBelow,
         // paddingLeft: expandLeft,
         // marginLeft: -expandLeft,
         // paddingRight: expandRight,

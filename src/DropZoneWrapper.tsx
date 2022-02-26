@@ -21,7 +21,8 @@ type ComponentProps = ComponentReduxProps & DropZoneWrapperProps;
 
 // This container has only one job:
 // 1. It listens to dragEvents and updates the redux dragState (draggedOverIndex and draggedOVerId)
-// Unlike the DropZoneWrapper, it can be given an index, and this index is passed into the redux dragState
+// Unlike the DraggerContainer, it can be given an index, and this index is passed into the redux dragState
+// when dragged over
 
 const DropZoneWrapper: React.FC<ComponentProps> = ({
   children,
@@ -54,15 +55,15 @@ const DropZoneWrapper: React.FC<ComponentProps> = ({
   return (
     <div
       style={{
-        paddingTop: expandAbove,
-        marginTop: -expandAbove,
-        paddingBottom: expandBelow,
-        marginBottom: -expandBelow,
+        paddingTop: isDropDisabled ? 0 : expandAbove,
+        marginTop: isDropDisabled ? 0 : -expandAbove,
+        paddingBottom: isDropDisabled ? 0 : expandBelow,
+        marginBottom: isDropDisabled ? 0 : -expandBelow,
         // paddingLeft: expandLeft,
         // marginLeft: -expandLeft,
         // paddingRight: expandRight,
         // marginRight: -expandRight,
-        border: "thin black solid",
+        // border: "thin black solid",
       }}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
