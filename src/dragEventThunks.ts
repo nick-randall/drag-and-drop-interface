@@ -15,6 +15,15 @@ export type SetInitialDraggedState = {
   payload: { containerId: string; index: number };
 };
 
+export type CleanUpDragState = {
+  type: "CLEAN_UP_DRAG_STATE";
+};
+
+export type SetDragContainerExpand = {
+  type: "SET_DRAG_CONTAINER_EXPAND";
+  payload: { width: number; height: number };
+};
+
 // Action Creators
 const setDraggedId = (id: string): SetDraggedId => ({ type: "SET_DRAGGED_ID", payload: id });
 
@@ -23,16 +32,27 @@ const setInitialDraggedState = (sourceAndDestination: LocationData): SetInitialD
   payload: sourceAndDestination,
 
 });
+const cleanUpDragState = () : CleanUpDragState => ({ type: "CLEAN_UP_DRAG_STATE" });
+const setDragContainerExpand = (dragContainerExpand : {width: number, height: number}) : SetDragContainerExpand => ({
+  type: "SET_DRAG_CONTAINER_EXPAND",
+  payload: dragContainerExpand
+});
 
 // Thunks
 
-export const dragStartThunk = (id: string, source: LocationData) => ( dispatch: Function, getState: () => RootState) => {
+export const dragStartThunk = (id: string, source: LocationData, dragContainerExpand: {width: number, height: number}) => ( dispatch: Function, getState: () => RootState) => {
   dispatch(setDraggedId(id));
   dispatch(setInitialDraggedState(source));
+  dispatch(setDragContainerExpand(dragContainerExpand))
 };
 
 export const dragEndThunk = (lastLocation: LastLocation) => (dispatch: Function, getState: ()=>RootState) => {
   const {source, destination} = getState().draggedState;
-  console.log(source)
-  console.log(destination)
+  console.log("drag source " + source)
+  console.log("drag destination " + destination)
+  console.log(lastLocation)
+
+  dispatch(setDraggedId(""));
+  dispatch(cleanUpDragState());
+ 
   };

@@ -1,5 +1,5 @@
 import createSpecialsAndGuests from "./createGuests";
-import { SetDraggedId, SetInitialDraggedState } from "./dragEventThunks";
+import { CleanUpDragState, SetDragContainerExpand, SetDraggedId, SetInitialDraggedState } from "./dragEventThunks";
 
 export interface DragLocation {
   containerId: string;
@@ -28,21 +28,13 @@ type UpdateDraggedDestination = {
   payload: { containerId: string; index: number };
 };
 
-type CleanUpDraggedState = {
-  type: "CLEAN_UP_DRAG_STATE";
-};
-
-type SetDragContainerExpand = {
-  type: "SET_DRAG_CONTAINER_EXPAND";
-  payload: { width: number; height: number };
-};
 
 type UpdateSnapshot = {
   type: "UPDATE_SNAPSHOT",
   payload: Snapshot
 }
 
-type Action = SetDraggedId | SetInitialDraggedState | UpdateDraggedDestination | CleanUpDraggedState | SetDragContainerExpand;
+type Action = SetDraggedId | SetInitialDraggedState | UpdateDraggedDestination | CleanUpDragState | SetDragContainerExpand;
 
 const initialState = {
   draggedId: undefined,
@@ -66,7 +58,7 @@ export const stateReducer = (state: State = initialState, action: Action) => {
         ...state,
         draggedState: initialState.draggedState,
         draggedId: initialState.draggedId,
-        dragContainerExpandY: initialState.dragContainerExpand,
+        dragContainerExpand: initialState.dragContainerExpand,
       };
     case "SET_DRAG_CONTAINER_EXPAND":
       console.log(action.payload);

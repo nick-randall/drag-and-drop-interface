@@ -85,18 +85,20 @@ const Dragger: React.FC<CombinedProps> = ({ children, index, draggerId, containe
           // this gets the middle as 0, above the middle is positive, below is negative
           const touchedPointY = clientY - top;
           const touchedPointX = clientX - left;
-          const dragContainerExpandHeight = height / 2 - touchedPointY;
+
+          let dragContainerExpand = {height: 0, width: 0};
+          dragContainerExpand.height = height / 2 - touchedPointY;
           // Left and right expand not implemented yet
           //
-          const dragContainerExpandWidth = width / 2 - touchedPointX;
+          dragContainerExpand.width = width / 2 - touchedPointX;
 
           const dragSourceAndDestination = { containerId: containerId, index: index };
-          dispatch(dragStartThunk(draggerId, dragSourceAndDestination));
-          dispatch({ type: "SET_DRAG_CONTAINER_EXPAND", payload: { height: dragContainerExpandHeight, width: dragContainerExpandWidth } });
+          dispatch(dragStartThunk(draggerId, dragSourceAndDestination, dragContainerExpand));
+         
         }
       } else console.log("error getting html node");
     },
-    [containerId, dispatch, draggerId, index, isOutsideContainer]
+    [containerId, dispatch, draggerId, index, isDragDisabled, isOutsideContainer]
   );
 
   const handleDrag = useCallback(
@@ -124,8 +126,6 @@ const Dragger: React.FC<CombinedProps> = ({ children, index, draggerId, containe
       }));
     
       dispatch(dragEndThunk(dropLocation));
-      dispatch({ type: "SET_DRAGGED_CARD_ID", payload: "" });
-      dispatch({ type: "CLEAN_UP_DRAG_STATE" });
       setIsReturning(true);
     }
   }, [dragState.dragged, dispatch]);
