@@ -23,7 +23,7 @@ const Hand: React.FC = () => {
         paddingLeft: (handCards.length * spread) / 2,
         marginLeft: (-handCards.length * spread) / 2,
         height: elementWidth * 2, // should be width
-        border: "thin black solid",
+        // border: "thin black solid",
         display:"flex"
       }}
       onMouseOver={() => setSpread(120)}

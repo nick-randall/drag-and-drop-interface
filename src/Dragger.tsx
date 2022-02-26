@@ -60,11 +60,9 @@ const Dragger: React.FC<CombinedProps> = ({ children, index, draggerId, containe
     ({ clientX, clientY }) => {
       if (draggableRef && draggableRef.current) {
         const { left, top, height, width } = draggableRef.current.getBoundingClientRect();
-        const { offsetLeft, offsetTop } = getOffset(draggableRef.current);
+        const { offsetLeft: absoluteOffsetLeft, offsetTop } = getOffset(draggableRef.current);
         const { offsetLeft: simpleOffsetLeft } = draggableRef.current;
-        console.log(offsetLeft)
-        if (offsetLeft != null && offsetTop != null) {
-          if (index === 2) console.log("onfirstclick" + (offsetLeft - left));
+        if (absoluteOffsetLeft != null && offsetTop != null) {
           setDragState(prevState => ({
             ...prevState,
             dragged: true,
@@ -75,10 +73,8 @@ const Dragger: React.FC<CombinedProps> = ({ children, index, draggerId, containe
 
             // Body should be set to margin: 0px
 
-            // This is important for elements in a DraggerContainer: it offsets based on the left position within the container
-            draggerContainerOffsetLeft: isOutsideContainer ? simpleOffsetLeft : offsetLeft - left,
-            //  draggerContainerOffsetLeft: offsetLeft - left,
-
+            // This is necessary for elements in a DraggerContainer: it offsets based on the left position within the container
+            draggerContainerOffsetLeft: isOutsideContainer ? simpleOffsetLeft : absoluteOffsetLeft - left,
             offsetX: left + (clientX - left),
             offsetY: top + (clientY - top),
             translateX: 0,
