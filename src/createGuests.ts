@@ -1,6 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
 
-
 const numGuestCardsPerType = 5;
 const numUnscheinbar = 4;
 const guestCardTypes: GuestCardType[] = ["rumgroelerin", "saufnase", "schleckermaul", "taenzerin"];
@@ -16,11 +15,9 @@ const specials: Specials = {
   taenzerin: ["nebelmaschine", "lichtshow", "discokugel", "poledance", "playlist"],
 };
 
-
 //startgast
-const createSpecialsAndGuests = () => {
-
-  let specialsAndGuests: GameCard [] = [];
+export const createGuests = () => {
+  let guests: GameCard[] = [];
   for (let i = 0; i < numUnscheinbar; i++) {
     const unscheibarerGast: GameCard = {
       id: uuidv4(),
@@ -33,7 +30,7 @@ const createSpecialsAndGuests = () => {
       cardType: "guest",
       action: { actionType: "addDragged", highlightType: "place", placeHighlightType: "GCZ", targetPlayerType: "self" },
     };
-    specialsAndGuests.push(unscheibarerGast);
+    guests.push(unscheibarerGast);
   }
   for (let i = 0; i < numGuestCardsPerType; i++) {
     const einfacherGuestCard: GameCard = {
@@ -47,7 +44,7 @@ const createSpecialsAndGuests = () => {
       cardType: "guest",
       action: { actionType: "addDragged", highlightType: "place", placeHighlightType: "GCZ", targetPlayerType: "self" },
     };
-    specialsAndGuests.push(einfacherGuestCard);
+    guests.push(einfacherGuestCard);
     const doppelterGuestCard: GameCard = {
       id: uuidv4(),
       name: `doppelt${i}`,
@@ -59,7 +56,7 @@ const createSpecialsAndGuests = () => {
       cardType: "guest",
       action: { actionType: "addDragged", highlightType: "place", placeHighlightType: "GCZ", targetPlayerType: "self" },
     };
-    specialsAndGuests.push(doppelterGuestCard);
+    guests.push(doppelterGuestCard);
   }
 
   for (let guestCardType of guestCardTypes) {
@@ -76,8 +73,16 @@ const createSpecialsAndGuests = () => {
         guestCardType: `${guestCardType}`,
         action: { actionType: "addDragged", highlightType: "place", placeHighlightType: "GCZ", targetPlayerType: "self" },
       };
-      specialsAndGuests.push(guestCard);
+      guests.push(guestCard);
     }
+  }
+  return guests;
+};
+
+export const createSpecials = () => {
+  let specialsCards: GameCard[] = [];
+  // for (let i = 0; i < numGuestCardsPerType; i++) {
+  for (let guestCardType of guestCardTypes) {
     const specialsOfThisType = specials[guestCardType];
 
     for (let special of specialsOfThisType) {
@@ -93,10 +98,8 @@ const createSpecialsAndGuests = () => {
         specialsCardType: `${guestCardType}`,
         action: { actionType: "addDragged", highlightType: "place", placeHighlightType: "specialsZone", targetPlayerType: "self" },
       };
-      specialsAndGuests.push(specialsCard);
+      specialsCards.push(specialsCard);
     }
   }
-  return specialsAndGuests;
+  return specialsCards;
 };
-
-export default createSpecialsAndGuests;

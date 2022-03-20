@@ -1,8 +1,6 @@
 import { useState } from "react";
 import { useSelector } from "react-redux";
-import createSpecialsAndGuests from "./createGuests";
 import Dragger from "./Dragger";
-import DraggerContainer from "./DraggerContainer";
 import { RootState } from "./store";
 const containerTwoId = "xxxy1";
 const elementWidth = 100;

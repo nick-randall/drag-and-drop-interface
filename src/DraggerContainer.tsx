@@ -91,7 +91,7 @@ const DraggerContainer: React.FC<ComponentProps> = ({
   const containerRef: Ref<HTMLDivElement> = useRef(null);
   const dragged = draggedId !== undefined;
   const isInitialRearrange = usePrevious(originIndex) === undefined;
-  const isDragEnd = usePrevious(originIndex) !== undefined && originIndex === undefined;
+  // const isDragEnd = usePrevious(originIndex) !== undefined && originIndex === undefined;
 
   const handleMouseMove = ({ clientX }: { clientX: number }) => {
     if (!dragged) return;
@@ -195,7 +195,9 @@ const DraggerContainer: React.FC<ComponentProps> = ({
               width: figureOutWhetherToExpand(index),
               height: 150,
               // Suppress transition if this is the first time an element is being dragged in this container
-              transition: isInitialRearrange || isDragEnd ? "" : "200ms ease",
+              // transition: isInitialRearrange || isDragEnd ? "" : "200ms ease",
+              transition: isInitialRearrange ? "" : "200ms ease",
+
               // transitionDelay: "120ms"
             }}
             draggable="false"
