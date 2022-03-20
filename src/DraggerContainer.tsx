@@ -15,6 +15,9 @@ export const cumulativeSum = (sum: number) => (value: number) => (sum += value);
 
 export const getCumulativeSum = (indexArray: number[]) => indexArray.map(cumulativeSum(0));
 
+export const removeSourceIndex = (sourceIndex: number, array: any[]) => array.filter((_, index) => index !== sourceIndex);
+// export const removeSourceIndex = (sourceIndex: number) => (array: any[]) => array.filter((_, index) => index !== sourceIndex);
+
 const addZeroAtFirstIndex = (indexArray: number[]) => [0].concat(indexArray);
 
 const isInBounds = (breakPointsPair: number[], touchedX: number): boolean => {
@@ -61,7 +64,7 @@ type DraggerContainerProps = {
   id: string;
   isLayoutDisabled?: boolean;
   isDropDisabled?: boolean;
-  indexMap?: number[] 
+  indexMap?: number[];
 };
 type ComponentProps = ComponentReduxProps & DraggerContainerProps;
 
@@ -86,7 +89,7 @@ const DraggerContainer: React.FC<ComponentProps> = ({
   isLayoutDisabled = false,
   isDraggingOver,
   isDropDisabled = false,
-  indexMap
+  indexMap,
 }) => {
   const dispatch = useDispatch();
   const [rowShape, setRowShape] = useState<number[][]>([]);
@@ -117,33 +120,40 @@ const DraggerContainer: React.FC<ComponentProps> = ({
         if (!isRearrange) {
           newRowShape = addZeroAtFirstIndex(newRowShape);
           newRowShape = newRowShape.map(ele => (ele += elementWidth / 2));
+        } else if (originIndex) {
+          newRowShape = getCumulativeSum(addZeroAtFirstIndex(removeSourceIndex(originIndex, childrenSizes)));
+          console.log(newRowShape);
         }
 
         // Create break points which when dragging over them causes draggedOverIndex to ++ or --
         //
         const leftBreakPointFactor = 0.35 * elementWidth;
-        const rightBreakPointFactor = 0.15 * elementWidth;
+        const rightBreakPointFactor = 0.35 * elementWidth;
         const initialRightBreakPoint = 0.25 * elementWidth;
         const newRowShapeWithUpperLowerBounds: number[][] = newRowShape.map(e =>
           e > 0 ? [e - leftBreakPointFactor, e + rightBreakPointFactor] : [0, initialRightBreakPoint]
         );
         setRowShape(newRowShapeWithUpperLowerBounds);
-
       } else {
         newDraggedOverIndex = findNewDraggedOverIndex(rowShape, touchedX);
-       
       }
       if (draggedOverIndex !== newDraggedOverIndex && newDraggedOverIndex !== -1) {
-        if(indexMap)
-        console.log(indexMap[newDraggedOverIndex])
-        dispatch(dragUpateThunk({index: newDraggedOverIndex, containerId:id}, false))
+        if (indexMap && originIndex !== undefined && isRearrange) {
+          const newIndexMap = getCumulativeSum(addZeroAtFirstIndex(removeSourceIndex(originIndex, indexMap)));
+          console.log(newIndexMap[newDraggedOverIndex]);
+        }
+        if (indexMap && !isRearrange) {
+          const newIndexMap = getCumulativeSum(addZeroAtFirstIndex(indexMap));
+          console.log(newIndexMap[newDraggedOverIndex]);
+        }
+        dispatch(dragUpateThunk({ index: newDraggedOverIndex, containerId: id }, false));
       }
     }
   };
 
   const handleMouseLeave = () => {
     if (isDraggingOver) {
-      dispatch(dragUpateThunk(undefined, false))
+      dispatch(dragUpateThunk(undefined, false));
     }
   };
 

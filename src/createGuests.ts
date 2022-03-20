@@ -98,7 +98,7 @@ export const createSpecials = () => {
         specialsCardType: `${guestCardType}`,
         action: { actionType: "addDragged", highlightType: "place", placeHighlightType: "specialsZone", targetPlayerType: "self" },
       };
-      if(Math.floor(Math.random()  + 0.5) === 0)
+      if(Math.floor(Math.random()  + 0.75) === 0)
       specialsCards.push(specialsCard);
     }
   }
