@@ -11,9 +11,9 @@ const usePrevious = (value: any) => {
   return ref.current;
 };
 
-const cumulativeSum = (sum: number) => (value: number) => (sum += value);
+export const cumulativeSum = (sum: number) => (value: number) => (sum += value);
 
-const getCumulativeSum = (indexArray: number[]) => indexArray.map(cumulativeSum(0));
+export const getCumulativeSum = (indexArray: number[]) => indexArray.map(cumulativeSum(0));
 
 const addZeroAtFirstIndex = (indexArray: number[]) => [0].concat(indexArray);
 
@@ -61,6 +61,7 @@ type DraggerContainerProps = {
   id: string;
   isLayoutDisabled?: boolean;
   isDropDisabled?: boolean;
+  indexMap?: number[] 
 };
 type ComponentProps = ComponentReduxProps & DraggerContainerProps;
 
@@ -85,6 +86,7 @@ const DraggerContainer: React.FC<ComponentProps> = ({
   isLayoutDisabled = false,
   isDraggingOver,
   isDropDisabled = false,
+  indexMap
 }) => {
   const dispatch = useDispatch();
   const [rowShape, setRowShape] = useState<number[][]>([]);
@@ -117,7 +119,7 @@ const DraggerContainer: React.FC<ComponentProps> = ({
           newRowShape = newRowShape.map(ele => (ele += elementWidth / 2));
         }
 
-        // Create break points where dragging over causes draggedOverIndex to ++ or --
+        // Create break points which when dragging over them causes draggedOverIndex to ++ or --
         //
         const leftBreakPointFactor = 0.35 * elementWidth;
         const rightBreakPointFactor = 0.15 * elementWidth;
@@ -126,11 +128,14 @@ const DraggerContainer: React.FC<ComponentProps> = ({
           e > 0 ? [e - leftBreakPointFactor, e + rightBreakPointFactor] : [0, initialRightBreakPoint]
         );
         setRowShape(newRowShapeWithUpperLowerBounds);
+
       } else {
         newDraggedOverIndex = findNewDraggedOverIndex(rowShape, touchedX);
+       
       }
-
       if (draggedOverIndex !== newDraggedOverIndex && newDraggedOverIndex !== -1) {
+        if(indexMap)
+        console.log(indexMap[newDraggedOverIndex])
         dispatch(dragUpateThunk({index: newDraggedOverIndex, containerId:id}, false))
       }
     }

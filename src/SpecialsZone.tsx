@@ -1,59 +1,62 @@
 import { useSelector } from "react-redux";
 import Card from "./Card";
 import Dragger from "./Dragger";
-import DraggerContainer from "./DraggerContainer";
+import DraggerContainer, { getCumulativeSum } from "./DraggerContainer";
 import { RootState } from "./store";
+import * as R from "ramda";
+const sortSpecials = (array: GameCard[]) => R.groupWith<GameCard>((a, b) => a.specialsCardType === b.specialsCardType, array);
 
 const SpecialsZone = () => {
   const containerThreeId = "xxxy3";
 
   const specialsCards = useSelector((state: RootState) => state.snapshot.xxxy3);
-  const specialsCardsColumn0 = specialsCards.slice(0, 2);
-  const specialsCardsColumn1 = specialsCards.slice(2, 4);
-  const specialsCardsColumn2 = specialsCards.slice(4, 5);
-
-  const specialsColumns = [specialsCardsColumn0, specialsCardsColumn1, specialsCardsColumn2];
 
   const elementWidth = 100;
 
+  const specialsColumns = sortSpecials(specialsCards);
+
+  const specialsIndexMap = [0].concat(getCumulativeSum(specialsColumns.map(col => col.length)))
+  console.log(specialsIndexMap)
+
   return (
-    
-      <DraggerContainer
-        id={containerThreeId}
-        elementWidth={elementWidth}
-        // The draggerContainer for the specials columns
-      >
-        {specialsColumns.map((col, colIndex) => (
-          <Dragger
-            draggerId={"specialsColumn" + colIndex}
-            index={colIndex}
-            containerId={containerThreeId}
-            size={elementWidth}
-            key={"specialsColumn" + colIndex}
-          >
-            {(handleDragStart, draggerRef) => (
-              <div style={{ position: "relative", width: elementWidth }}>
-                {col.map((card, index) => (
-                  <img
-                    ref={draggerRef}
-                    onMouseDown={handleDragStart}
-                    alt={card.name}
-                    key={card.id}
-                    style={{
-                      width: elementWidth,
-                      position: "absolute",
-                      top: index * 20,
-                      left: 0,
-                    }}
-                    src={`./images/${card.image}.jpg`}
-                    draggable="false"
-                  />
-                ))}
-              </div>
-            )}
-          </Dragger>
-        ))}
-      </DraggerContainer>
+    <DraggerContainer
+      id={containerThreeId}
+      elementWidth={elementWidth}
+      indexMap={specialsIndexMap}
+      // The draggerContainer for the specials columns
+    >
+      {specialsColumns.map((col, colIndex) => (
+        <Dragger
+          draggerId={"specialsColumn" + colIndex}
+          index={colIndex}
+          containerId={containerThreeId}
+          size={elementWidth}
+          key={"specialsColumn" + colIndex}
+        >
+          {(handleDragStart, draggerRef) => (
+            <div style={{ position: "relative", width: elementWidth }}>
+              {col.map((card, index) => (
+                <img
+                  ref={draggerRef}
+                  onMouseDown={handleDragStart}
+                  alt={card.name}
+                  key={card.id}
+                  style={{
+                    width: elementWidth,
+                    position: "absolute",
+                    top: index * 20,
+                    border: "thin black solid",
+                    borderRadius: 10,
+                  }}
+                  src={`./images/${card.image}.jpg`}
+                  draggable="false"
+                />
+              ))}
+            </div>
+          )}
+        </Dragger>
+      ))}
+    </DraggerContainer>
   );
 };
 
