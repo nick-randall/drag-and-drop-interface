@@ -77,6 +77,7 @@ interface ComponentReduxProps {
   expandBelow: number;
   expandLeft: number;
   expandRight: number;
+  isInitialRearrange?: boolean;
 }
 type DraggerContainerProps = {
   // children: React.FC<DraggerProps>[];
@@ -116,13 +117,14 @@ const DraggerContainer: React.FC<ComponentProps> = ({
   isDraggingOver,
   isDropDisabled = false,
   indexMap,
+  isInitialRearrange,
   widthMap = indexMap,
 }) => {
   const dispatch = useDispatch();
   const [rowShape, setRowShape] = useState<number[][]>([]);
   const containerRef: Ref<HTMLDivElement> = useRef(null);
   const dragged = draggedId !== undefined;
-  const isInitialRearrange = usePrevious(sourceIndex) === undefined;
+  // const isInitialRearrange = usePrevious(sourceIndex) === undefined;
   // const isDragEnd = usePrevious(sourceIndex) !== undefined && sourceIndex === undefined;
 
   useEffect(() => {
@@ -148,9 +150,7 @@ const DraggerContainer: React.FC<ComponentProps> = ({
           newRowShape = addZeroAtFirstIndex(newRowShape);
           // newRowShape = newRowShape.map(ele => (ele += elementWidth / 2));
         }
-
         newRowShape = getCumulativeSum(newRowShape.map(e => e * elementWidth));
-        console.log(newRowShape);
         // Create break points which when dragging over them causes draggedOverIndex to ++ or --
         //
         const leftBreakPointFactor = 0.35 * elementWidth;
@@ -258,6 +258,7 @@ const mapStateToProps = (state: RootState, ownProps: DraggerContainerProps) => {
     sourceIndex = 0,
     isRearrange = false,
     isDraggingOver = undefined;
+  let { isInitialRearrange } = draggedState;
   // Assign sourceIndex as local prop and check if rearranging
   if (draggedState.source) {
     sourceIndex = draggedState.source.index;
@@ -267,9 +268,10 @@ const mapStateToProps = (state: RootState, ownProps: DraggerContainerProps) => {
   if (draggedState.destination) {
     isDraggingOver = draggedState.destination.containerId === ownProps.id;
 
-    // issue with initialDrag: could fix with "initial" boolean
     // Set draggedOverIndex based on the DragContainer's indexMap and whether it is a rearrange
-    draggedOverIndex = isDraggingOver ? indexFromMappedIndex(draggedState.destination.index, indexMap, sourceIndex, isRearrange) : undefined;
+    if (!isDraggingOver) draggedOverIndex = undefined;
+    else if (isInitialRearrange) draggedOverIndex = draggedState.destination.index;
+    else draggedOverIndex = indexFromMappedIndex(draggedState.destination.index, indexMap, sourceIndex, isRearrange);
   }
   let expandAbove = 0;
   let expandBelow = 0;
@@ -283,6 +285,17 @@ const mapStateToProps = (state: RootState, ownProps: DraggerContainerProps) => {
   // Left and right expand not implemented yet
   if (dragContainerExpand.width < 0) expandRight = dragContainerExpand.width;
   else expandLeft = dragContainerExpand.width * -1;
-  return { draggedOverIndex, draggedId, sourceIndex, isRearrange, isDraggingOver, expandAbove, expandBelow, expandLeft, expandRight };
+  return {
+    draggedOverIndex,
+    draggedId,
+    sourceIndex,
+    isRearrange,
+    isDraggingOver,
+    isInitialRearrange,
+    expandAbove,
+    expandBelow,
+    expandLeft,
+    expandRight,
+  };
 };
 export default connect(mapStateToProps)(DraggerContainer);

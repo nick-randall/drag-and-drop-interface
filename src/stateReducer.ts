@@ -9,7 +9,7 @@ export interface DragLocation {
 export interface DraggedState {
   source?: DragLocation;
   destination?: DragLocation;
-  isDropZone?: boolean;
+  isInitialRearrange?: boolean;
 }
 
 export interface Snapshot {
@@ -42,11 +42,11 @@ export const stateReducer = (state: State = initialState, action: Action) => {
     case "SET_DRAGGED_ID":
       return { ...state, draggedId: action.payload };
     case "SET_INITIAL_DRAGGED_STATE": {
-      return { ...state, draggedState: { source: action.payload, destination: action.payload, isDropZone: false } };
+      return { ...state, draggedState: { source: action.payload, destination: action.payload, isInitialRearrange: true } };
     }
     case "UPDATE_DRAG_DESTINATION":
-      const { destination, isDropZone } = action.payload;
-      return { ...state, draggedState: { ...state.draggedState, destination: destination, isDropZone: isDropZone } };
+      const { destination } = action.payload;
+      return { ...state, draggedState: { ...state.draggedState, destination: destination, isInitialRearrange: false } };
     case "CLEAN_UP_DRAG_STATE":
       return {
         ...state,

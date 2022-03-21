@@ -5,14 +5,14 @@ interface ReduxProps  {
   draggedId?: string;
   sourceIndex?: number;
   destinationIndex?: number;
-  isDropZone?: boolean 
+  isInitialRearrange?: boolean 
 }
 interface InfoProps {}
 
 type ComponentProps = ReduxProps & InfoProps;
 
 
-const Infos: React.FC<ComponentProps> = ({ sourceIndex, destinationIndex, isDropZone }) => {
+const Infos: React.FC<ComponentProps> = ({ sourceIndex, destinationIndex, isInitialRearrange }) => {
   return (
     <div>
       <div style={{ left: 200, position: "absolute", top: 300 }}>
@@ -23,7 +23,7 @@ const Infos: React.FC<ComponentProps> = ({ sourceIndex, destinationIndex, isDrop
         source index: {props.draggedState.source?.index}<br/>
         destination id:{props.draggedState.destination?.containerId}<br/>
         destination index:{props.draggedState.destination?.index} */}
-        isDropZone: {isDropZone? "true": "false"}
+        isInitialRearrange: {isInitialRearrange? "true": "false"}
       </div>
     </div>
   );
@@ -31,12 +31,12 @@ const Infos: React.FC<ComponentProps> = ({ sourceIndex, destinationIndex, isDrop
 
 function mapStateToProps(state: RootState) {
   const { draggedState, draggedId } = state;
-  const { source, destination, isDropZone} = draggedState;
+  const { source, destination, isInitialRearrange} = draggedState;
   let sourceIndex,
     destinationIndex= undefined;
   if (source) sourceIndex = source.index;
   if (destination) destinationIndex = destination.index;
-  return { draggedId, sourceIndex, destinationIndex, isDropZone };
+  return { draggedId, sourceIndex, destinationIndex, isInitialRearrange };
 }
 
 
