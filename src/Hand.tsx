@@ -32,7 +32,7 @@ const Hand: React.FC = () => {
       // since it is not in a container
       style={{ position: "absolute", display: "flex" }}>
         {handCards.map((card, index) => (
-          <Dragger draggerId={card.id} index={index} containerId={containerTwoId} size={elementWidth * 1.2} isOutsideContainer>
+          <Dragger draggerId={card.id} index={index} containerId={containerTwoId} isOutsideContainer>
             {(handleDragStart, draggerRef, dragged) => (
               <img
                 ref={draggerRef}

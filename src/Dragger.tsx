@@ -8,7 +8,7 @@ export interface DraggerProps {
   draggerId: string;
   index: number;
   containerId: string;
-  size: number;
+  // size: number;
   // Whether this dragger is a child of a DraggerContainer
   isOutsideContainer?: boolean;
   isDragDisabled?: boolean;

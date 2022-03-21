@@ -23,7 +23,7 @@ const CardContainers: React.FC = () => {
       <div style={{ left: 200, position: "absolute", top: 500 }}>
         <DraggerContainer id={containerOneId} elementWidth={elementWidth} indexMap={indexMap}>
           {guestCards.map((card, index) => (
-            <Dragger draggerId={card.id} index={index} containerId={containerOneId} size={indexMap[index] * elementWidth} key={card.id}>
+            <Dragger draggerId={card.id} index={index} containerId={containerOneId} key={card.id}>
               {(handleDragStart, draggerRef) => (
                 // <DropZoneWrapper id={card.id} providedIndex={index}>
                 <img

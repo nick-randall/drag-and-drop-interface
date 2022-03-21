@@ -34,7 +34,6 @@ const SpecialsZone = () => {
           draggerId={"specialsColumn" + colIndex}
           index={colIndex}
           containerId={containerThreeId}
-          size={elementWidth}
           key={"specialsColumn" + colIndex}
         >
           {(handleDragStart, draggerRef) => (

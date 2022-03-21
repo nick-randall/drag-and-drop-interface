@@ -123,10 +123,6 @@ const DraggerContainer: React.FC<ComponentProps> = ({
       if (rowShape.length === 0) {
         // Caclulate the left position of each element, add it to an array
         //
-        // const childrenSizes = children.map(child => child.props.size ?? 0);
-        // let newRowShape = getCumulativeSum(childrenSizes);
-        //TODO:
-        // need to use widthMap to set shape...
         let newRowShape = widthMap; //= //widthMap.map(e => e * elementWidth);
         // let newRowShape = indexMap?.map(e => e * elementWidth) ?? [];
         console.log(newRowShape);
@@ -156,16 +152,10 @@ const DraggerContainer: React.FC<ComponentProps> = ({
       if (draggedOverIndex !== newDraggedOverIndex && newDraggedOverIndex !== -1) {
         if (sourceIndex !== undefined && isRearrange) {
           newIndexMap = getCumulativeSum(addZeroAtFirstIndex(removeSourceIndex(sourceIndex, indexMap)));
-          console.log("is rearrange");
-          console.log(newIndexMap[newDraggedOverIndex]);
         }
         if (!isRearrange) {
           newIndexMap = getCumulativeSum(addZeroAtFirstIndex(indexMap));
-          console.log("is NOT rearrange");
-
-          console.log(newIndexMap[newDraggedOverIndex]);
         }
-        console.log(newIndexMap[newDraggedOverIndex]);
         dispatch(dragUpateThunk({ index: newIndexMap[newDraggedOverIndex], containerId: id }, false));
       }
     }

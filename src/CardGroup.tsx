@@ -25,7 +25,7 @@ const CardGroup = (props: CardGroupProps) => {
   };
 
   return (
-    <Dragger draggerId={cardGroup.id} index={index} containerId={props.containerId} size={cardGroup.size * dimensions.cardWidth}>
+    <Dragger draggerId={cardGroup.id} index={index} containerId={props.containerId}>
       {ref => (
         <div
           // Container only the size of cardLeftSpread ie. able to be smaller
