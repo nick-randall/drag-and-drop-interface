@@ -18,6 +18,7 @@ const SpecialsZone = () => {
 
   // const specialsIndexMap = (getCumulativeSum(specialsColumns.map(col => col.length)))
   const specialsIndexMap = (specialsColumns.map(col => col.length))
+  const specialsWidthMap = specialsColumns.map(e=>1)
 
   console.log(specialsIndexMap)
 
@@ -26,6 +27,7 @@ const SpecialsZone = () => {
       id={containerThreeId}
       elementWidth={elementWidth}
       indexMap={specialsIndexMap}
+      widthMap={specialsWidthMap}
       // The draggerContainer for the specials columns
     >
       {specialsColumns.map((col, colIndex) => (
