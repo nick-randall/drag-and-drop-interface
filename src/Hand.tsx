@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useSelector } from "react-redux";
 import Dragger from "./Dragger";
+import { NoLayoutDragContainer } from "./NoLayoutDragContainer";
 import { RootState } from "./store";
 const containerTwoId = "xxxy1";
 const elementWidth = 100;
@@ -22,15 +23,12 @@ const Hand: React.FC = () => {
         marginLeft: (-handCards.length * spread) / 2,
         height: elementWidth * 2, // should be width
         // border: "thin black solid",
-        display:"flex"
+        // display:"flex"
       }}
       onMouseOver={() => setSpread(120)}
       onMouseOut={() => setSpread(30)}
     >
-      <div
-      // this is necessary to get correct leftOffset when dragging the card items inside
-      // since it is not in a container
-      style={{ position: "absolute", display: "flex" }}>
+     <NoLayoutDragContainer>
         {handCards.map((card, index) => (
           <Dragger draggerId={card.id} index={index} containerId={containerTwoId} isOutsideContainer>
             {(handleDragStart, draggerRef, dragged) => (
@@ -55,7 +53,7 @@ const Hand: React.FC = () => {
             )}
           </Dragger>
         ))}
-      </div>
+      </NoLayoutDragContainer>
     </div>
   );
 };
