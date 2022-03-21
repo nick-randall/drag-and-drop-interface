@@ -6,7 +6,6 @@ import { RootState } from "./store";
 import * as R from "ramda";
 const sortSpecials = (array: GameCard[]) => R.groupWith<GameCard>((a, b) => a.specialsCardType === b.specialsCardType, array);
 
-
 const SpecialsZone = () => {
   const containerThreeId = "xxxy3";
 
@@ -17,10 +16,10 @@ const SpecialsZone = () => {
   const specialsColumns = sortSpecials(specialsCards);
 
   // const specialsIndexMap = (getCumulativeSum(specialsColumns.map(col => col.length)))
-  const specialsIndexMap = (specialsColumns.map(col => col.length))
-  const specialsWidthMap = specialsColumns.map(e=>1)
+  const specialsIndexMap = specialsColumns.map(col => col.length);
+  const specialsWidthMap = specialsColumns.map(e => 1);
 
-  console.log(specialsIndexMap)
+  console.log(specialsIndexMap);
 
   return (
     <DraggerContainer

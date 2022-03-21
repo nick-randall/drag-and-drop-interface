@@ -68,7 +68,7 @@ type DraggerContainerProps = {
   // in each index. Using it allows returning meaningful indexes
   // from elements that are stacked on top of one another, for example
   indexMap: number[];
-  widthMap?: number[]
+  widthMap?: number[];
 };
 type ComponentProps = ComponentReduxProps & DraggerContainerProps;
 
@@ -94,7 +94,7 @@ const DraggerContainer: React.FC<ComponentProps> = ({
   isDraggingOver,
   isDropDisabled = false,
   indexMap,
-  widthMap = indexMap
+  widthMap = indexMap,
 }) => {
   const dispatch = useDispatch();
   const [rowShape, setRowShape] = useState<number[][]>([]);
@@ -103,9 +103,9 @@ const DraggerContainer: React.FC<ComponentProps> = ({
   const isInitialRearrange = usePrevious(sourceIndex) === undefined;
   // const isDragEnd = usePrevious(sourceIndex) !== undefined && sourceIndex === undefined;
 
-  useEffect(()=>{
-    if(!sourceIndex) setRowShape([])
-  }, [sourceIndex])
+  useEffect(() => {
+    if (!sourceIndex) setRowShape([]);
+  }, [sourceIndex]);
 
   const handleMouseMove = ({ clientX }: { clientX: number }) => {
     if (!dragged) return;
@@ -129,22 +129,16 @@ const DraggerContainer: React.FC<ComponentProps> = ({
         // need to use widthMap to set shape...
         let newRowShape = widthMap; //= //widthMap.map(e => e * elementWidth);
         // let newRowShape = indexMap?.map(e => e * elementWidth) ?? [];
-        console.log(newRowShape)
+        console.log(newRowShape);
         // Handle non-rearrange case (ie. if dragged element comes from outside of this drag container):
         //
         if (!isRearrange) {
           newRowShape = addZeroAtFirstIndex(newRowShape);
           // newRowShape = newRowShape.map(ele => (ele += elementWidth / 2));
         }
-         
 
-          // Code below seems to fuck things up
-        //  else if (sourceIndex && isRearrange) {
-        //   newRowShape = getCumulativeSum(addZeroAtFirstIndex(removeSourceIndex(sourceIndex, childrenSizes)));
-        //   console.log(newRowShape);
-        // }
-          newRowShape = getCumulativeSum(newRowShape.map(e => e * elementWidth))
-          console.log(newRowShape)
+        newRowShape = getCumulativeSum(newRowShape.map(e => e * elementWidth));
+        console.log(newRowShape);
         // Create break points which when dragging over them causes draggedOverIndex to ++ or --
         //
         // indexMap makes this a bit more complex
@@ -155,23 +149,23 @@ const DraggerContainer: React.FC<ComponentProps> = ({
           e > 0 ? [e - leftBreakPointFactor, e + rightBreakPointFactor] : [0, initialRightBreakPoint]
         );
         setRowShape(newRowShapeWithUpperLowerBounds);
-        console.log(newRowShapeWithUpperLowerBounds)
+        console.log(newRowShapeWithUpperLowerBounds);
       } else {
         newDraggedOverIndex = findNewDraggedOverIndex(rowShape, touchedX);
       }
       if (draggedOverIndex !== newDraggedOverIndex && newDraggedOverIndex !== -1) {
         if (sourceIndex !== undefined && isRearrange) {
-          const newIndexMap = getCumulativeSum(addZeroAtFirstIndex(removeSourceIndex(sourceIndex, indexMap)));
-          console.log("1 is here")
+          newIndexMap = getCumulativeSum(addZeroAtFirstIndex(removeSourceIndex(sourceIndex, indexMap)));
+          console.log("is rearrange");
           console.log(newIndexMap[newDraggedOverIndex]);
         }
         if (!isRearrange) {
-          const newIndexMap = getCumulativeSum(addZeroAtFirstIndex(indexMap));
-          console.log("2 is here")
+          newIndexMap = getCumulativeSum(addZeroAtFirstIndex(indexMap));
+          console.log("is NOT rearrange");
 
           console.log(newIndexMap[newDraggedOverIndex]);
         }
-        console.log(newIndexMap)
+        console.log(newIndexMap[newDraggedOverIndex]);
         dispatch(dragUpateThunk({ index: newIndexMap[newDraggedOverIndex], containerId: id }, false));
       }
     }
@@ -185,7 +179,8 @@ const DraggerContainer: React.FC<ComponentProps> = ({
   };
 
   const figureOutWhetherToExpand = (index: number) => {
-    
+    // let index = addZeroAtFirstIndex(removeSourceIndex(i, widthMap)).indexOf(i)
+
     if (!isRearrange && draggedOverIndex !== undefined) {
       return draggedOverIndex === index ? elementWidth : 0;
     }
@@ -259,7 +254,7 @@ const DraggerContainer: React.FC<ComponentProps> = ({
 
 const mapStateToProps = (state: RootState, ownProps: DraggerContainerProps) => {
   const { draggedState, draggedId, dragContainerExpand } = state;
-  const {indexMap} = ownProps
+  const { indexMap } = ownProps;
   let draggedOverIndex,
     sourceIndex,
     isRearrange,
@@ -272,9 +267,20 @@ const mapStateToProps = (state: RootState, ownProps: DraggerContainerProps) => {
   // Assign draggedOverIndex as local prop and check if draggingOver
   if (draggedState.destination) {
     isDraggingOver = draggedState.destination.containerId === ownProps.id;
-    // draggedOverIndex = isDraggingOver ? addZeroAtFirstIndex(getCumulativeSum(indexMap)).indexOf(draggedState.destination.index) : undefined;
-    draggedOverIndex = isDraggingOver ? addZeroAtFirstIndex(getCumulativeSum(indexMap)).indexOf(draggedState.destination.index) : undefined;
 
+    // issue with initialDrag: could fix with "initial" boolean
+    // Set draggedOverIndex based on the DragContainer's indexMap and whether it is a rearrange
+    let mappedIndexes;
+    if (isRearrange) {
+      mappedIndexes = addZeroAtFirstIndex(getCumulativeSum(removeSourceIndex(sourceIndex ?? 0, indexMap)));
+    }
+    else {
+      mappedIndexes = addZeroAtFirstIndex(getCumulativeSum(indexMap))
+    }
+    draggedOverIndex = isDraggingOver
+      ? mappedIndexes.indexOf(draggedState.destination.index)
+      : undefined;
+    console.log(draggedOverIndex);
   }
   let expandAbove = 0;
   let expandBelow = 0;
