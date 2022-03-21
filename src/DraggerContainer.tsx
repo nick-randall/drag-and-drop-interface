@@ -1,32 +1,24 @@
 import { pipe } from "ramda";
-import React, { Children, Ref, useEffect, useRef, useState } from "react";
+import React, { Ref, useEffect, useRef, useState } from "react";
 import { connect, useDispatch } from "react-redux";
 import { dragUpateThunk } from "./dragEventThunks";
 import { RootState } from "./store";
 
-const usePrevious = (value: any) => {
-  const ref = React.useRef();
-  React.useEffect(() => {
-    ref.current = value;
-  });
-  return ref.current;
-};
 
 export const cumulativeSum = (sum: number) => (value: number) => (sum += value);
 
 export const getCumulativeSum = (indexArray: number[]) => indexArray.map(cumulativeSum(0));
 
-export const removeSourceIndex = (sourceIndex: number, array: any[]) => array.filter((_, index) => index !== sourceIndex);
-export const removeSourceIndex2 = (sourceIndex: number) => (array: any[]) => array.filter((_, index) => index !== sourceIndex);
+export const removeSourceIndex = (sourceIndex: number) => (array: any[]) => array.filter((_, index) => index !== sourceIndex);
 
 const addZeroAtFirstIndex = (indexArray: number[]) => [0].concat(indexArray);
 
 const indexToMappedIndex = (draggedOverIndex: number, map: number[], isRearrange: boolean, sourceIndex: number) => {
   let mappedIndexes: number[];
   if (isRearrange) {
-    mappedIndexes = addZeroAtFirstIndex(getCumulativeSum(removeSourceIndex(sourceIndex ?? 0, map)));
+    mappedIndexes = pipe(removeSourceIndex(sourceIndex), getCumulativeSum, addZeroAtFirstIndex)(map)
   } else {
-    mappedIndexes = addZeroAtFirstIndex(getCumulativeSum(map));
+    mappedIndexes = pipe(getCumulativeSum, addZeroAtFirstIndex)(map)
   }
   return mappedIndexes[draggedOverIndex];
 };
@@ -34,7 +26,7 @@ const indexToMappedIndex = (draggedOverIndex: number, map: number[], isRearrange
 const indexFromMappedIndex = (draggedOverIndex: number, map: number[], sourceIndex: number, isRearrange: boolean) => {
   let mappedIndexes: number[];
   if (isRearrange) {
-    mappedIndexes = pipe(removeSourceIndex2(sourceIndex), addZeroAtFirstIndex, getCumulativeSum)(map);
+    mappedIndexes = pipe(removeSourceIndex(sourceIndex), addZeroAtFirstIndex, getCumulativeSum)(map);
   } else {
     mappedIndexes = addZeroAtFirstIndex(getCumulativeSum(map));
   }
@@ -124,8 +116,6 @@ const DraggerContainer: React.FC<ComponentProps> = ({
   const [rowShape, setRowShape] = useState<number[][]>([]);
   const containerRef: Ref<HTMLDivElement> = useRef(null);
   const dragged = draggedId !== undefined;
-  // const isInitialRearrange = usePrevious(sourceIndex) === undefined;
-  // const isDragEnd = usePrevious(sourceIndex) !== undefined && sourceIndex === undefined;
 
   useEffect(() => {
     if (!sourceIndex) setRowShape([]);
@@ -148,7 +138,6 @@ const DraggerContainer: React.FC<ComponentProps> = ({
         //
         if (!isRearrange) {
           newRowShape = addZeroAtFirstIndex(newRowShape);
-          // newRowShape = newRowShape.map(ele => (ele += elementWidth / 2));
         }
         newRowShape = getCumulativeSum(newRowShape.map(e => e * elementWidth));
         // Create break points which when dragging over them causes draggedOverIndex to ++ or --
@@ -178,7 +167,6 @@ const DraggerContainer: React.FC<ComponentProps> = ({
   };
 
   const figureOutWhetherToExpand = (index: number) => {
-    // let index = addZeroAtFirstIndex(removeSourceIndex(i, widthMap)).indexOf(i)
 
     if (!isRearrange && draggedOverIndex !== undefined) {
       return draggedOverIndex === index ? elementWidth : 0;
