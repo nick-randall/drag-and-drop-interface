@@ -1,3 +1,4 @@
+import createEnchantCards from "./createEnchantCards";
 import { createGuests, createSpecials } from "./createGuests";
 import { CleanUpDragState, SetDragContainerExpand, SetDraggedId, SetInitialDraggedState, UpdateDragDestination } from "./dragEventThunks";
 
@@ -34,7 +35,7 @@ const initialState = {
   draggedId: undefined,
   draggedState: { source: undefined, destination: undefined },
   dragContainerExpand: { width: 0, height: 0 },
-  snapshot: { xxxy1: createGuests().slice(8, 15), xxxy2: createGuests().slice(0, 7), xxxy3: createSpecials() },
+  snapshot: { xxxy1: createGuests().slice(8, 10).concat(createEnchantCards().slice(0,2)), xxxy2: createGuests().slice(0, 7), xxxy3: createSpecials() },
 };
 
 export const stateReducer = (state: State = initialState, action: Action) => {
