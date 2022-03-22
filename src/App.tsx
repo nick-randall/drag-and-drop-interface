@@ -12,7 +12,7 @@ import DropZoneWrapper from "./DropZoneWrapper";
 const CardContainers: React.FC = () => {
   const guestCards = useSelector((state: RootState) => state.snapshot.xxxy2);
   const draggedId = useSelector((state: RootState) => state.draggedId)
-  const draggedCard = useSelector((state: RootState) => state.snapshot.xxxy1.find(card => card.id === draggedId));
+  const draggedCard = useSelector((state: RootState) => state.snapshot.xxxy1.find(card => card.id === draggedId) ?? state.snapshot.xxxy2.find(card => card.id === draggedId));
   const elementWidth = 100;
   const containerOneId = "xxxy2";
 

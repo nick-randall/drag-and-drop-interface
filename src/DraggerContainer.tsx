@@ -4,7 +4,6 @@ import { connect, useDispatch } from "react-redux";
 import { dragUpateThunk } from "./dragEventThunks";
 import { RootState } from "./store";
 
-
 export const cumulativeSum = (sum: number) => (value: number) => (sum += value);
 
 export const getCumulativeSum = (indexArray: number[]) => indexArray.map(cumulativeSum(0));
@@ -16,9 +15,9 @@ const addZeroAtFirstIndex = (indexArray: number[]) => [0].concat(indexArray);
 const indexToMappedIndex = (draggedOverIndex: number, map: number[], isRearrange: boolean, sourceIndex: number) => {
   let mappedIndexes: number[];
   if (isRearrange) {
-    mappedIndexes = pipe(removeSourceIndex(sourceIndex), getCumulativeSum, addZeroAtFirstIndex)(map)
+    mappedIndexes = pipe(removeSourceIndex(sourceIndex), getCumulativeSum, addZeroAtFirstIndex)(map);
   } else {
-    mappedIndexes = pipe(getCumulativeSum, addZeroAtFirstIndex)(map)
+    mappedIndexes = pipe(getCumulativeSum, addZeroAtFirstIndex)(map);
   }
   return mappedIndexes[draggedOverIndex];
 };
@@ -26,9 +25,9 @@ const indexToMappedIndex = (draggedOverIndex: number, map: number[], isRearrange
 const indexFromMappedIndex = (draggedOverIndex: number, map: number[], sourceIndex: number, isRearrange: boolean) => {
   let mappedIndexes: number[];
   if (isRearrange) {
-    mappedIndexes = pipe(removeSourceIndex(sourceIndex), addZeroAtFirstIndex, getCumulativeSum)(map);
+    mappedIndexes = pipe(removeSourceIndex(sourceIndex), getCumulativeSum, addZeroAtFirstIndex)(map);
   } else {
-    mappedIndexes = addZeroAtFirstIndex(getCumulativeSum(map));
+    mappedIndexes = pipe(getCumulativeSum, addZeroAtFirstIndex)(map);
   }
   return mappedIndexes.indexOf(draggedOverIndex);
 };
@@ -70,6 +69,7 @@ interface ComponentReduxProps {
   expandLeft: number;
   expandRight: number;
   isInitialRearrange?: boolean;
+  dragContainerExpandWidth: number;
 }
 type DraggerContainerProps = {
   // children: React.FC<DraggerProps>[];
@@ -110,6 +110,7 @@ const DraggerContainer: React.FC<ComponentProps> = ({
   isDropDisabled = false,
   indexMap,
   isInitialRearrange,
+  dragContainerExpandWidth,
   widthMap = indexMap,
 }) => {
   const dispatch = useDispatch();
@@ -118,8 +119,8 @@ const DraggerContainer: React.FC<ComponentProps> = ({
   const dragged = draggedId !== undefined;
 
   useEffect(() => {
-    if (!sourceIndex) setRowShape([]);
-  }, [sourceIndex]);
+    if (!draggedOverIndex) setRowShape([]);
+  }, [draggedOverIndex]);
 
   const handleMouseMove = ({ clientX }: { clientX: number }) => {
     if (!dragged) return;
@@ -134,20 +135,57 @@ const DraggerContainer: React.FC<ComponentProps> = ({
       // Set rowShape if this is the first time the container is being dragged over
       if (rowShape.length === 0) {
         let newRowShape = widthMap;
+
         // Handle non-rearrange case (ie. if dragged element comes from outside of this drag container):
         //
-        if (!isRearrange) {
-          newRowShape = addZeroAtFirstIndex(newRowShape);
+        if (isRearrange) {
+          newRowShape = removeSourceIndex(sourceIndex)(newRowShape);
         }
-        newRowShape = getCumulativeSum(newRowShape.map(e => e * elementWidth));
+        console.log("Before converting with cumulative sum " + newRowShape);
+        newRowShape = addZeroAtFirstIndex(newRowShape);
+        newRowShape = getCumulativeSum(newRowShape.map((e, i) => e * elementWidth));
+
+        console.log("Before adding breakpoints" + newRowShape);
+
         // Create break points which when dragging over them causes draggedOverIndex to ++ or --
         //
-        const leftBreakPointFactor = 0.35 * elementWidth;
-        const rightBreakPointFactor = 0.35 * elementWidth;
-        const initialRightBreakPoint = 0.25 * elementWidth;
-        const newRowShapeWithUpperLowerBounds: number[][] = newRowShape.map(e =>
-          e > 0 ? [e - leftBreakPointFactor, e + rightBreakPointFactor] : [0, initialRightBreakPoint]
-        );
+        const leftBreakPointFactor = expandLeft;
+        const rightBreakPointFactor = expandRight;
+        const initialRightBreakPoint = widthMap[0] * elementWidth * 0.5 - dragContainerExpandWidth * 0.5; //(elementWidth * 0.3)  + (expandLeft );
+        console.log(expandLeft, expandRight);
+        console.log(newRowShape);
+
+        // const leftBreakPointFactor = (0.35 * elementWidth) + expandLeft;
+        // const rightBreakPointFactor = (0.35 * elementWidth) +  expandRight;
+        // const initialRightBreakPoint = (0.25 * elementWidth) + expandLeft;
+        //    const leftBreakPointFactor = (0.35 * elementWidth)
+        // const rightBreakPointFactor = (0.35 * elementWidth)
+        // const initialRightBreakPoint = (0.25 * elementWidth)
+        // const newRowShapeWithUpperLowerBounds: number[][] = newRowShape.map((e, i) =>
+        //   i > 0
+        //     ? [
+        //         e - leftBreakPointFactor * widthMap[i - 1] + widthMap[i - 1] * 0.25,
+        //         e - rightBreakPointFactor * widthMap[i - 1] + widthMap[i - 1] * 0.25,
+        //       ]
+        //     : [0, initialRightBreakPoint]
+        // );
+        let newRowShapeWithUpperLowerBounds: any[] = [];
+        let widthMapWithZero = getCumulativeSum(addZeroAtFirstIndex(widthMap));
+        for (let i = 0; i < widthMapWithZero.length; i++) {
+          let left,
+            right = 0;
+            let leftIncrease = widthMap[i] * 0.25
+            let rightDecrease = widthMap[i] * -0.25
+            if(!leftIncrease) leftIncrease = widthMap[i - 1] * .25
+            if(!rightDecrease) rightDecrease = widthMap[i - 1] * .25
+            console.log(leftIncrease, rightDecrease)
+            left = widthMapWithZero[i] + leftIncrease;
+            right = widthMapWithZero[i + 1] + rightDecrease;
+            // Adding the final value as the width of the final element
+            if(!right) right = widthMapWithZero[i] + widthMap[i -1];
+            newRowShapeWithUpperLowerBounds.push([(left * elementWidth) + expandLeft, (right * elementWidth) - expandRight]);
+        }
+        console.log(newRowShapeWithUpperLowerBounds);
         setRowShape(newRowShapeWithUpperLowerBounds);
       } else {
         newDraggedOverIndex = findNewDraggedOverIndex(rowShape, touchedX);
@@ -167,6 +205,7 @@ const DraggerContainer: React.FC<ComponentProps> = ({
   };
 
   const figureOutWhetherToExpand = (index: number) => {
+    const draggedElementWidth = isRearrange ? widthMap[sourceIndex] * elementWidth : elementWidth;
 
     if (!isRearrange && draggedOverIndex !== undefined) {
       return draggedOverIndex === index ? elementWidth : 0;
@@ -174,11 +213,11 @@ const DraggerContainer: React.FC<ComponentProps> = ({
 
     if (draggedOverIndex !== undefined && sourceIndex !== undefined) {
       // The element directly to the left of the dragged card provides expansion for it
-      if (draggedOverIndex === index - 1 && draggedOverIndex === sourceIndex - 1) return elementWidth;
+      if (draggedOverIndex === index - 1 && draggedOverIndex === sourceIndex - 1) return draggedElementWidth;
       // Other elements to the left behave normally
-      if (index < sourceIndex) return draggedOverIndex === index ? elementWidth : 0;
+      if (index < sourceIndex) return draggedOverIndex === index ? draggedElementWidth : 0;
       // Elements to the right of the dragged card expand one card early to compensate for the missing dragged card.
-      if (index > sourceIndex && index === draggedOverIndex + 1) return elementWidth;
+      if (index > sourceIndex && index === draggedOverIndex + 1) return draggedElementWidth;
     }
     return 0;
   };
@@ -272,7 +311,8 @@ const mapStateToProps = (state: RootState, ownProps: DraggerContainerProps) => {
   }
   // Left and right expand not implemented yet
   if (dragContainerExpand.width < 0) expandRight = dragContainerExpand.width;
-  else expandLeft = dragContainerExpand.width * -1;
+  else expandLeft = dragContainerExpand.width;
+  const dragContainerExpandWidth = dragContainerExpand.width;
   return {
     draggedOverIndex,
     draggedId,
@@ -284,6 +324,7 @@ const mapStateToProps = (state: RootState, ownProps: DraggerContainerProps) => {
     expandBelow,
     expandLeft,
     expandRight,
+    dragContainerExpandWidth,
   };
 };
 export default connect(mapStateToProps)(DraggerContainer);
