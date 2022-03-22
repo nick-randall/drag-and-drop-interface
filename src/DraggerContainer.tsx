@@ -170,7 +170,8 @@ const DraggerContainer: React.FC<ComponentProps> = ({
         //     : [0, initialRightBreakPoint]
         // );
         let newRowShapeWithUpperLowerBounds: any[] = [];
-        let widthMapWithZero = getCumulativeSum(addZeroAtFirstIndex(widthMap));
+        let widthMapWithZero = isRearrange ? getCumulativeSum(addZeroAtFirstIndex(removeSourceIndex(sourceIndex)(widthMap))):
+        getCumulativeSum(addZeroAtFirstIndex(widthMap));
         for (let i = 0; i < widthMapWithZero.length; i++) {
           let left,
             right = 0;
