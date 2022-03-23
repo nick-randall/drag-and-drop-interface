@@ -80,7 +80,8 @@ type DraggerContainerProps = {
   isDropDisabled?: boolean;
   // The index map is an array of the number of elements
   // in each index. Using it allows returning meaningful indexes
-  // from elements that are stacked on top of one another, for example
+  // from elements that are stacked on top of one another, for example.
+  // eg. [1, 1, 3, 4]
   indexMap: number[];
   // The width map is an array of the width of each elemnt
   widthMap?: number[];
@@ -90,7 +91,7 @@ type ComponentProps = ComponentReduxProps & DraggerContainerProps;
 // This container has several jobs:
 // 1. It listens to dragEvents and updates the redux dragState (draggedOverIndex and draggedOVerId)
 // 2. It moves its children around to give the user feedback about where they are placing the dragged item
-// 3. to improve UX, it expands a hidden box so that dragEvents can be detected no based on the dragged item position,
+// 3. to improve UX, it expands a hidden box so that dragEvents can be detected based on the dragged item position,
 // NOT based only on the mouse position
 
 const DraggerContainer: React.FC<ComponentProps> = ({
@@ -133,60 +134,23 @@ const DraggerContainer: React.FC<ComponentProps> = ({
       const touchedX = clientX - boundingBoxLeft;
 
       // Set rowShape if this is the first time the container is being dragged over
+      // rowShape is an array of breakpoint pairs.
       if (rowShape.length === 0) {
-        let newRowShape = widthMap;
-
-        // Handle non-rearrange case (ie. if dragged element comes from outside of this drag container):
-        //
-        if (isRearrange) {
-          newRowShape = removeSourceIndex(sourceIndex)(newRowShape);
-        }
-        console.log("Before converting with cumulative sum " + newRowShape);
-        newRowShape = addZeroAtFirstIndex(newRowShape);
-        newRowShape = getCumulativeSum(newRowShape.map((e, i) => e * elementWidth));
-
-        console.log("Before adding breakpoints" + newRowShape);
-
-        // Create break points which when dragging over them causes draggedOverIndex to ++ or --
-        //
-        const leftBreakPointFactor = expandLeft;
-        const rightBreakPointFactor = expandRight;
-        const initialRightBreakPoint = widthMap[0] * elementWidth * 0.5 - dragContainerExpandWidth * 0.5; //(elementWidth * 0.3)  + (expandLeft );
-        console.log(expandLeft, expandRight);
-        console.log(newRowShape);
-
-        // const leftBreakPointFactor = (0.35 * elementWidth) + expandLeft;
-        // const rightBreakPointFactor = (0.35 * elementWidth) +  expandRight;
-        // const initialRightBreakPoint = (0.25 * elementWidth) + expandLeft;
-        //    const leftBreakPointFactor = (0.35 * elementWidth)
-        // const rightBreakPointFactor = (0.35 * elementWidth)
-        // const initialRightBreakPoint = (0.25 * elementWidth)
-        // const newRowShapeWithUpperLowerBounds: number[][] = newRowShape.map((e, i) =>
-        //   i > 0
-        //     ? [
-        //         e - leftBreakPointFactor * widthMap[i - 1] + widthMap[i - 1] * 0.25,
-        //         e - rightBreakPointFactor * widthMap[i - 1] + widthMap[i - 1] * 0.25,
-        //       ]
-        //     : [0, initialRightBreakPoint]
-        // );
         let newRowShapeWithUpperLowerBounds: any[] = [];
-        let widthMapWithZero = isRearrange ? getCumulativeSum(addZeroAtFirstIndex(removeSourceIndex(sourceIndex)(widthMap))):
-        getCumulativeSum(addZeroAtFirstIndex(widthMap));
+        let widthMapWithZero = isRearrange
+          ? pipe(removeSourceIndex(sourceIndex), addZeroAtFirstIndex, getCumulativeSum)(widthMap)
+          : pipe(addZeroAtFirstIndex, getCumulativeSum)(widthMap);
         for (let i = 0; i < widthMapWithZero.length; i++) {
-          let left,
-            right = 0;
-            let leftIncrease = widthMap[i] * 0.25
-            let rightDecrease = widthMap[i] * -0.25
-            if(!leftIncrease) leftIncrease = widthMap[i - 1] * .25
-            if(!rightDecrease) rightDecrease = widthMap[i - 1] * .25
-            console.log(leftIncrease, rightDecrease)
-            left = widthMapWithZero[i] + leftIncrease;
-            right = widthMapWithZero[i + 1] + rightDecrease;
-            // Adding the final value as the width of the final element
-            if(!right) right = widthMapWithZero[i] + widthMap[i -1];
-            newRowShapeWithUpperLowerBounds.push([(left * elementWidth) + expandLeft, (right * elementWidth) - expandRight]);
+          let leftIncrease = widthMap[i] * 0.25;
+          let rightDecrease = widthMap[i] * -0.25;
+          if (!leftIncrease) leftIncrease = widthMap[i - 1] * 0.25;
+          if (!rightDecrease) rightDecrease = widthMap[i - 1] * -0.25;
+          let left = widthMapWithZero[i] + leftIncrease;
+          let right = widthMapWithZero[i + 1] + rightDecrease;
+          // Adding the final value as the width of the final element
+          if (!right) right = widthMapWithZero[i] + widthMap[i - 1];
+          newRowShapeWithUpperLowerBounds.push([left * elementWidth + expandLeft, right * elementWidth - expandRight]);
         }
-        console.log(newRowShapeWithUpperLowerBounds);
         setRowShape(newRowShapeWithUpperLowerBounds);
       } else {
         newDraggedOverIndex = findNewDraggedOverIndex(rowShape, touchedX);
@@ -229,7 +193,6 @@ const DraggerContainer: React.FC<ComponentProps> = ({
       ref={containerRef}
       style={{
         position: "absolute",
-        display: isLayoutDisabled ? "block" : "flex",
         paddingTop: isDropDisabled ? 0 : expandAbove,
         marginTop: isDropDisabled ? 0 : -expandAbove,
         paddingBottom: isDropDisabled ? 0 : expandBelow,
@@ -237,44 +200,44 @@ const DraggerContainer: React.FC<ComponentProps> = ({
         // Allows dragOver listener to trigger when on the right side of the DraggerContainer
         paddingRight: elementWidth,
         marginRight: elementWidth,
-        // paddingLeft: expandLeft,
-        // marginLeft: -expandLeft,
-        // paddingRight: expandRight,
-        // marginRight: -expandRight,
-        // backgroundColor: "black",
+        width: widthMap.reduce((prev, curr) => prev + curr, 0) * elementWidth,
+        height: 200,
+        backgroundColor: "black",
       }}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
     >
-      {children.map((child, index) => (
-        <div
-          key={id + "-container-" + index}
-          // This is the container of dragger plus placeholder.
-          style={{
-            display: "flex",
-            position: child.props.draggerId === draggedId ? "absolute" : undefined,
-          }}
-          draggable="false"
-        >
+      <div style={{ position: "absolute", display: isLayoutDisabled ? "block" : "flex", border: "thin black solid" }}>
+        {children.map((child, index) => (
           <div
-            // This is the placeholder (ghost card comes in here)
-            // This code causes card before dragged element to left to expand
+            key={id + "-container-" + index}
+            // This is the container of dragger plus placeholder.
             style={{
-              width: figureOutWhetherToExpand(index),
-              height: 150,
-              // Suppress transition if this is the first time an element is being dragged in this container
-              // transition: isInitialRearrange || isDragEnd ? "" : "200ms ease",
-              transition: isInitialRearrange ? "" : "200ms ease",
-
-              // transitionDelay: "120ms"
+              display: "flex",
+              position: child.props.draggerId === draggedId ? "absolute" : undefined,
             }}
             draggable="false"
-          />
+          >
+            <div
+              // This is the placeholder (ghost card comes in here)
+              // This code causes card before dragged element to left to expand
+              style={{
+                width: figureOutWhetherToExpand(index),
+                height: 150,
+                // Suppress transition if this is the first time an element is being dragged in this container
+                // transition: isInitialRearrange || isDragEnd ? "" : "200ms ease",
+                transition: isInitialRearrange ? "" : "200ms ease",
 
-          {child}
-        </div>
-      ))}
-      {draggedOverIndex}
+                // transitionDelay: "120ms"
+              }}
+              draggable="false"
+            />
+
+            {child}
+          </div>
+        ))}
+        {draggedOverIndex}
+      </div>
     </div>
   );
 };

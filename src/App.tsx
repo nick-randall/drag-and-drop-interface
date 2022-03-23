@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Dragger from "./Dragger";
 import DraggerContainer from "./DraggerContainer";
 import "./App.css";
@@ -16,7 +16,14 @@ const CardContainers: React.FC = () => {
   const elementWidth = 100;
   const containerOneId = "xxxy2";
 
-  const indexMap = [2, 1, 1, 2, 1, 1, 1];
+  const [indexMap, setIndexMap] = useState<number[]>([])
+
+  useEffect(()=>{
+    if(indexMap.length === 0){
+      const newIndexMap = guestCards.map(c => Math.floor(Math.random() + 0.5) === 1 ? 2 : 1)
+      setIndexMap(newIndexMap);
+    }
+  }, [guestCards, indexMap.length])
 
   const isGCZHighlighted = draggedCard?.cardType === "guest"
 
