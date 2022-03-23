@@ -208,7 +208,7 @@ const DraggerContainer: React.FC<ComponentProps> = ({
         paddingRight: elementWidth,
         marginRight: elementWidth,
         width: widthMap.reduce((prev, curr) => prev + curr, 0) * elementWidth,
-        height: 200,
+        // height: 200,
         // backgroundColor: "black",
       }}
       onMouseMove={handleMouseMove}
@@ -232,7 +232,7 @@ const DraggerContainer: React.FC<ComponentProps> = ({
               // This code causes card before dragged element to left to expand
               style={{
                 width: figureOutWhetherToExpand(index),
-                height: 150,
+                // height: 150,
                 // Suppress transition if this is the first time an element is being dragged in this container
                 // transition: isInitialRearrange || isDragEnd ? "" : "200ms ease",
                 transition: isInitialRearrange ? "" : "200ms ease",

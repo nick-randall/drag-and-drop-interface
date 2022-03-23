@@ -36,7 +36,7 @@ const CardContainers: React.FC = () => {
       <div style={{ position: "absolute", top: 300, left: 600 }}>
         <SpecialsZone />
       </div>
-      <div style={{ left: 200, position: "absolute", top: 500 }}>
+      <div style={{ left: 200, position: "absolute", top: 200 }}>
         <DraggerContainer
           id={containerOneId}
           elementWidth={elementWidth}
