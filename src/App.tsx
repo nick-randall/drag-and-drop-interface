@@ -36,7 +36,7 @@ const CardContainers: React.FC = () => {
       <div style={{ position: "absolute", top: 300, left: 600 }}>
         <SpecialsZone />
       </div>
-      <div style={{ left: 200, position: "absolute", top: 200 }}>
+      <div style={{ left: 200, position: "absolute", top: 500 }}>
         <DraggerContainer
           id={containerOneId}
           elementWidth={elementWidth}
@@ -53,21 +53,28 @@ const CardContainers: React.FC = () => {
           }
         >
           {guestCards.map((card, index) => (
-            <Dragger draggerId={card.id} index={index} containerId={containerOneId} key={card.id}>
+            <Dragger draggerId={card.id} index={index} containerId={containerOneId} key={card.id} indexMap={indexMap} >
               {(handleDragStart, draggerRef) => (
-                <DropZoneWrapper id={card.id} providedIndex={index} isDropDisabled={!isGuestsHighlighted}>
-                  <img
-                    ref={draggerRef}
-                    onMouseDown={handleDragStart}
-                    alt={card.name}
-                    key={card.id}
-                    style={{
-                      width: indexMap[index] * elementWidth,
-                    }}
-                    src={`./images/${card.image}.jpg`}
-                    draggable="false"
-                  />
-                </DropZoneWrapper>
+                <div ref={draggerRef}>
+                  <DropZoneWrapper id={card.id} providedIndex={index} isDropDisabled={!isGuestsHighlighted}>
+                    {isDraggingOver => (
+                      <img
+                        onMouseDown={handleDragStart}
+                        alt={card.name}
+                        key={card.id}
+                        style={{
+                          transition: "background-color 180ms, box-shadow 180ms, left 180ms",
+
+                          width: indexMap[index] * elementWidth,
+                          backgroundColor: isDraggingOver ? "greenyellow" : "",
+                          boxShadow: isDraggingOver ? "0px 0px 30px 30px yellowgreen" : "",
+                        }}
+                        src={`./images/${card.image}.jpg`}
+                        draggable="false"
+                      />
+                    )}
+                  </DropZoneWrapper>
+                </div>
               )}
             </Dragger>
           ))}

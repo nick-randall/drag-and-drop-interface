@@ -1,6 +1,7 @@
 import React, { CSSProperties, Ref, useCallback, useEffect, useRef, useState } from "react";
 import { connect, useDispatch } from "react-redux";
 import { dragEndThunk, dragStartThunk } from "./dragEventThunks";
+import { addZeroAtFirstIndex, getCumulativeSum } from "./DraggerContainer";
 import { DragLocation } from "./stateReducer";
 import { RootState } from "./store";
 
@@ -12,6 +13,7 @@ export interface DraggerProps {
   // Whether this dragger is a child of a DraggerContainer
   isOutsideContainer?: boolean;
   isDragDisabled?: boolean;
+  indexMap?: number[]
   children: (handleDragStart: (event: React.MouseEvent) => void, ref: Ref<HTMLImageElement>, dragged: boolean) => JSX.Element;
 }
 
@@ -22,7 +24,7 @@ interface DraggerReduxProps {
 
 type CombinedProps = DraggerProps & DraggerReduxProps;
 
-const Dragger: React.FC<CombinedProps> = ({ children, index, draggerId, containerId, isOutsideContainer, isDragDisabled, source, destination }) => {
+const Dragger: React.FC<CombinedProps> = ({ children, index, draggerId, containerId, isOutsideContainer, isDragDisabled, indexMap, source, destination }) => {
   const [dragState, setDragState] = useState({
     dragged: false,
     translateX: 0,
@@ -34,9 +36,12 @@ const Dragger: React.FC<CombinedProps> = ({ children, index, draggerId, containe
 
   const [isReturning, setIsReturning] = useState(false);
 
+  // const calculatedIndex = indexMap !== undefined ? getCumulativeSum(addZeroAtFirstIndex(indexMap))[index]: index
+  const calculatedIndex = index
+
   useEffect(() => {
     setIsReturning(false);
-  }, [setIsReturning, index]);
+  }, [setIsReturning]);
 
   const dispatch = useDispatch();
 
@@ -92,13 +97,13 @@ const Dragger: React.FC<CombinedProps> = ({ children, index, draggerId, containe
           //
           dragContainerExpand.width = width / 2 - touchedPointX;
 
-          const dragSourceAndDestination = { containerId: containerId, index: index };
+          const dragSourceAndDestination = { containerId: containerId, index: calculatedIndex };
           dispatch(dragStartThunk(draggerId, dragSourceAndDestination, dragContainerExpand));
          
         }
       } else console.log("error getting html node");
     },
-    [containerId, dispatch, draggerId, index, isDragDisabled, isOutsideContainer]
+    [calculatedIndex, containerId, dispatch, draggerId, isDragDisabled, isOutsideContainer]
   );
 
   const handleDrag = useCallback(

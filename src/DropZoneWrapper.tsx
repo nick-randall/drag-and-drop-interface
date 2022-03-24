@@ -1,11 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import { connect, useDispatch } from "react-redux";
 import { dragUpateThunk } from "./dragEventThunks";
 import { RootState } from "./store";
 
 interface ComponentReduxProps {
   draggedId?: string;
-  isDraggingOver?: boolean;
+  // isDraggingOver?: boolean;
 
   expandAbove: number;
   expandBelow: number;
@@ -13,7 +13,7 @@ interface ComponentReduxProps {
   expandRight: number;
 }
 type DropZoneWrapperProps = {
-  children: JSX.Element;
+  children: (isDraggingOver: boolean)=>JSX.Element;
   providedIndex: number;
   id: string;
   isDropDisabled?: boolean;
@@ -34,15 +34,17 @@ const DropZoneWrapper: React.FC<ComponentProps> = ({
   expandBelow,
   expandLeft,
   expandRight,
-  isDraggingOver,
+  // isDraggingOver,
   providedIndex,
 }) => {
   const dispatch = useDispatch();
   const dragged = draggedId !== undefined;
+  const [isDraggingOver, setIsDraggingOver] = useState(false);
 
   const handleMouseMove = () => {
     if (!dragged) return;
     if (isDropDisabled) return;
+    setIsDraggingOver(true);
 
     dispatch(dragUpateThunk({index: providedIndex, containerId:id}, true))
   };
@@ -51,6 +53,7 @@ const DropZoneWrapper: React.FC<ComponentProps> = ({
     if (isDraggingOver) {
       dispatch(dragUpateThunk(undefined, false));
     }
+    setIsDraggingOver(false);
   };
 
   return (
@@ -69,18 +72,18 @@ const DropZoneWrapper: React.FC<ComponentProps> = ({
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
     >
-      {children}
+      {children(isDraggingOver)}
     </div>
   );
 };
 
 const mapStateToProps = (state: RootState, ownProps: DropZoneWrapperProps) => {
   const { draggedState, draggedId, dragContainerExpand } = state;
-  let isDraggingOver = undefined;
+  // let isDraggingOver = undefined;
 
-  if (draggedState.destination) {
-    isDraggingOver = draggedState.destination.containerId === ownProps.id;
-  }
+  // if (draggedState.destination) {
+  //   isDraggingOver = draggedState.destination.containerId === ownProps.id;
+  // }
   let expandAbove = 0;
   let expandBelow = 0;
   let expandLeft = 0;
@@ -93,6 +96,6 @@ const mapStateToProps = (state: RootState, ownProps: DropZoneWrapperProps) => {
   // Left and right expand not implemented yet
   if (dragContainerExpand.width < 0) expandRight = dragContainerExpand.width;
   else expandLeft = dragContainerExpand.width * -1;
-  return { draggedId, isDraggingOver, expandAbove, expandBelow, expandLeft, expandRight };
+  return { draggedId, expandAbove, expandBelow, expandLeft, expandRight };
 };
 export default connect(mapStateToProps)(DropZoneWrapper);
