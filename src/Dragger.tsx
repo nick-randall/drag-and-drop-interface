@@ -36,8 +36,8 @@ const Dragger: React.FC<CombinedProps> = ({ children, index, draggerId, containe
 
   const [isReturning, setIsReturning] = useState(false);
 
-  // const calculatedIndex = indexMap !== undefined ? getCumulativeSum(addZeroAtFirstIndex(indexMap))[index]: index
-  const calculatedIndex = index
+  const calculatedIndex = indexMap !== undefined ? getCumulativeSum(addZeroAtFirstIndex(indexMap))[index]: index
+  // const calculatedIndex = index
 
   useEffect(() => {
     setIsReturning(false);
