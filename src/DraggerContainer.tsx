@@ -167,14 +167,14 @@ const DraggerContainer: React.FC<ComponentProps> = ({
       }
       if (draggedOverIndex !== newDraggedOverIndex) {
         newDraggedOverIndex = indexToMappedIndex(newDraggedOverIndex, indexMap, isRearrange, sourceIndex);
-        dispatch(dragUpateThunk({ index: newDraggedOverIndex, containerId: id }, false));
+        dispatch(dragUpateThunk({ index: newDraggedOverIndex, containerId: id }));
       }
     }
   };
 
   const handleMouseLeave = () => {
     if (isDraggingOver) {
-      dispatch(dragUpateThunk(undefined, false));
+      dispatch(dragUpateThunk(undefined));
       setRowShape([]);
     }
   };

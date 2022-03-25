@@ -43,12 +43,12 @@ const DropZone: React.FC<ComponentProps> = ({
     if (!dragged) return;
     if (isDropDisabled) return;
 
-    dispatch(dragUpateThunk({index: providedIndex, containerId:id}, true))
+    dispatch(dragUpateThunk({index: providedIndex, containerId:id}))
   };
 
   const handleMouseLeave = () => {
     if (isDraggingOver) {
-      dispatch(dragUpateThunk(undefined, false));
+      dispatch(dragUpateThunk(undefined));
     }
   };
 
