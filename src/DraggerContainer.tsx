@@ -144,22 +144,19 @@ const DraggerContainer: React.FC<ComponentProps> = ({
           : pipe(addZeroAtFirstIndex, getCumulativeSum)(widthMap);
         const insetFromElementEdgeFactor = 0.25;
         for (let i = 0; i < cumulativeWidthMap.length; i++) {
-
           // let insetFromElementEdge = widthMap[i] * insetFromElementEdgeFactor;
           // // Adding the final value as the width of the final element
           // if (!insetFromElementEdge) insetFromElementEdge = widthMap[i - 1] * insetFromElementEdgeFactor;
 
           let left = cumulativeWidthMap[i];
           let right = cumulativeWidthMap[i + 1];
-          
-          left = left * elementWidth + expandLeft // / left;
-          right = right * elementWidth + expandRight // / right;
-          if (!right) right = Infinity; 
-          console.log(expandLeft, expandRight)
+
+          left = left * elementWidth + expandLeft; // / left;
+          right = right * elementWidth + expandRight; // / right;
+          if (!right) right = Infinity;
 
           if (i === 0) newRowShapeWithUpperLowerBounds.push([0, right]);
           else newRowShapeWithUpperLowerBounds.push([left, right]);
-          console.log(newRowShapeWithUpperLowerBounds);
         }
         setRowShape(newRowShapeWithUpperLowerBounds);
       } else {
@@ -178,9 +175,8 @@ const DraggerContainer: React.FC<ComponentProps> = ({
       setRowShape([]);
     }
   };
-
+  const draggedElementWidth = isRearrange ? widthMap[sourceIndex] * elementWidth : elementWidth;
   const figureOutWhetherToExpand = (index: number) => {
-    const draggedElementWidth = isRearrange ? widthMap[sourceIndex] * elementWidth : elementWidth;
 
     if (!isRearrange && draggedOverIndex !== undefined) {
       return draggedOverIndex === index ? elementWidth : 0;
@@ -195,6 +191,13 @@ const DraggerContainer: React.FC<ComponentProps> = ({
       if (index > sourceIndex && index === draggedOverIndex + 1) return draggedElementWidth;
     }
     return 0;
+  };
+
+  const figureOutWhetherToExpandFinal = () => {
+    const finalIndex = isRearrange ? widthMap.length - 1 : widthMap.length;
+    if (draggedOverIndex === finalIndex) {
+      return draggedElementWidth;
+    } else return 0;
   };
 
   return (
@@ -252,8 +255,7 @@ const DraggerContainer: React.FC<ComponentProps> = ({
         <div
           // Far-right of container, expands for new cards
           style={{
-            width:
-              (isRearrange && draggedOverIndex === widthMap.length - 1) || (!isRearrange && draggedOverIndex === widthMap.length) ? elementWidth : 0,
+            width: figureOutWhetherToExpandFinal(),
             height: 150,
             // Suppress transition if this is the first time an element is being dragged in this container
             // transition: isInitialRearrange || isDragEnd ? "" : "200ms ease",
