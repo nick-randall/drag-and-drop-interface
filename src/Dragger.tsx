@@ -36,8 +36,8 @@ const Dragger: React.FC<CombinedProps> = ({ children, index, draggerId, containe
 
   const [isReturning, setIsReturning] = useState(false);
 
-  // const calculatedIndex = indexMap !== undefined ? getCumulativeSum(addZeroAtFirstIndex(indexMap))[index]: index
-  const calculatedIndex = index
+  const trueSourceIndex = indexMap !== undefined ? getCumulativeSum(addZeroAtFirstIndex(indexMap))[index]: index
+  // const calculatedIndex = index
 
   useEffect(() => {
     setIsReturning(false);
@@ -97,13 +97,13 @@ const Dragger: React.FC<CombinedProps> = ({ children, index, draggerId, containe
           //
           dragContainerExpand.width = width / 2 - touchedPointX;
 
-          const dragSourceAndDestination = { containerId: containerId, index: calculatedIndex };
+          const dragSourceAndDestination = { containerId: containerId, index: index, trueSourceIndex: trueSourceIndex };
           dispatch(dragStartThunk(draggerId, dragSourceAndDestination, dragContainerExpand));
          
         }
       } else console.log("error getting html node");
     },
-    [calculatedIndex, containerId, dispatch, draggerId, isDragDisabled, isOutsideContainer]
+    [index, trueSourceIndex, containerId, dispatch, draggerId, isDragDisabled, isOutsideContainer]
   );
 
   const handleDrag = useCallback(

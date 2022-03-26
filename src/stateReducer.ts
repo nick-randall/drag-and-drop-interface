@@ -5,6 +5,7 @@ import { CleanUpDragState, SetDragContainerExpand, SetDraggedId, SetInitialDragg
 export interface DragLocation {
   containerId: string;
   index: number;
+  trueSourceIndex?: number
 }
 
 export interface DraggedState {
