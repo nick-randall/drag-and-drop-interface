@@ -4,6 +4,7 @@ import { connect, useDispatch } from "react-redux";
 import { dragUpateThunk } from "./dragEventThunks";
 import { RootState } from "./store";
 
+
 export const cumulativeSum = (sum: number) => (value: number) => (sum += value);
 
 export const getCumulativeSum = (indexArray: number[]) => indexArray.map(cumulativeSum(0));
@@ -69,7 +70,6 @@ interface ComponentReduxProps {
   expandLeft: number;
   expandRight: number;
   isInitialRearrange?: boolean;
-  dragContainerExpandWidth: number;
 }
 type DraggerContainerProps = {
   // children: React.FC<DraggerProps>[];
@@ -112,7 +112,6 @@ const DraggerContainer: React.FC<ComponentProps> = ({
   isDropDisabled = false,
   indexMap,
   isInitialRearrange,
-  dragContainerExpandWidth,
   widthMap = indexMap,
   containerStyles,
 }) => {
@@ -159,6 +158,7 @@ const DraggerContainer: React.FC<ComponentProps> = ({
           else newRowShapeWithUpperLowerBounds.push([left, right]);
         }
         setRowShape(newRowShapeWithUpperLowerBounds);
+        newDraggedOverIndex = findNewDraggedOverIndex(newRowShapeWithUpperLowerBounds, touchedX);
       } else {
         newDraggedOverIndex = findNewDraggedOverIndex(rowShape, touchedX);
       }
