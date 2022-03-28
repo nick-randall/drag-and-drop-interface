@@ -2,14 +2,22 @@ import createEnchantCards from "./createEnchantCards";
 import { createGuests, createSpecials } from "./createGuests";
 import { CleanUpDragState, SetDragContainerExpand, SetDraggedId, SetInitialDraggedState, UpdateDragDestination } from "./dragEventThunks";
 
-export interface DragLocation {
+export interface DragDestinationData {
   containerId: string;
   index: number;
+ 
+}
+
+export interface DragSourceData {
+  containerId: string;
+  index: number;
+  trueSourceIndex?: number
+  numDraggedElements?: number
 }
 
 export interface DraggedState {
-  source?: DragLocation;
-  destination?: DragLocation;
+  source?: DragSourceData;
+  destination?: DragDestinationData;
   isInitialRearrange?: boolean;
 }
 

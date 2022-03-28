@@ -1,3 +1,4 @@
+import { DragSourceData } from "./stateReducer";
 import { AppDispatch, RootState } from "./store";
 
 interface LastLocation {
@@ -26,7 +27,7 @@ export type SetDragContainerExpand = {
 
 export type UpdateDragDestination = {
   type: "UPDATE_DRAG_DESTINATION";
-  payload: { destination: LocationData | undefined; isInitialRearrange: boolean };
+  payload: { destination: LocationData | undefined };
 };
 
 // Action Creators
@@ -41,29 +42,29 @@ const setDragContainerExpand = (dragContainerExpand: { width: number; height: nu
   type: "SET_DRAG_CONTAINER_EXPAND",
   payload: dragContainerExpand,
 });
-const updateDragDestination = (destinationLocationUpdate: LocationData | undefined, isInitialRearrange: boolean): UpdateDragDestination => ({
+const updateDragDestination = (destinationLocationUpdate: LocationData | undefined): UpdateDragDestination => ({
   type: "UPDATE_DRAG_DESTINATION",
-  payload: { destination: destinationLocationUpdate, isInitialRearrange: isInitialRearrange },
+  payload: { destination: destinationLocationUpdate },
 });
 
 // Thunks
 
 export const dragStartThunk =
-  (id: string, source: LocationData, dragContainerExpand: { width: number; height: number }) => (dispatch: Function, getState: () => RootState) => {
+  (id: string, source: DragSourceData, dragContainerExpand: { width: number; height: number }) => (dispatch: Function, getState: () => RootState) => {
     dispatch(setDraggedId(id));
     dispatch(setInitialDraggedState(source));
     dispatch(setDragContainerExpand(dragContainerExpand));
   };
 
-export const dragUpateThunk = (destinationLocationUpdate : LocationData | undefined, isInitialRearrange: boolean) => (dispatch: Function, getState: () => RootState) => {
-  dispatch(updateDragDestination(destinationLocationUpdate, isInitialRearrange))
+export const dragUpateThunk = (destinationLocationUpdate : LocationData | undefined) => (dispatch: Function, getState: () => RootState) => {
+  dispatch(updateDragDestination(destinationLocationUpdate))
 };
 
 export const dragEndThunk = (lastLocation: LastLocation) => (dispatch: Function, getState: () => RootState) => {
   const { source, destination } = getState().draggedState;
-  console.log("drag source " + source);
-  console.log("drag destination " + destination);
-  console.log(lastLocation);
+  // console.log("drag source " + source);
+  // console.log("drag destination " + destination);
+  // console.log(lastLocation);
 
   dispatch(setDraggedId(""));
   dispatch(cleanUpDragState());

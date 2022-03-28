@@ -13,7 +13,7 @@ interface ComponentReduxProps {
   expandRight: number;
 }
 type DropZoneWrapperProps = {
-  children: (isDraggingOver: boolean)=>JSX.Element;
+  children: (isDraggingOver: boolean) => JSX.Element;
   providedIndex: number;
   id: string;
   isDropDisabled?: boolean;
@@ -46,12 +46,12 @@ const DropZoneWrapper: React.FC<ComponentProps> = ({
     if (isDropDisabled) return;
     setIsDraggingOver(true);
 
-    dispatch(dragUpateThunk({index: providedIndex, containerId:id}, true))
+    dispatch(dragUpateThunk({ index: providedIndex, containerId: id }));
   };
 
   const handleMouseLeave = () => {
     if (isDraggingOver) {
-      dispatch(dragUpateThunk(undefined, false));
+      dispatch(dragUpateThunk(undefined));
     }
     setIsDraggingOver(false);
   };
