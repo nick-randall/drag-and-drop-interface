@@ -62,9 +62,9 @@ export const dragUpateThunk = (destinationLocationUpdate : LocationData | undefi
 
 export const dragEndThunk = (lastLocation: LastLocation) => (dispatch: Function, getState: () => RootState) => {
   const { source, destination } = getState().draggedState;
-  console.log("drag source " + source);
-  console.log("drag destination " + destination);
-  console.log(lastLocation);
+  // console.log("drag source " + source);
+  // console.log("drag destination " + destination);
+  // console.log(lastLocation);
 
   dispatch(setDraggedId(""));
   dispatch(cleanUpDragState());

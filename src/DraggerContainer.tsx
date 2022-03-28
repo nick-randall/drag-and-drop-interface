@@ -4,7 +4,6 @@ import { connect, useDispatch } from "react-redux";
 import { dragUpateThunk } from "./dragEventThunks";
 import { RootState } from "./store";
 
-
 export const cumulativeSum = (sum: number) => (value: number) => (sum += value);
 
 export const getCumulativeSum = (numElementsAt: number[]) => numElementsAt.map(cumulativeSum(0));
@@ -139,7 +138,7 @@ const DraggerContainer: React.FC<ComponentProps> = ({
       if (rowShape.length === 0) {
         let newRowShapeWithUpperLowerBounds: any[] = [];
         let cumulativeelementWidthAt = isRearrange
-          ? pipe(removeSourceIndex(sourceIndex), addZeroAtFirstIndex, getCumulativeSum)(elementWidthAt)
+          ? pipe(addZeroAtFirstIndex, getCumulativeSum)(elementWidthAt)
           : pipe(addZeroAtFirstIndex, getCumulativeSum)(elementWidthAt);
         const insetFromElementEdgeFactor = 0.15;
         for (let i = 0; i < cumulativeelementWidthAt.length; i++) {
@@ -149,14 +148,20 @@ const DraggerContainer: React.FC<ComponentProps> = ({
 
           let left = cumulativeelementWidthAt[i];
           let right = cumulativeelementWidthAt[i + 1];
+          if(i === sourceIndex){
+            left -=  1
+            right += 1
+          }
 
-          left = left * elementWidth - elementWidth * insetFromElementEdgeFactor ; // / left;
+          left = left * elementWidth + elementWidth * insetFromElementEdgeFactor; // / left;
           right = right * elementWidth - elementWidth * insetFromElementEdgeFactor; // / right;
           if (!right) right = Infinity;
 
           if (i === 0) newRowShapeWithUpperLowerBounds.push([0, right]);
           else newRowShapeWithUpperLowerBounds.push([left, right]);
+          
         }
+        console.log(newRowShapeWithUpperLowerBounds)
         setRowShape(newRowShapeWithUpperLowerBounds);
         newDraggedOverIndex = findNewDraggedOverIndex(newRowShapeWithUpperLowerBounds, touchedX);
       } else {
@@ -177,7 +182,6 @@ const DraggerContainer: React.FC<ComponentProps> = ({
   };
   const draggedElementWidth = isRearrange ? elementWidthAt[sourceIndex] * elementWidth : elementWidth;
   const figureOutWhetherToExpand = (index: number) => {
-
     if (!isRearrange && draggedOverIndex !== undefined) {
       return draggedOverIndex === index ? elementWidth : 0;
     }
@@ -220,6 +224,13 @@ const DraggerContainer: React.FC<ComponentProps> = ({
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
     >
+      {rowShape.map(e => (
+        <div>
+          <div style={{ height: 150, width: 1, backgroundColor: "blue", left: e[0], position:"absolute", zIndex:100 }}> {e[0]}</div>
+          <div style={{ height: 150, width: 1, backgroundColor: "red", left: e[1], position:"absolute", zIndex:100   }}> {e[1]}</div>
+
+        </div>
+      ))}
       <div
         style={{ position: "absolute", display: isLayoutDisabled ? "block" : "flex", ...containerStyles }}
         // This is the container of all draggers
