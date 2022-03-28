@@ -115,12 +115,12 @@ const DraggerContainer: React.FC<ComponentProps> = ({
   containerStyles,
 }) => {
   const dispatch = useDispatch();
-  const [rowShape, setRowShape] = useState<number[][]>([]);
+  const [breakPoints, setBreakPoints] = useState<number[][]>([]);
   const containerRef: Ref<HTMLDivElement> = useRef(null);
   const dragged = draggedId !== undefined;
 
   useEffect(() => {
-    if (!draggedOverIndex) setRowShape([]);
+    if (!draggedOverIndex) setBreakPoints([]);
   }, [draggedOverIndex]);
 
   const handleMouseMove = ({ clientX }: { clientX: number }) => {
@@ -135,8 +135,8 @@ const DraggerContainer: React.FC<ComponentProps> = ({
 
       // Set rowShape if this is the first time the container is being dragged over
       // rowShape is an array of breakpoint pairs.
-      if (rowShape.length === 0) {
-        let newRowShapeWithUpperLowerBounds: any[] = [];
+      if (breakPoints.length === 0) {
+        let newBreakPoints: any[] = [];
         let cumulativeelementWidthAt = isRearrange
           ? pipe(addZeroAtFirstIndex, getCumulativeSum)(elementWidthAt)
           : pipe(addZeroAtFirstIndex, getCumulativeSum)(elementWidthAt);
@@ -153,18 +153,18 @@ const DraggerContainer: React.FC<ComponentProps> = ({
           //   right += 1
           // }
 
-          left = left * elementWidth + elementWidth * insetFromElementEdgeFactor; //* insetFromElementEdgeFactor; // / left;
-          right = right * elementWidth - elementWidth * insetFromElementEdgeFactor; //* insetFromElementEdgeFactor; // / right;
+          left = left * elementWidth + elementWidth * insetFromElementEdgeFactor + expandLeft; //* insetFromElementEdgeFactor; // / left;
+          right = right * elementWidth - elementWidth * insetFromElementEdgeFactor - expandRight; //* insetFromElementEdgeFactor; // / right;
           if (!right) right = Infinity;
 
-          if (i === 0) newRowShapeWithUpperLowerBounds.push([0, right]);
-          else newRowShapeWithUpperLowerBounds.push([left, right]);
+          if (i === 0) newBreakPoints.push([0, right]);
+          else newBreakPoints.push([left, right]);
         }
-        console.log(newRowShapeWithUpperLowerBounds);
-        setRowShape(newRowShapeWithUpperLowerBounds);
-        newDraggedOverIndex = findNewDraggedOverIndex(newRowShapeWithUpperLowerBounds, touchedX);
+        console.log(newBreakPoints);
+        setBreakPoints(newBreakPoints);
+        newDraggedOverIndex = findNewDraggedOverIndex(newBreakPoints, touchedX);
       } else {
-        newDraggedOverIndex = findNewDraggedOverIndex(rowShape, touchedX);
+        newDraggedOverIndex = findNewDraggedOverIndex(breakPoints, touchedX);
       }
       if (draggedOverIndex !== newDraggedOverIndex) {
         newDraggedOverIndex = indexToMappedIndex(newDraggedOverIndex, numElementsAt, isRearrange, sourceIndex);
@@ -176,7 +176,7 @@ const DraggerContainer: React.FC<ComponentProps> = ({
   const handleMouseLeave = () => {
     if (isDraggingOver) {
       dispatch(dragUpateThunk(undefined));
-      setRowShape([]);
+      setBreakPoints([]);
     }
   };
   const draggedElementWidth = isRearrange ? elementWidthAt[sourceIndex] * elementWidth : elementWidth;
@@ -223,7 +223,7 @@ const DraggerContainer: React.FC<ComponentProps> = ({
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
     >
-      {rowShape.map(e => (
+      {breakPoints.map(e => (
         <div>
           <div style={{ height: 150, width: 1, backgroundColor: "blue", left: e[0], position: "absolute", zIndex: 100 }}> {e[0]}</div>
           <div style={{ height: 150, width: 1, backgroundColor: "red", left: e[1], position: "absolute", zIndex: 100 }}> {e[1]}</div>
@@ -314,7 +314,6 @@ const mapStateToProps = (state: RootState, ownProps: DraggerContainerProps) => {
   // Left and right expand not implemented yet
   if (dragContainerExpand.width < 0) expandRight = dragContainerExpand.width;
   else expandLeft = dragContainerExpand.width;
-  const dragContainerExpandWidth = dragContainerExpand.width;
   return {
     draggedOverIndex,
     draggedId,
