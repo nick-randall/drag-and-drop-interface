@@ -40,7 +40,8 @@ const CardContainers: React.FC = () => {
         <DraggerContainer
           id={containerOneId}
           elementWidth={elementWidth}
-          indexMap={indexMap}
+          numElementsAt={indexMap}
+          elementWidthAt={indexMap}
           isDropDisabled={!isGCZHighlighted}
           containerStyles={
             isGCZHighlighted

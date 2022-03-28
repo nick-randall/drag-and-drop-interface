@@ -2,7 +2,7 @@ import React, { CSSProperties, Ref, useCallback, useEffect, useRef, useState } f
 import { connect, useDispatch } from "react-redux";
 import { dragEndThunk, dragStartThunk } from "./dragEventThunks";
 import { addZeroAtFirstIndex, getCumulativeSum } from "./DraggerContainer";
-import { DragLocation } from "./stateReducer";
+import { DragDestinationData, DragSourceData } from "./stateReducer";
 import { RootState } from "./store";
 
 export interface DraggerProps {
@@ -18,8 +18,8 @@ export interface DraggerProps {
 }
 
 interface DraggerReduxProps {
-  source: DragLocation | undefined;
-  destination: DragLocation | undefined;
+  source: DragSourceData | undefined;
+  destination: DragDestinationData | undefined;
 }
 
 type CombinedProps = DraggerProps & DraggerReduxProps;
@@ -37,6 +37,7 @@ const Dragger: React.FC<CombinedProps> = ({ children, index, draggerId, containe
   const [isReturning, setIsReturning] = useState(false);
 
   const trueSourceIndex = indexMap !== undefined ? getCumulativeSum(addZeroAtFirstIndex(indexMap))[index]: index
+  const numDraggedElements = indexMap !== undefined ? indexMap[index]: index
   // const calculatedIndex = index
 
   useEffect(() => {
@@ -97,13 +98,13 @@ const Dragger: React.FC<CombinedProps> = ({ children, index, draggerId, containe
           //
           dragContainerExpand.width = width / 2 - touchedPointX;
 
-          const dragSourceAndDestination = { containerId: containerId, index: index, trueSourceIndex: trueSourceIndex };
+          const dragSourceAndDestination = { containerId: containerId, index: index, trueSourceIndex: trueSourceIndex, numDraggedElements: numDraggedElements };
           dispatch(dragStartThunk(draggerId, dragSourceAndDestination, dragContainerExpand));
          
         }
       } else console.log("error getting html node");
     },
-    [index, trueSourceIndex, containerId, dispatch, draggerId, isDragDisabled, isOutsideContainer]
+    [isDragDisabled, containerId, index, trueSourceIndex, numDraggedElements, dispatch, draggerId, isOutsideContainer]
   );
 
   const handleDrag = useCallback(

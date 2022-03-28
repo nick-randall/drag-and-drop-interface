@@ -15,18 +15,15 @@ const SpecialsZone = () => {
 
   const specialsColumns = sortSpecials(specialsCards);
 
-  // const specialsIndexMap = (getCumulativeSum(specialsColumns.map(col => col.length)))
   const specialsIndexMap = specialsColumns.map(col => col.length);
   const specialsWidthMap = specialsColumns.map(e => 1);
-
-  console.log(specialsIndexMap);
 
   return (
     <DraggerContainer
       id={containerThreeId}
       elementWidth={elementWidth}
-      indexMap={specialsIndexMap}
-      widthMap={specialsWidthMap}
+      numElementsAt={specialsIndexMap}
+      elementWidthAt={specialsWidthMap}
       // The draggerContainer for the specials columns
     >
       {specialsColumns.map((col, colIndex) => (

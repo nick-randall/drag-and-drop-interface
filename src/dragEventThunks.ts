@@ -1,3 +1,4 @@
+import { DragSourceData } from "./stateReducer";
 import { AppDispatch, RootState } from "./store";
 
 interface LastLocation {
@@ -49,7 +50,7 @@ const updateDragDestination = (destinationLocationUpdate: LocationData | undefin
 // Thunks
 
 export const dragStartThunk =
-  (id: string, source: LocationData, dragContainerExpand: { width: number; height: number }) => (dispatch: Function, getState: () => RootState) => {
+  (id: string, source: DragSourceData, dragContainerExpand: { width: number; height: number }) => (dispatch: Function, getState: () => RootState) => {
     dispatch(setDraggedId(id));
     dispatch(setInitialDraggedState(source));
     dispatch(setDragContainerExpand(dragContainerExpand));
