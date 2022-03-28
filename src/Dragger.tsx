@@ -13,7 +13,7 @@ export interface DraggerProps {
   // Whether this dragger is a child of a DraggerContainer
   isOutsideContainer?: boolean;
   isDragDisabled?: boolean;
-  indexMap?: number[]
+  numElementsAt?: number[];
   children: (handleDragStart: (event: React.MouseEvent) => void, ref: Ref<HTMLImageElement>, dragged: boolean) => JSX.Element;
 }
 
@@ -24,7 +24,17 @@ interface DraggerReduxProps {
 
 type CombinedProps = DraggerProps & DraggerReduxProps;
 
-const Dragger: React.FC<CombinedProps> = ({ children, index, draggerId, containerId, isOutsideContainer, isDragDisabled, indexMap, source, destination }) => {
+const Dragger: React.FC<CombinedProps> = ({
+  children,
+  index,
+  draggerId,
+  containerId,
+  isOutsideContainer,
+  isDragDisabled,
+  numElementsAt,
+  source,
+  destination,
+}) => {
   const [dragState, setDragState] = useState({
     dragged: false,
     translateX: 0,
@@ -35,10 +45,6 @@ const Dragger: React.FC<CombinedProps> = ({ children, index, draggerId, containe
   });
 
   const [isReturning, setIsReturning] = useState(false);
-
-  const trueSourceIndex = indexMap !== undefined ? getCumulativeSum(addZeroAtFirstIndex(indexMap))[index]: index
-  const numDraggedElements = indexMap !== undefined ? indexMap[index]: index
-  // const calculatedIndex = index
 
   useEffect(() => {
     setIsReturning(false);
@@ -64,7 +70,7 @@ const Dragger: React.FC<CombinedProps> = ({ children, index, draggerId, containe
 
   const handleDragStart = useCallback(
     ({ clientX, clientY }) => {
-      if(isDragDisabled) return;
+      if (isDragDisabled) return;
       if (draggableRef && draggableRef.current) {
         const { left, top, height, width } = draggableRef.current.getBoundingClientRect();
         const { offsetLeft: absoluteOffsetLeft, offsetTop } = getOffset(draggableRef.current);
@@ -92,19 +98,26 @@ const Dragger: React.FC<CombinedProps> = ({ children, index, draggerId, containe
           const touchedPointY = clientY - top;
           const touchedPointX = clientX - left;
 
-          let dragContainerExpand = {height: 0, width: 0};
+          let dragContainerExpand = { height: 0, width: 0 };
           dragContainerExpand.height = height / 2 - touchedPointY;
           // Left and right expand not implemented yet
           //
           dragContainerExpand.width = width / 2 - touchedPointX;
 
-          const dragSourceAndDestination = { containerId: containerId, index: index, trueSourceIndex: trueSourceIndex, numDraggedElements: numDraggedElements };
+          const trueSourceIndex = numElementsAt !== undefined ? getCumulativeSum(addZeroAtFirstIndex(numElementsAt))[index] : index;
+          const numDraggedElements = numElementsAt !== undefined ? numElementsAt[index] : index;
+
+          const dragSourceAndDestination = {
+            containerId: containerId,
+            index: index,
+            trueSourceIndex: trueSourceIndex,
+            numDraggedElements: numDraggedElements,
+          };
           dispatch(dragStartThunk(draggerId, dragSourceAndDestination, dragContainerExpand));
-         
         }
       } else console.log("error getting html node");
     },
-    [isDragDisabled, containerId, index, trueSourceIndex, numDraggedElements, dispatch, draggerId, isOutsideContainer]
+    [isDragDisabled, numElementsAt, index, containerId, dispatch, draggerId, isOutsideContainer]
   );
 
   const handleDrag = useCallback(
@@ -130,7 +143,7 @@ const Dragger: React.FC<CombinedProps> = ({ children, index, draggerId, containe
         ...prevState,
         dragged: false,
       }));
-    
+
       dispatch(dragEndThunk(dropLocation));
       setIsReturning(true);
     }

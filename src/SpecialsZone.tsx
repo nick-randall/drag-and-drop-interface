@@ -32,7 +32,7 @@ const SpecialsZone = () => {
           index={colIndex}
           containerId={containerThreeId}
           key={"specialsColumn" + colIndex}
-          indexMap={specialsIndexMap}
+          numElementsAt={specialsIndexMap}
         >
           {(handleDragStart, draggerRef) => (
             <div style={{ position: "relative", width: elementWidth }}>

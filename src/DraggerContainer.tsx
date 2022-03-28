@@ -148,20 +148,19 @@ const DraggerContainer: React.FC<ComponentProps> = ({
 
           let left = cumulativeelementWidthAt[i];
           let right = cumulativeelementWidthAt[i + 1];
-          if(i === sourceIndex){
-            left -=  1
-            right += 1
-          }
+          // if(i === sourceIndex){
+          //   left -=  1
+          //   right += 1
+          // }
 
-          left = left * elementWidth + elementWidth * insetFromElementEdgeFactor; // / left;
-          right = right * elementWidth - elementWidth * insetFromElementEdgeFactor; // / right;
+          left = left * elementWidth + elementWidth * insetFromElementEdgeFactor; //* insetFromElementEdgeFactor; // / left;
+          right = right * elementWidth - elementWidth * insetFromElementEdgeFactor; //* insetFromElementEdgeFactor; // / right;
           if (!right) right = Infinity;
 
           if (i === 0) newRowShapeWithUpperLowerBounds.push([0, right]);
           else newRowShapeWithUpperLowerBounds.push([left, right]);
-          
         }
-        console.log(newRowShapeWithUpperLowerBounds)
+        console.log(newRowShapeWithUpperLowerBounds);
         setRowShape(newRowShapeWithUpperLowerBounds);
         newDraggedOverIndex = findNewDraggedOverIndex(newRowShapeWithUpperLowerBounds, touchedX);
       } else {
@@ -226,9 +225,8 @@ const DraggerContainer: React.FC<ComponentProps> = ({
     >
       {rowShape.map(e => (
         <div>
-          <div style={{ height: 150, width: 1, backgroundColor: "blue", left: e[0], position:"absolute", zIndex:100 }}> {e[0]}</div>
-          <div style={{ height: 150, width: 1, backgroundColor: "red", left: e[1], position:"absolute", zIndex:100   }}> {e[1]}</div>
-
+          <div style={{ height: 150, width: 1, backgroundColor: "blue", left: e[0], position: "absolute", zIndex: 100 }}> {e[0]}</div>
+          <div style={{ height: 150, width: 1, backgroundColor: "red", left: e[1], position: "absolute", zIndex: 100 }}> {e[1]}</div>
         </div>
       ))}
       <div
