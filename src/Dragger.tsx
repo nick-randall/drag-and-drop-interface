@@ -1,7 +1,7 @@
 import React, { CSSProperties, Ref, useCallback, useEffect, useRef, useState } from "react";
 import { connect, useDispatch } from "react-redux";
 import { dragEndThunk, dragStartThunk } from "./dragEventThunks";
-import { getCumulativeSum, addZeroAtFirstIndex } from "./dragHelperFunctions";
+import { getCumulativeSum, addZeroAtFirstIndex, indexToMapped } from "./dragHelperFunctions";
 import { RootState } from "./store";
 
 export interface DraggerProps {
@@ -103,8 +103,8 @@ const Dragger: React.FC<CombinedProps> = ({
           //
           dragContainerExpand.width = width / 2 - touchedPointX;
 
-          const trueSourceIndex = numElementsAt !== undefined ? getCumulativeSum(addZeroAtFirstIndex(numElementsAt))[index] : index;
-          const numDraggedElements = numElementsAt !== undefined ? numElementsAt[index] : index;
+          const trueSourceIndex = numElementsAt !== undefined ? indexToMapped(numElementsAt, index) : index;
+          const numDraggedElements = numElementsAt !== undefined ? numElementsAt[index] : 1;
 
           const dragSource: DragSourceData = {
             containerId: containerId,

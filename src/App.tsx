@@ -54,10 +54,10 @@ const CardContainers: React.FC = () => {
           }
         >
           {guestCards.map((card, index) => (
-            <Dragger draggerId={card.id} index={index} containerId={containerOneId} key={card.id} numElementsAt={indexMap} >
+            <Dragger draggerId={card.id} index={index} containerId={containerOneId} key={card.id} numElementsAt={indexMap}>
               {(handleDragStart, draggerRef) => (
                 <div ref={draggerRef}>
-                  <DropZoneWrapper id={card.id} providedIndex={index} isDropDisabled={!isGuestsHighlighted}>
+                  <DropZoneWrapper id={card.id} providedIndex={index} isDropDisabled={!isGuestsHighlighted} numElementsAt={indexMap} insertToTheRight>
                     {isDraggingOver => (
                       <img
                         onMouseDown={handleDragStart}

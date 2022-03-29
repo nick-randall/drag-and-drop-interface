@@ -8,7 +8,11 @@ export const removeSourceIndex = (sourceIndex: number) => (array: any[]) => arra
 
 export const addZeroAtFirstIndex = (numElementsAt: number[]) => [0].concat(numElementsAt);
 
-export const indexToMappedIndex = (draggedOverIndex: number, map: number[], isRearrange: boolean, sourceIndex: number) => {
+export const indexToMapped = (numElementsAt: number[], index: number) => getCumulativeSum(addZeroAtFirstIndex(numElementsAt))[index]
+
+export const indexFromMapped = (numElementsAt: number[], index: number) => getCumulativeSum(addZeroAtFirstIndex(numElementsAt)).indexOf(index);
+
+export const draggedOverindexToMapped = (draggedOverIndex: number, map: number[], isRearrange: boolean, sourceIndex: number) => {
   let mappedIndexes: number[];
   if (isRearrange) {
     mappedIndexes = pipe(removeSourceIndex(sourceIndex), getCumulativeSum, addZeroAtFirstIndex)(map);
@@ -18,7 +22,7 @@ export const indexToMappedIndex = (draggedOverIndex: number, map: number[], isRe
   return mappedIndexes[draggedOverIndex];
 };
 
-export const indexFromMappedIndex = (draggedOverIndex: number, map: number[], sourceIndex: number, isRearrange: boolean) => {
+export const draggedOverindexFromMapped = (draggedOverIndex: number, map: number[], sourceIndex: number, isRearrange: boolean) => {
   let mappedIndexes: number[];
   if (isRearrange) {
     mappedIndexes = pipe(removeSourceIndex(sourceIndex), getCumulativeSum, addZeroAtFirstIndex)(map);

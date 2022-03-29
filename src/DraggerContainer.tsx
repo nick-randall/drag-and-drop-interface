@@ -2,7 +2,7 @@ import { pipe } from "ramda";
 import React, { CSSProperties, Ref, useEffect, useRef, useState } from "react";
 import { connect, useDispatch } from "react-redux";
 import { dragUpateThunk } from "./dragEventThunks";
-import { addZeroAtFirstIndex, getCumulativeSum, indexToMappedIndex, indexFromMappedIndex, findNewDraggedOverIndex } from "./dragHelperFunctions";
+import { addZeroAtFirstIndex, getCumulativeSum, draggedOverindexToMapped, draggedOverindexFromMapped, findNewDraggedOverIndex, indexFromMapped } from "./dragHelperFunctions";
 import { RootState } from "./store";
 
 const usePrevious = (value: any) => {
@@ -124,7 +124,7 @@ const DraggerContainer: React.FC<ComponentProps> = ({
         newDraggedOverIndex = findNewDraggedOverIndex(breakPoints, touchedX);
       }
       if (draggedOverIndex !== newDraggedOverIndex) {
-        newDraggedOverIndex = indexToMappedIndex(newDraggedOverIndex, numElementsAt, isRearrange, sourceIndex);
+        newDraggedOverIndex = draggedOverindexToMapped(newDraggedOverIndex, numElementsAt, isRearrange, sourceIndex);
         dispatch(dragUpateThunk({ index: newDraggedOverIndex, containerId: id }));
       }
     }
@@ -246,8 +246,8 @@ const mapStateToProps = (state: RootState, ownProps: DraggerContainerProps) => {
     isDraggingOver = undefined;
   // Assign sourceIndex as local prop and check if rearranging
   if (draggedState.source) {
-    const tentativeSourceIndex = draggedState.source.index
-    sourceIndex = numElementsAt !== undefined ? getCumulativeSum(addZeroAtFirstIndex(numElementsAt)).indexOf(tentativeSourceIndex) : tentativeSourceIndex// draggedState.source.index;
+    sourceIndex = draggedState.source.index
+    sourceIndex = numElementsAt !== undefined ? indexFromMapped(numElementsAt, sourceIndex) : sourceIndex;
     isRearrange = draggedState.source.containerId === ownProps.id;
   }
   // Assign draggedOverIndex as local prop and check if draggingOver
@@ -255,7 +255,7 @@ const mapStateToProps = (state: RootState, ownProps: DraggerContainerProps) => {
     isDraggingOver = draggedState.destination.containerId === ownProps.id;
 
     // Set draggedOverIndex based on the DragContainer's numElementsAt and whether it is a rearrange
-    if (isDraggingOver) draggedOverIndex = indexFromMappedIndex(draggedState.destination.index, numElementsAt, sourceIndex, isRearrange);
+    if (isDraggingOver) draggedOverIndex = draggedOverindexFromMapped(draggedState.destination.index, numElementsAt, sourceIndex, isRearrange);
   }
   let expandAbove = 0;
   let expandBelow = 0;

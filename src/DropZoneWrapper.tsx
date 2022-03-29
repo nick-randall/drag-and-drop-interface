@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { connect, useDispatch } from "react-redux";
 import { dragUpateThunk } from "./dragEventThunks";
+import { indexToMapped } from "./dragHelperFunctions";
 import { RootState } from "./store";
 
 interface ComponentReduxProps {
@@ -17,13 +18,23 @@ type DropZoneWrapperProps = {
   providedIndex: number;
   id: string;
   isDropDisabled?: boolean;
+  numElementsAt?: number[]
+  insertToTheRight?: boolean
 };
 type ComponentProps = ComponentReduxProps & DropZoneWrapperProps;
 
-// This container has only one job:
-// 1. It listens to dragEvents and updates the redux dragState (draggedOverIndex and draggedOVerId)
-// Unlike the DraggerContainer, it can be given an index, and this index is passed into the redux dragState
-// when dragged over
+/** This container has only one job:
+ * 1. It listens to dragEvents and updates the redux dragState (draggedOverIndex and draggedOVerId)
+ * Unlike the DraggerContainer, it can be given an index, and this index is passed into the redux dragState
+ * when dragged over
+ * @param props.providedIndex An array representing the number of elements at each index.
+   * Supplying this allows the dragger to return its calculated position in 
+   * the array of elements. 
+ * @param props.insertToTheRight If true, the calculated destination index will be adjusted
+   * so an inserted element would be placed to the right of the element wrapped by this
+   * DropZoneWrapper. By default elements would be added to the left of the wrapped element.
+ * @returns 
+ */
 
 const DropZoneWrapper: React.FC<ComponentProps> = ({
   children,
@@ -32,9 +43,10 @@ const DropZoneWrapper: React.FC<ComponentProps> = ({
   isDropDisabled,
   expandAbove,
   expandBelow,
+  numElementsAt,
   expandLeft,
   expandRight,
-  // isDraggingOver,
+  insertToTheRight,
   providedIndex,
 }) => {
   const dispatch = useDispatch();
@@ -45,8 +57,14 @@ const DropZoneWrapper: React.FC<ComponentProps> = ({
     if (!dragged) return;
     if (isDropDisabled) return;
     setIsDraggingOver(true);
-
-    dispatch(dragUpateThunk({ index: providedIndex, containerId: id }));
+    let calculatedIndex;
+    if(insertToTheRight) {
+      calculatedIndex = numElementsAt !== undefined ? indexToMapped(numElementsAt, providedIndex + 1) : providedIndex + 1
+    }
+    else {
+      calculatedIndex = numElementsAt !== undefined ? indexToMapped(numElementsAt, providedIndex) : providedIndex
+    }
+    dispatch(dragUpateThunk({ index: calculatedIndex, containerId: id }));
   };
 
   const handleMouseLeave = () => {
@@ -78,7 +96,7 @@ const DropZoneWrapper: React.FC<ComponentProps> = ({
 };
 
 const mapStateToProps = (state: RootState, ownProps: DropZoneWrapperProps) => {
-  const { draggedState, draggedId, dragContainerExpand } = state;
+  const { draggedId, dragContainerExpand } = state;
   // let isDraggingOver = undefined;
 
   // if (draggedState.destination) {
