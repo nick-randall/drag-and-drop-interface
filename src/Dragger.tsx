@@ -1,7 +1,7 @@
 import React, { CSSProperties, Ref, useCallback, useEffect, useRef, useState } from "react";
 import { connect, useDispatch } from "react-redux";
 import { dragEndThunk, dragStartThunk } from "./dragEventThunks";
-import { getCumulativeSum, addZeroAtFirstIndex, indexToMapped } from "./dragHelperFunctions";
+import { getCumulativeSum, addZeroAtFirstIndex, indexToMapped } from "./dragEventHelperFunctions";
 import { RootState } from "./store";
 
 export interface DraggerProps {

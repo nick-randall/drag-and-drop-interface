@@ -2,7 +2,7 @@ import { pipe } from "ramda";
 import React, { CSSProperties, Ref, useEffect, useRef, useState } from "react";
 import { connect, useDispatch } from "react-redux";
 import { dragUpateThunk } from "./dragEventThunks";
-import { addZeroAtFirstIndex, getCumulativeSum, draggedOverindexToMapped, draggedOverindexFromMapped, findNewDraggedOverIndex, indexFromMapped } from "./dragHelperFunctions";
+import { addZeroAtFirstIndex, getCumulativeSum, draggedOverindexToMapped, draggedOverindexFromMapped, findNewDraggedOverIndex, indexFromMapped } from "./dragEventHelperFunctions";
 import { RootState } from "./store";
 
 const usePrevious = (value: any) => {

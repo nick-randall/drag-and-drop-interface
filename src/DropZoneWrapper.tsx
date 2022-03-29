@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { connect, useDispatch } from "react-redux";
 import { dragUpateThunk } from "./dragEventThunks";
-import { indexToMapped } from "./dragHelperFunctions";
+import { indexToMapped } from "./dragEventHelperFunctions";
 import { RootState } from "./store";
 
 interface ComponentReduxProps {
