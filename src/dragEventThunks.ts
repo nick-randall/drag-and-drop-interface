@@ -1,5 +1,4 @@
-import { DragSourceData } from "./stateReducer";
-import { AppDispatch, RootState } from "./store";
+import { RootState } from "./store";
 
 interface LastLocation {
   left: number;

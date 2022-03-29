@@ -6,20 +6,18 @@ interface ReduxProps  {
   sourceIndex?: number;
   destinationIndex?: number;
   isInitialRearrange?: boolean 
-  trueSourceIndex?: number;
 }
 interface InfoProps {}
 
 type ComponentProps = ReduxProps & InfoProps;
 
 
-const Infos: React.FC<ComponentProps> = ({ sourceIndex, destinationIndex, trueSourceIndex, isInitialRearrange }) => {
+const Infos: React.FC<ComponentProps> = ({ sourceIndex, destinationIndex, isInitialRearrange }) => {
   return (
     <div>
       <div style={{ left: 200, position: "absolute", top: 300 }}>
         source index: {sourceIndex}
         destination index: {destinationIndex}
-        true source index: {trueSourceIndex}
         {/* {props.draggedId} */}
         {/* source id: {props.draggedState.source?.containerId}<br/>
         source index: {props.draggedState.source?.index}<br/>

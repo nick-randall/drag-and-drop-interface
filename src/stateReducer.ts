@@ -2,28 +2,6 @@ import createEnchantCards from "./createEnchantCards";
 import { createGuests, createSpecials } from "./createGuests";
 import { CleanUpDragState, SetDragContainerExpand, SetDraggedId, SetInitialDraggedState, UpdateDragDestination } from "./dragEventThunks";
 
-export interface DragDestinationData {
-  containerId: string;
-  index: number;
- 
-}
-
-export interface DragSourceData {
-  containerId: string;
-  index: number;
-  numDraggedElements?: number
-}
-
-export interface DraggedState {
-  source?: DragSourceData;
-  destination?: DragDestinationData;
-  isInitialRearrange?: boolean;
-}
-
-export interface Snapshot {
-  [id: string]: GameCard[];
-}
-
 interface State {
   draggedId?: string;
   draggedState: DraggedState;
