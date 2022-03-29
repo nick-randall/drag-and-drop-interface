@@ -37,7 +37,7 @@ function mapStateToProps(state: RootState) {
   let sourceIndex,
   trueSourceIndex,
     destinationIndex= undefined;
-  if (source) {sourceIndex = source.index; trueSourceIndex = source.trueSourceIndex}
+  if (source) {sourceIndex = source.index}//; trueSourceIndex = source.trueIndex}
   if (destination) destinationIndex = destination.index;
   return { draggedId, sourceIndex, destinationIndex, isInitialRearrange, trueSourceIndex };
 }

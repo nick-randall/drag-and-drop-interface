@@ -2,53 +2,10 @@ import { pipe } from "ramda";
 import React, { CSSProperties, Ref, useEffect, useRef, useState } from "react";
 import { connect, useDispatch } from "react-redux";
 import { dragUpateThunk } from "./dragEventThunks";
-import { IndexMapConverter } from "./IndexMapConverter";
+import { addZeroAtFirstIndex, getCumulativeSum, indexToMappedIndex, indexFromMappedIndex, findNewDraggedOverIndex } from "./dragHelperFunctions";
 import { RootState } from "./store";
 
-export const cumulativeSum = (sum: number) => (value: number) => (sum += value);
 
-export const getCumulativeSum = (numElementsAt: number[]) => numElementsAt.map(cumulativeSum(0));
-
-export const removeSourceIndex = (sourceIndex: number) => (array: any[]) => array.filter((_, index) => index !== sourceIndex);
-
-export const addZeroAtFirstIndex = (numElementsAt: number[]) => [0].concat(numElementsAt);
-
-const indexFromMappedIndex = (draggedOverIndex: number, map: number[], sourceIndex: number, isRearrange: boolean) => {
-  let mappedIndexes: number[];
-  if (isRearrange) {
-    mappedIndexes = pipe(removeSourceIndex(sourceIndex), getCumulativeSum, addZeroAtFirstIndex)(map);
-  } else {
-    mappedIndexes = pipe(getCumulativeSum, addZeroAtFirstIndex)(map);
-  }
-  return mappedIndexes.indexOf(draggedOverIndex);
-};
-
-const isInBounds = (breakPointsPair: number[], touchedX: number): boolean => {
-  const lowerBound = breakPointsPair[0];
-  const upperBound = breakPointsPair[1];
-  return touchedX >= lowerBound && touchedX <= upperBound;
-};
-
-const findNewDraggedOverIndex = (breakPointsPairs: number[][], touchedX: number): number => {
-  for (let i = 0; i < breakPointsPairs.length; i++) {
-    if (isInBounds(breakPointsPairs[i], touchedX)) return i;
-    const lowerBound = breakPointsPairs[i][0];
-    const upperBound = breakPointsPairs[i][1];
-    if (i === 0) {
-      if (isInBounds([0, lowerBound], touchedX)) return 0;
-    }
-    if (i > 0) {
-      const leftUpperBound = breakPointsPairs[i - 1][1];
-      if (isInBounds([leftUpperBound, lowerBound], touchedX)) return i - 1;
-    }
-
-    if (i < breakPointsPairs.length - 1) {
-      const rightLowerBound = breakPointsPairs[i + 1][0];
-      if (isInBounds([upperBound, rightLowerBound], touchedX)) return i + 1;
-    }
-  }
-  return -1;
-};
 interface ComponentReduxProps {
   draggedId?: string;
   draggedOverIndex?: number;
@@ -214,12 +171,12 @@ const DraggerContainer: React.FC<ComponentProps> = ({
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
     >
-      {breakPoints.map(e => (
+      {/* {breakPoints.map(e => (
         <div>
           <div style={{ height: 150, width: 1, backgroundColor: "blue", left: e[0], position: "absolute", zIndex: 100 }}> {e[0]}</div>
           <div style={{ height: 150, width: 1, backgroundColor: "red", left: e[1], position: "absolute", zIndex: 100 }}> {e[1]}</div>
         </div>
-      ))}
+      ))} */}
       <div
         style={{ position: "absolute", display: isLayoutDisabled ? "block" : "flex", ...containerStyles }}
         // This is the container of all draggers
@@ -281,7 +238,8 @@ const mapStateToProps = (state: RootState, ownProps: DraggerContainerProps) => {
   let { isInitialRearrange } = draggedState;
   // Assign sourceIndex as local prop and check if rearranging
   if (draggedState.source) {
-    sourceIndex = draggedState.source.index;
+    const tentativeSourceIndex = draggedState.source.index
+    sourceIndex = numElementsAt !== undefined ? getCumulativeSum(addZeroAtFirstIndex(numElementsAt)).indexOf(tentativeSourceIndex) : tentativeSourceIndex// draggedState.source.index;
     isRearrange = draggedState.source.containerId === ownProps.id;
   }
   // Assign draggedOverIndex as local prop and check if draggingOver
@@ -289,9 +247,7 @@ const mapStateToProps = (state: RootState, ownProps: DraggerContainerProps) => {
     isDraggingOver = draggedState.destination.containerId === ownProps.id;
 
     // Set draggedOverIndex based on the DragContainer's numElementsAt and whether it is a rearrange
-    if (!isDraggingOver) draggedOverIndex = undefined;
-    else if (isInitialRearrange) draggedOverIndex = draggedState.destination.index;
-    else draggedOverIndex = indexFromMappedIndex(draggedState.destination.index, numElementsAt, sourceIndex, isRearrange);
+    if (isDraggingOver) draggedOverIndex = indexFromMappedIndex(draggedState.destination.index, numElementsAt, sourceIndex, isRearrange);
   }
   let expandAbove = 0;
   let expandBelow = 0;

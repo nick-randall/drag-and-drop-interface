@@ -1,5 +1,5 @@
 import { pipe } from "ramda";
-import { removeSourceIndex, getCumulativeSum, addZeroAtFirstIndex } from "./DraggerContainer";
+import { removeSourceIndex, getCumulativeSum, addZeroAtFirstIndex } from "./dragHelperFunctions";
 
 export class IndexMapConverter {
 

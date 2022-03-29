@@ -11,7 +11,6 @@ export interface DragDestinationData {
 export interface DragSourceData {
   containerId: string;
   index: number;
-  trueSourceIndex?: number
   numDraggedElements?: number
 }
 
@@ -51,7 +50,9 @@ export const stateReducer = (state: State = initialState, action: Action) => {
     case "SET_DRAGGED_ID":
       return { ...state, draggedId: action.payload };
     case "SET_INITIAL_DRAGGED_STATE": {
-      return { ...state, draggedState: { source: action.payload, destination: action.payload, isInitialRearrange: true } };
+      console.log(action.payload)
+      const { source, destination} = action.payload;
+      return { ...state, draggedState: { source: source, destination: destination, isInitialRearrange: true } };
     }
     case "UPDATE_DRAG_DESTINATION":
       const { destination } = action.payload;

@@ -1,7 +1,7 @@
 import React, { CSSProperties, Ref, useCallback, useEffect, useRef, useState } from "react";
 import { connect, useDispatch } from "react-redux";
 import { dragEndThunk, dragStartThunk } from "./dragEventThunks";
-import { addZeroAtFirstIndex, getCumulativeSum } from "./DraggerContainer";
+import { getCumulativeSum, addZeroAtFirstIndex } from "./dragHelperFunctions";
 import { DragDestinationData, DragSourceData } from "./stateReducer";
 import { RootState } from "./store";
 
@@ -107,13 +107,16 @@ const Dragger: React.FC<CombinedProps> = ({
           const trueSourceIndex = numElementsAt !== undefined ? getCumulativeSum(addZeroAtFirstIndex(numElementsAt))[index] : index;
           const numDraggedElements = numElementsAt !== undefined ? numElementsAt[index] : index;
 
-          const dragSourceAndDestination = {
+          const dragSource: DragSourceData = {
             containerId: containerId,
-            index: index,
-            trueSourceIndex: trueSourceIndex,
+            index: trueSourceIndex,
             numDraggedElements: numDraggedElements,
           };
-          dispatch(dragStartThunk(draggerId, dragSourceAndDestination, dragContainerExpand));
+          const dragDestination: LocationData = {
+            containerId: containerId,
+            index: trueSourceIndex
+          }
+          dispatch(dragStartThunk(draggerId, dragSource, dragDestination, dragContainerExpand));
         }
       } else console.log("error getting html node");
     },

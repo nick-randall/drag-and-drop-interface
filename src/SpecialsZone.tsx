@@ -1,7 +1,7 @@
 import { useSelector } from "react-redux";
 import Card from "./Card";
 import Dragger from "./Dragger";
-import DraggerContainer, { getCumulativeSum } from "./DraggerContainer";
+import DraggerContainer from "./DraggerContainer";
 import { RootState } from "./store";
 import * as R from "ramda";
 const sortSpecials = (array: GameCard[]) => R.groupWith<GameCard>((a, b) => a.specialsCardType === b.specialsCardType, array);
