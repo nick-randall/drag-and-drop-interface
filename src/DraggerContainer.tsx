@@ -5,6 +5,14 @@ import { dragUpateThunk } from "./dragEventThunks";
 import { addZeroAtFirstIndex, getCumulativeSum, indexToMappedIndex, indexFromMappedIndex, findNewDraggedOverIndex } from "./dragHelperFunctions";
 import { RootState } from "./store";
 
+const usePrevious = (value: any) => {
+  const ref = React.useRef();
+  React.useEffect(() => {
+    ref.current = value;
+  });
+  return ref.current;
+};
+
 
 interface ComponentReduxProps {
   draggedId?: string;
@@ -58,7 +66,6 @@ const DraggerContainer: React.FC<ComponentProps> = ({
   isDraggingOver,
   isDropDisabled = false,
   numElementsAt,
-  isInitialRearrange,
   elementWidthAt = numElementsAt,
   containerStyles,
 }) => {
@@ -66,6 +73,8 @@ const DraggerContainer: React.FC<ComponentProps> = ({
   const [breakPoints, setBreakPoints] = useState<number[][]>([]);
   const containerRef: Ref<HTMLDivElement> = useRef(null);
   const dragged = draggedId !== undefined;
+  const isInitialRearrange = usePrevious(draggedId) === undefined && draggedId !== undefined;
+
 
   useEffect(() => {
     if (!draggedOverIndex) setBreakPoints([]);
@@ -235,7 +244,6 @@ const mapStateToProps = (state: RootState, ownProps: DraggerContainerProps) => {
     sourceIndex = 0,
     isRearrange = false,
     isDraggingOver = undefined;
-  let { isInitialRearrange } = draggedState;
   // Assign sourceIndex as local prop and check if rearranging
   if (draggedState.source) {
     const tentativeSourceIndex = draggedState.source.index
@@ -267,7 +275,6 @@ const mapStateToProps = (state: RootState, ownProps: DraggerContainerProps) => {
     sourceIndex,
     isRearrange,
     isDraggingOver,
-    isInitialRearrange,
     expandAbove,
     expandBelow,
     expandLeft,

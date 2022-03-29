@@ -30,11 +30,11 @@ export const stateReducer = (state: State = initialState, action: Action) => {
     case "SET_INITIAL_DRAGGED_STATE": {
       console.log(action.payload)
       const { source, destination} = action.payload;
-      return { ...state, draggedState: { source: source, destination: destination, isInitialRearrange: true } };
+      return { ...state, draggedState: { source: source, destination: destination} };
     }
     case "UPDATE_DRAG_DESTINATION":
       const { destination } = action.payload;
-      return { ...state, draggedState: { ...state.draggedState, destination: destination, isInitialRearrange: false } };
+      return { ...state, draggedState: { ...state.draggedState, destination: destination} };
     case "CLEAN_UP_DRAG_STATE":
       return {
         ...state,

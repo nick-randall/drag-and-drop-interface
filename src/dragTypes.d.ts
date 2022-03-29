@@ -8,7 +8,7 @@ type DragDestinationData = {
  type DragSourceData = {
   containerId: string;
   index: number;
-  numDraggedElements?: number
+  numDraggedElements: number
 }
 
 type DraggedState = {
