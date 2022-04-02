@@ -2,7 +2,15 @@ import { pipe } from "ramda";
 import React, { CSSProperties, Ref, useEffect, useRef, useState } from "react";
 import { connect, useDispatch } from "react-redux";
 import { dragUpateThunk } from "./dragEventThunks";
-import { addZeroAtFirstIndex, getCumulativeSum, draggedOverindexToMapped, draggedOverindexFromMapped, findNewDraggedOverIndex, indexFromMapped } from "./dragEventHelperFunctions";
+import {
+  addZeroAtFirstIndex,
+  getCumulativeSum,
+  draggedOverindexToMapped,
+  draggedOverindexFromMapped,
+  findNewDraggedOverIndex,
+  indexFromMapped,
+  removeSourceIndex,
+} from "./dragEventHelperFunctions";
 import { RootState } from "./store";
 
 const usePrevious = (value: any) => {
@@ -12,7 +20,6 @@ const usePrevious = (value: any) => {
   });
   return ref.current;
 };
-
 
 interface ComponentReduxProps {
   draggedId?: string;
@@ -24,7 +31,8 @@ interface ComponentReduxProps {
   expandBelow: number;
   expandLeft: number;
   expandRight: number;
-  isInitialRearrange?: boolean;
+  distFromLeftMap: number[];
+  placeHolder?: JSX.Element;
 }
 type DraggerContainerProps = {
   // children: React.FC<DraggerProps>[];
@@ -33,18 +41,21 @@ type DraggerContainerProps = {
   id: string;
   isLayoutDisabled?: boolean;
   isDropDisabled?: boolean;
-  // The index map is an array of the number of elements
-  // in each index. Using it allows returning meaningful indexes
-  // from elements that are stacked on top of one another, for example.
-  // eg. [1, 1, 3, 4]
+  /**
+   *  The index map is an array of the number of elements
+   *  in each index. Using it allows returning meaningful indexes
+   *  from elements that are stacked on top of one another, for example.
+   *  eg. [1, 1, 3, 4]
+   */
+
   numElementsAt: number[];
-  // The width map is an array of the width of each elemnt
+  /** The width map is an array of the width of each elemnt */
   elementWidthAt?: number[];
   containerStyles?: CSSProperties;
 };
 type ComponentProps = ComponentReduxProps & DraggerContainerProps;
 
-// This container has several jobs:
+// This Component has several jobs:
 // 1. It listens to dragEvents and updates the redux dragState (draggedOverIndex and draggedOVerId)
 // 2. It moves its children around to give the user feedback about where they are placing the dragged item
 // 3. to improve UX, it expands a hidden box so that dragEvents can be detected based on the dragged item position,
@@ -58,6 +69,7 @@ const DraggerContainer: React.FC<ComponentProps> = ({
   draggedOverIndex,
   sourceIndex,
   isRearrange,
+  distFromLeftMap,
   expandAbove,
   expandBelow,
   expandLeft,
@@ -67,6 +79,7 @@ const DraggerContainer: React.FC<ComponentProps> = ({
   isDropDisabled = false,
   numElementsAt,
   elementWidthAt = numElementsAt,
+  placeHolder,
   containerStyles,
 }) => {
   const dispatch = useDispatch();
@@ -75,6 +88,9 @@ const DraggerContainer: React.FC<ComponentProps> = ({
   const dragged = draggedId !== undefined;
   const isInitialRearrange = usePrevious(draggedId) === undefined && draggedId !== undefined;
 
+  console.log(distFromLeftMap);
+  console.log(draggedOverIndex);
+  console.log(distFromLeftMap[draggedOverIndex ?? 0]);
 
   useEffect(() => {
     if (!draggedOverIndex) setBreakPoints([]);
@@ -94,17 +110,15 @@ const DraggerContainer: React.FC<ComponentProps> = ({
       // rowShape is an array of breakpoint pairs.
       if (breakPoints.length === 0) {
         let newBreakPoints: any[] = [];
-        let cumulativeelementWidthAt = isRearrange
-          ? pipe(addZeroAtFirstIndex, getCumulativeSum)(elementWidthAt)
-          : pipe(addZeroAtFirstIndex, getCumulativeSum)(elementWidthAt);
+
         const insetFromElementEdgeFactor = 0.15;
-        for (let i = 0; i < cumulativeelementWidthAt.length; i++) {
+        for (let i = 0; i < distFromLeftMap.length; i++) {
           // let insetFromElementEdge = elementWidthAt[i] * insetFromElementEdgeFactor;
           // // Adding the final value as the width of the final element
           // if (!insetFromElementEdge) insetFromElementEdge = elementWidthAt[i - 1] * insetFromElementEdgeFactor;
 
-          let left = cumulativeelementWidthAt[i];
-          let right = cumulativeelementWidthAt[i + 1];
+          let left = distFromLeftMap[i];
+          let right = distFromLeftMap[i + 1];
           // if(i === sourceIndex){
           //   left -=  1
           //   right += 1
@@ -117,7 +131,6 @@ const DraggerContainer: React.FC<ComponentProps> = ({
           if (i === 0) newBreakPoints.push([0, right]);
           else newBreakPoints.push([left, right]);
         }
-        console.log(newBreakPoints);
         setBreakPoints(newBreakPoints);
         newDraggedOverIndex = findNewDraggedOverIndex(newBreakPoints, touchedX);
       } else {
@@ -231,6 +244,9 @@ const DraggerContainer: React.FC<ComponentProps> = ({
           }}
           draggable="false"
         />
+        {draggedOverIndex !== undefined && (
+          <div style={{ position: "absolute", left: distFromLeftMap[draggedOverIndex] * elementWidth, transition: "200ms ease" }}>{placeHolder}</div>
+        )}
         {draggedOverIndex}
       </div>
     </div>
@@ -239,14 +255,14 @@ const DraggerContainer: React.FC<ComponentProps> = ({
 
 const mapStateToProps = (state: RootState, ownProps: DraggerContainerProps) => {
   const { draggedState, draggedId, dragContainerExpand } = state;
-  const { numElementsAt } = ownProps;
+  const { numElementsAt, elementWidthAt } = ownProps;
   let draggedOverIndex,
     sourceIndex = 0,
     isRearrange = false,
     isDraggingOver = undefined;
   // Assign sourceIndex as local prop and check if rearranging
   if (draggedState.source) {
-    sourceIndex = draggedState.source.index
+    sourceIndex = draggedState.source.index;
     sourceIndex = numElementsAt !== undefined ? indexFromMapped(numElementsAt, sourceIndex) : sourceIndex;
     isRearrange = draggedState.source.containerId === ownProps.id;
   }
@@ -257,6 +273,10 @@ const mapStateToProps = (state: RootState, ownProps: DraggerContainerProps) => {
     // Set draggedOverIndex based on the DragContainer's numElementsAt and whether it is a rearrange
     if (isDraggingOver) draggedOverIndex = draggedOverindexFromMapped(draggedState.destination.index, numElementsAt, sourceIndex, isRearrange);
   }
+
+  const distFromLeftMap = isRearrange
+    ? pipe(removeSourceIndex(sourceIndex), addZeroAtFirstIndex, getCumulativeSum)(elementWidthAt ?? numElementsAt)
+    : pipe(addZeroAtFirstIndex, getCumulativeSum)(elementWidthAt ?? numElementsAt);
   let expandAbove = 0;
   let expandBelow = 0;
   let expandLeft = 0;
@@ -275,6 +295,7 @@ const mapStateToProps = (state: RootState, ownProps: DraggerContainerProps) => {
     sourceIndex,
     isRearrange,
     isDraggingOver,
+    distFromLeftMap,
     expandAbove,
     expandBelow,
     expandLeft,
