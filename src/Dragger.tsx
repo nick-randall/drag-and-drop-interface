@@ -64,6 +64,8 @@ const Dragger: React.FC<CombinedProps> = ({
       c += a.offsetTop;
       a = a.parentElement;
     }
+    b = b - window.scrollX;
+    c = c - window.scrollY;
     return { offsetLeft: b, offsetTop: c };
   };
 
