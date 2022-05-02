@@ -242,4 +242,9 @@ type CardGroupObj = {
   cards: CardGroup;
 };
 
+type DragEndTarget = {
+  x: number,
+  y: number
+}
+
 type Hover = "shortHover" | "longHover" | "none";

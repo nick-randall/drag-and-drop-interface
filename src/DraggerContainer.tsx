@@ -1,7 +1,7 @@
 import { pipe } from "ramda";
 import React, { CSSProperties, Ref, useEffect, useRef, useState } from "react";
 import { connect, useDispatch } from "react-redux";
-import { dragUpateThunk } from "./dragEventThunks";
+import { dragUpateThunk, setDragEndTarget } from "./dragEventThunks";
 import {
   addZeroAtFirstIndex,
   getCumulativeSum,
@@ -87,10 +87,11 @@ const DraggerContainer: React.FC<ComponentProps> = ({
   const containerRef: Ref<HTMLDivElement> = useRef(null);
   const dragged = draggedId !== undefined;
   const isInitialRearrange = usePrevious(draggedId) === undefined && draggedId !== undefined;
+  let dropTargetX = draggedOverIndex !== undefined ? distFromLeftMap[draggedOverIndex] * elementWidth : 0;
 
-  console.log(distFromLeftMap);
-  console.log(draggedOverIndex);
-  console.log(distFromLeftMap[draggedOverIndex ?? 0]);
+
+  // console.log(distFromLeftMap);
+  // console.log(draggedOverIndex);
 
   useEffect(() => {
     if (!draggedOverIndex) setBreakPoints([]);
@@ -103,7 +104,9 @@ const DraggerContainer: React.FC<ComponentProps> = ({
 
     const containerElement = containerRef.current;
     if (containerElement) {
-      const { left: boundingBoxLeft } = containerElement.getBoundingClientRect();
+      const { left: boundingBoxLeft, top: boundingBoxTop } = containerElement.getBoundingClientRect();
+      // offsetTop returns the amount of padding/margin applied by 
+      const { offsetTop } = containerElement
       const touchedX = clientX - boundingBoxLeft;
 
       // Set rowShape if this is the first time the container is being dragged over
@@ -137,8 +140,12 @@ const DraggerContainer: React.FC<ComponentProps> = ({
         newDraggedOverIndex = findNewDraggedOverIndex(breakPoints, touchedX);
       }
       if (draggedOverIndex !== newDraggedOverIndex) {
+        dropTargetX = distFromLeftMap[newDraggedOverIndex] * elementWidth;
+
         newDraggedOverIndex = draggedOverindexToMapped(newDraggedOverIndex, numElementsAt, isRearrange, sourceIndex);
         dispatch(dragUpateThunk({ index: newDraggedOverIndex, containerId: id }));
+
+        dispatch(setDragEndTarget(dropTargetX + boundingBoxLeft, boundingBoxTop - offsetTop))
       }
     }
   };
@@ -172,6 +179,7 @@ const DraggerContainer: React.FC<ComponentProps> = ({
       return draggedElementWidth;
     } else return 0;
   };
+  console.log(dropTargetX)
 
   return (
     <div
@@ -214,7 +222,6 @@ const DraggerContainer: React.FC<ComponentProps> = ({
             draggable="false"
           >
             <div
-              // This is the placeholder (ghost card comes in here)
               // This code causes card before dragged element to left to expand
               style={{
                 width: figureOutWhetherToExpand(index),
@@ -244,9 +251,7 @@ const DraggerContainer: React.FC<ComponentProps> = ({
           }}
           draggable="false"
         />
-        {draggedOverIndex !== undefined && (
-          <div style={{ position: "absolute", left: distFromLeftMap[draggedOverIndex] * elementWidth, transition: "200ms ease" }}>{placeHolder}</div>
-        )}
+        {draggedOverIndex !== undefined && <div style={{ position: "absolute", left: dropTargetX, transition: "200ms ease" }}>{placeHolder}</div>}
         {draggedOverIndex}
       </div>
     </div>

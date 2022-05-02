@@ -43,6 +43,7 @@ const CardContainers: React.FC = () => {
           numElementsAt={indexMap}
           elementWidthAt={indexMap}
           isDropDisabled={!isGCZHighlighted}
+          placeHolder = {<div style={{height: 100, width: 100, backgroundColor:"bisque"}}/>}
           containerStyles={
             isGCZHighlighted
               ? {

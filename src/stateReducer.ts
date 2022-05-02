@@ -1,12 +1,13 @@
 import createEnchantCards from "./createEnchantCards";
 import { createGuests, createSpecials } from "./createGuests";
-import { CleanUpDragState, SetDragContainerExpand, SetDraggedId, SetInitialDraggedState, UpdateDragDestination } from "./dragEventThunks";
+import { CleanUpDragState, SetDragContainerExpand, SetDragEndTarget, SetDraggedId, SetInitialDraggedState, UpdateDragDestination } from "./dragEventThunks";
 
 interface State {
   draggedId?: string;
   draggedState: DraggedState;
   dragContainerExpand: { width: number; height: number };
   snapshot: Snapshot;
+  dragEndTarget?: DragEndTarget
 }
 
 type UpdateSnapshot = {
@@ -14,12 +15,13 @@ type UpdateSnapshot = {
   payload: Snapshot;
 };
 
-type Action = SetDraggedId | SetInitialDraggedState | UpdateDragDestination | CleanUpDragState | SetDragContainerExpand;
+type Action = SetDraggedId | SetInitialDraggedState | UpdateDragDestination | CleanUpDragState | SetDragContainerExpand | SetDragEndTarget;
 
 const initialState = {
   draggedId: undefined,
   draggedState: { source: undefined, destination: undefined },
   dragContainerExpand: { width: 0, height: 0 },
+  dragEndTarget: undefined,
   snapshot: { xxxy1: createGuests().slice(8, 10).concat(createEnchantCards().slice(0,2)), xxxy2: createGuests().slice(0, 7), xxxy3: createSpecials() },
 };
 
@@ -32,6 +34,8 @@ export const stateReducer = (state: State = initialState, action: Action) => {
       const { source, destination} = action.payload;
       return { ...state, draggedState: { source: source, destination: destination} };
     }
+    case "SET_DRAG_END_TARGET":
+      return {...state, dragEndTarget: action.payload}
     case "UPDATE_DRAG_DESTINATION":
       const { destination } = action.payload;
       return { ...state, draggedState: { ...state.draggedState, destination: destination} };

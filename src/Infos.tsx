@@ -5,7 +5,8 @@ interface ReduxProps  {
   draggedId?: string;
   sourceIndex?: number;
   destinationIndex?: number;
-  numDraggedElements?: number
+  numDraggedElements?: number;
+  dragEndTarget?: DragEndTarget
 }
 interface InfoProps {}
 
@@ -13,14 +14,16 @@ interface InfoProps {}
 type ComponentProps = ReduxProps & InfoProps;
 
 
-const Infos: React.FC<ComponentProps> = ({ sourceIndex, destinationIndex, draggedId, numDraggedElements }) => {
+const Infos: React.FC<ComponentProps> = ({ sourceIndex, destinationIndex, draggedId, numDraggedElements, dragEndTarget }) => {
   return (
     <div>
       <div style={{ left: 200, position: "absolute", top: 300 }}>
         source index: {sourceIndex}
         destination index: {destinationIndex}
         draggedId: {draggedId}
-        numDraggedElements:{numDraggedElements}
+        dragEndTarget: {dragEndTarget?.y}
+        {/* numDraggedElements:{numDraggedElements}
+         */}
         {/* source id: {props.draggedState.source?.containerId}<br/>
         source index: {props.draggedState.source?.index}<br/>
         destination id:{props.draggedState.destination?.containerId}<br/>
@@ -31,14 +34,14 @@ const Infos: React.FC<ComponentProps> = ({ sourceIndex, destinationIndex, dragge
 };
 
 function mapStateToProps(state: RootState) {
-  const { draggedState, draggedId } = state;
+  const { draggedState, draggedId, dragEndTarget } = state;
   const { source, destination} = draggedState;
   let sourceIndex,
     numDraggedElements,
     destinationIndex= undefined;
   if (source) {sourceIndex = source.index; numDraggedElements = source.numDraggedElements}//; trueSourceIndex = source.trueIndex}
   if (destination) destinationIndex = destination.index;
-  return { draggedId, sourceIndex, destinationIndex, numDraggedElements };
+  return { draggedId, sourceIndex, destinationIndex, numDraggedElements, dragEndTarget };
 }
 
 
