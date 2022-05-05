@@ -29,7 +29,8 @@ export interface DraggerProps {
   isOutsideContainer?: boolean;
   isDragDisabled?: boolean;
   numElementsAt?: number[];
-  children:  (props: DraggerProvidedProps) => JSX.Element
+  children: (props: DraggerProvidedProps) => JSX.Element;
+  isRotatable?: boolean;
 }
 
 interface DraggerProvidedProps {
@@ -37,6 +38,7 @@ interface DraggerProvidedProps {
   ref: Ref<HTMLImageElement>;
   dragged: boolean;
   dropping: boolean;
+  unrotatedElementRef: Ref<HTMLDivElement>;
 }
 
 interface DraggerReduxProps {
@@ -58,6 +60,7 @@ const Dragger: React.FC<CombinedProps> = ({
   source,
   destination,
   dragEndTarget,
+  isRotatable = false,
 }) => {
   const [dragState, setDragState] = useState({
     dragged: false,
@@ -71,6 +74,7 @@ const Dragger: React.FC<CombinedProps> = ({
   const [isReturning, setIsReturning] = useState(false);
   const [isMovingToDropTarget, setIsMovingToDropTarget] = useState(false);
   const [startLocation, setStartLocation] = useState<{ x: number; y: number } | undefined>(undefined);
+  const [needStartLocation, setNeedStartLocation] = useState(false);
 
   useEffect(() => {
     setIsReturning(false);
@@ -79,6 +83,7 @@ const Dragger: React.FC<CombinedProps> = ({
   const dispatch = useDispatch();
 
   const draggableRef: Ref<HTMLImageElement> = useRef(null);
+  const unrotatedElementRef: Ref<HTMLDivElement> = useRef(null)
 
   const handleDragStart = useCallback(
     ({ clientX, clientY }) => {
@@ -87,8 +92,14 @@ const Dragger: React.FC<CombinedProps> = ({
         const { left, top, height, width } = draggableRef.current.getBoundingClientRect();
         const { offsetLeft: absoluteOffsetLeft, offsetTop } = getOffset(draggableRef.current);
         const { offsetLeft: simpleOffsetLeft } = draggableRef.current;
-        console.log("startLocation: x " + left, ", top : " + top);
-        setStartLocation({ x: left, y: top });
+
+        if (!isRotatable) setStartLocation({ x: left, y: top });
+        else {
+          if(unrotatedElementRef.current !== null){
+            const { left, top } = draggableRef.current.getBoundingClientRect();
+            setStartLocation({ x: left, y: top });
+          }
+         }
         if (absoluteOffsetLeft != null && offsetTop != null) {
           setDragState(prevState => ({
             ...prevState,
@@ -134,7 +145,7 @@ const Dragger: React.FC<CombinedProps> = ({
         }
       } else console.log("error getting html node");
     },
-    [isDragDisabled, numElementsAt, index, containerId, dispatch, draggerId, isOutsideContainer]
+    [isDragDisabled, isRotatable, numElementsAt, index, containerId, dispatch, draggerId, isOutsideContainer]
   );
 
   const handleDrag = useCallback(
@@ -181,14 +192,13 @@ const Dragger: React.FC<CombinedProps> = ({
     }
   }, [dragState.dragged, dragEndTarget, startLocation, destination, dispatch]);
 
- 
   const handleEndMoveToDropTarget = useCallback(() => {
-    if(!isMovingToDropTarget) return
-        dispatch(dragEndThunk());
-        setIsMovingToDropTarget(false);
-        setStartLocation(undefined)
-        setIsReturning(true)
-      }, [dispatch, isMovingToDropTarget])
+    if (!isMovingToDropTarget) return;
+    dispatch(dragEndThunk());
+    setIsMovingToDropTarget(false);
+    setStartLocation(undefined);
+    setIsReturning(true);
+  }, [dispatch, isMovingToDropTarget]);
 
   const droppedStyles: CSSProperties = {
     transform: `translate(${dragState.translateX}px, ${dragState.translateY}px)`,
@@ -218,8 +228,8 @@ const Dragger: React.FC<CombinedProps> = ({
     transition: "",
   };
 
-   // adding/cleaning up mouse event listeners
-   React.useEffect(() => {
+  // adding/cleaning up mouse event listeners
+  React.useEffect(() => {
     window.addEventListener("mousemove", handleDrag);
     window.addEventListener("mouseup", handleDragEnd);
     window.addEventListener("transitionend", handleEndMoveToDropTarget);
@@ -228,10 +238,8 @@ const Dragger: React.FC<CombinedProps> = ({
       window.removeEventListener("mousemove", handleDrag);
       window.removeEventListener("mouseup", handleDragEnd);
       window.removeEventListener("transitionend", handleEndMoveToDropTarget);
-
     };
   }, [handleDrag, handleDragEnd, handleEndMoveToDropTarget]);
-
 
   let styles = dragState.dragged ? draggedStyles : notDraggedStyles;
   styles = isMovingToDropTarget ? droppedStyles : styles;
@@ -240,11 +248,13 @@ const Dragger: React.FC<CombinedProps> = ({
     handleDragStart: handleDragStart,
     ref: draggableRef,
     dragged: dragState.dragged,
-    dropping: isMovingToDropTarget
-  }
+    dropping: isMovingToDropTarget,
+    unrotatedElementRef: unrotatedElementRef
+  };
 
   return <div style={{ ...styles }}>{children(draggerProvidedProps)}</div>;
 };
+
 
 // export default Dragger;
 

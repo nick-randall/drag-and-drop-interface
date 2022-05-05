@@ -10,7 +10,7 @@ const elementWidth = 100;
 // eslint-disable-next-line react-hooks/rules-of-hooks
 
 const Hand: React.FC = () => {
-  const handCards = useSelector((state: RootState) => state.snapshot.xxxy1)
+  const handCards = useSelector((state: RootState) => state.snapshot.xxxy1);
   const [spread, setSpread] = useState(30);
   return (
     <div
@@ -28,29 +28,37 @@ const Hand: React.FC = () => {
       onMouseOver={() => setSpread(120)}
       onMouseOut={() => setSpread(30)}
     >
-     <NoLayoutDragContainer>
+      <NoLayoutDragContainer>
         {handCards.map((card, index) => (
-          <Dragger draggerId={card.id} index={index} containerId={containerTwoId} isOutsideContainer>
-            {(provided) => (
-              <img
-                ref={provided.ref}
-                alt={card.name}
-                key={card.id}
-                onMouseDown={provided.handleDragStart}
+          <Dragger draggerId={card.id} index={index} containerId={containerTwoId} isOutsideContainer isRotatable>
+            {provided => (
+              <div
+              ref={provided.ref}
                 style={{
                   position: "absolute",
-                  width: provided.dropping ? elementWidth : elementWidth * 1.2,
-                  // Since the Dragger wrapper sets the correct left property when dragged,
-                  // here we just have no left property when the element is dragged
                   left: provided.dragged || provided.dropping ? "" : spread * index - (spread * handCards.length) / 2,
-                  transform: provided.dragged || provided.dropping ? "" : `rotate(${10 * index - (handCards.length / 2 - 0.5) * 10}deg)`,
                   transition: provided.dragged ? "transform 300ms" : "left 300ms, width 300ms",
-                  zIndex: provided.dragged ? 10 : 0,
-                  
                 }}
-                src={`./images/${card.image}.jpg`}
-                draggable="false"
-              />
+              >
+                <div  
+                ref = {provided.unrotatedElementRef} />
+                <img
+                  alt={card.name}
+                  key={card.id}
+                  onMouseDown={provided.handleDragStart}
+                  style={{
+                    transform: provided.dragged || provided.dropping ? "" : `rotate(${10 * index - (handCards.length / 2 - 0.5) * 10}deg)`,
+
+                    width: provided.dropping ? elementWidth : elementWidth * 1.2,
+                    // Since the Dragger wrapper sets the correct left property when dragged,
+                    // here we just have no left property when the element is dragged
+
+                    zIndex: provided.dragged ? 10 : 0,
+                  }}
+                  src={`./images/${card.image}.jpg`}
+                  draggable="false"
+                />
+              </div>
             )}
           </Dragger>
         ))}
