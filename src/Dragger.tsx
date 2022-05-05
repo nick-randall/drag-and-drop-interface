@@ -160,8 +160,7 @@ const Dragger: React.FC<CombinedProps> = ({
         // setIsReturning(true);
 
         setIsMovingToDropTarget(true);
-        if (startLocation) {
-          console.log("dragEndTarget x " + dragEndTarget.x + " - start location x " + startLocation.x);
+        if (startLocation && destination) {
           setDragState(prevState => ({
             ...prevState,
             translateX: dragEndTarget.x - startLocation.x,
@@ -180,13 +179,15 @@ const Dragger: React.FC<CombinedProps> = ({
         setIsReturning(true);
       }
     }
-  }, [dragState.dragged, dragEndTarget, startLocation, dispatch]);
+  }, [dragState.dragged, dragEndTarget, startLocation, destination, dispatch]);
 
  
   const handleEndMoveToDropTarget = useCallback(() => {
     if(!isMovingToDropTarget) return
         dispatch(dragEndThunk());
-        setIsMovingToDropTarget(false);  
+        setIsMovingToDropTarget(false);
+        setStartLocation(undefined)
+        setIsReturning(true)
       }, [dispatch, isMovingToDropTarget])
 
   const droppedStyles: CSSProperties = {

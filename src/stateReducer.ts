@@ -45,6 +45,7 @@ export const stateReducer = (state: State = initialState, action: Action) => {
         draggedState: initialState.draggedState,
         draggedId: initialState.draggedId,
         dragContainerExpand: initialState.dragContainerExpand,
+        dragEndTarget: initialState.dragEndTarget
       };
     case "SET_DRAG_CONTAINER_EXPAND":
       return { ...state, dragContainerExpand: action.payload };
