@@ -22,7 +22,7 @@ const initialState = {
   draggedState: { source: undefined, destination: undefined },
   dragContainerExpand: { width: 0, height: 0 },
   dragEndTarget: undefined,
-  snapshot: { xxxy1: createGuests().slice(8, 10).concat(createEnchantCards().slice(0,2)), xxxy2: createGuests().slice(0, 7), xxxy3: createSpecials() },
+  snapshot: { xxxy1: createGuests().slice(8, 10).concat(createEnchantCards().slice(0,3)), xxxy2: createGuests().slice(0, 7), xxxy3: createSpecials() },
 };
 
 export const stateReducer = (state: State = initialState, action: Action) => {

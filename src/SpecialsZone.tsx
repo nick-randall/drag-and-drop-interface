@@ -34,12 +34,12 @@ const SpecialsZone = () => {
           key={"specialsColumn" + colIndex}
           numElementsAt={specialsIndexMap}
         >
-          {(handleDragStart, draggerRef) => (
+          {(provided) => (
             <div style={{ position: "relative", width: elementWidth }}>
               {col.map((card, index) => (
                 <img
-                  ref={draggerRef}
-                  onMouseDown={handleDragStart}
+                  ref={provided.ref}
+                  onMouseDown={provided.handleDragStart}
                   alt={card.name}
                   key={card.id}
                   style={{

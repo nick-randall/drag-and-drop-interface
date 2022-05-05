@@ -32,7 +32,7 @@ export type UpdateDragDestination = {
 
 export type SetDragEndTarget = {
   type: "SET_DRAG_END_TARGET";
-  payload: DragEndTarget;
+  payload: DragEndTarget  | undefined;
 };
 
 // Action Creators
@@ -66,7 +66,7 @@ export const dragUpateThunk = (destinationLocationUpdate: LocationData | undefin
   dispatch(updateDragDestination(destinationLocationUpdate));
 };
 
-export const dragEndThunk = (lastLocation: LastLocation) => (dispatch: Function, getState: () => RootState) => {
+export const dragEndThunk = () => (dispatch: Function, getState: () => RootState) => {
   const { source, destination } = getState().draggedState;
   // console.log("drag source " + source);
   // console.log("drag destination " + destination);
@@ -79,4 +79,9 @@ export const dragEndThunk = (lastLocation: LastLocation) => (dispatch: Function,
 export const setDragEndTarget = (x: number, y: number): SetDragEndTarget => ({
   type: "SET_DRAG_END_TARGET",
   payload: { x: x, y: y },
+});
+
+export const resetDragEndTarget = (): SetDragEndTarget => ({
+  type: "SET_DRAG_END_TARGET",
+  payload: undefined,
 });

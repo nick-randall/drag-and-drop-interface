@@ -1,7 +1,7 @@
 import { pipe } from "ramda";
 import React, { CSSProperties, Ref, useEffect, useRef, useState } from "react";
 import { connect, useDispatch } from "react-redux";
-import { dragUpateThunk, setDragEndTarget } from "./dragEventThunks";
+import { dragUpateThunk, resetDragEndTarget, setDragEndTarget } from "./dragEventThunks";
 import {
   addZeroAtFirstIndex,
   getCumulativeSum,
@@ -154,6 +154,8 @@ const DraggerContainer: React.FC<ComponentProps> = ({
     if (isDraggingOver) {
       dispatch(dragUpateThunk(undefined));
       setBreakPoints([]);
+      dispatch(resetDragEndTarget())
+
     }
   };
   const draggedElementWidth = isRearrange ? elementWidthAt[sourceIndex] * elementWidth : elementWidth;

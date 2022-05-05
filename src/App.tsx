@@ -32,7 +32,7 @@ const CardContainers: React.FC = () => {
   const isGuestsHighlighted = draggedCard?.action.actionType === "enchant" || draggedCard?.action.actionType === "enchantWithBff";
 
   return (
-    <div>
+    <div style={{ position: "absolute", top: 100, left: 100 }}>
       <div style={{ position: "absolute", top: 300, left: 600 }}>
         <SpecialsZone />
       </div>
@@ -56,12 +56,12 @@ const CardContainers: React.FC = () => {
         >
           {guestCards.map((card, index) => (
             <Dragger draggerId={card.id} index={index} containerId={containerOneId} key={card.id} numElementsAt={indexMap}>
-              {(handleDragStart, draggerRef) => (
-                <div ref={draggerRef}>
+              {(provided) => (
+                <div ref={provided.ref}>
                   <DropZoneWrapper id={card.id} providedIndex={index} isDropDisabled={!isGuestsHighlighted} numElementsAt={indexMap} insertToTheRight>
                     {isDraggingOver => (
                       <img
-                        onMouseDown={handleDragStart}
+                        onMouseDown={provided.handleDragStart}
                         alt={card.name}
                         key={card.id}
                         style={{
