@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { connect, useDispatch } from "react-redux";
-import { dragUpateThunk } from "./dragEventThunks";
+import { dragUpateThunk, resetDragEndTarget, setDragEndTarget } from "./dragEventThunks";
 import { indexToMapped } from "./dragEventHelperFunctions";
 import { RootState } from "./store";
 
@@ -18,8 +18,8 @@ type DropZoneWrapperProps = {
   providedIndex: number;
   id: string;
   isDropDisabled?: boolean;
-  numElementsAt?: number[]
-  insertToTheRight?: boolean
+  numElementsAt?: number[];
+  insertToTheRight?: boolean;
 };
 type ComponentProps = ComponentReduxProps & DropZoneWrapperProps;
 
@@ -27,13 +27,13 @@ type ComponentProps = ComponentReduxProps & DropZoneWrapperProps;
  * 1. It listens to dragEvents and updates the redux dragState (draggedOverIndex and draggedOVerId)
  * Unlike the DraggerContainer, it can be given an index, and this index is passed into the redux dragState
  * when dragged over
- * @param props.providedIndex An array representing the number of elements at each index.
-   * Supplying this allows the dragger to return its calculated position in 
-   * the array of elements. 
+ * @param props.providedIndex
+ * Supplying this allows the dragger to return its calculated position in
+ * the array of elements.
  * @param props.insertToTheRight If true, the calculated destination index will be adjusted
-   * so an inserted element would be placed to the right of the element wrapped by this
-   * DropZoneWrapper. By default elements would be added to the left of the wrapped element.
- * @returns 
+ * so an inserted element would be placed to the right of the element wrapped by this
+ * DropZoneWrapper. By default elements would be added to the left of the wrapped element.
+ * @returns
  */
 
 const DropZoneWrapper: React.FC<ComponentProps> = ({
@@ -52,19 +52,26 @@ const DropZoneWrapper: React.FC<ComponentProps> = ({
   const dispatch = useDispatch();
   const dragged = draggedId !== undefined;
   const [isDraggingOver, setIsDraggingOver] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const handleMouseMove = () => {
     if (!dragged) return;
     if (isDropDisabled) return;
-    setIsDraggingOver(true);
-    let calculatedIndex;
-    if(insertToTheRight) {
-      calculatedIndex = numElementsAt !== undefined ? indexToMapped(numElementsAt, providedIndex + 1) : providedIndex + 1
+    const containerElement = containerRef.current
+    if (containerElement) {
+      const { left: boundingBoxLeft, top: boundingBoxTop } = containerElement.getBoundingClientRect();
+      // offsetTop returns the amount of padding/margin applied by
+      const { offsetTop } = containerElement;
+      setIsDraggingOver(true);
+      let calculatedIndex;
+      if (insertToTheRight) {
+        calculatedIndex = numElementsAt !== undefined ? indexToMapped(numElementsAt, providedIndex + 1) : providedIndex + 1;
+      } else {
+        calculatedIndex = numElementsAt !== undefined ? indexToMapped(numElementsAt, providedIndex) : providedIndex;
+      }
+      dispatch(dragUpateThunk({ index: calculatedIndex, containerId: id }));
+      dispatch(setDragEndTarget(boundingBoxLeft, boundingBoxTop - offsetTop));
     }
-    else {
-      calculatedIndex = numElementsAt !== undefined ? indexToMapped(numElementsAt, providedIndex) : providedIndex
-    }
-    dispatch(dragUpateThunk({ index: calculatedIndex, containerId: id }));
   };
 
   const handleMouseLeave = () => {
@@ -72,10 +79,13 @@ const DropZoneWrapper: React.FC<ComponentProps> = ({
       dispatch(dragUpateThunk(undefined));
     }
     setIsDraggingOver(false);
+    dispatch(resetDragEndTarget());
+
   };
 
   return (
     <div
+      ref={containerRef}
       style={{
         paddingTop: isDropDisabled ? 0 : expandAbove,
         marginTop: isDropDisabled ? 0 : -expandAbove,

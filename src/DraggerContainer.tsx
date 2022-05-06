@@ -35,31 +35,35 @@ interface ComponentReduxProps {
   placeHolder?: JSX.Element;
 }
 type DraggerContainerProps = {
-  // children: React.FC<DraggerProps>[];
   children: JSX.Element[];
   elementWidth: number;
   id: string;
   isLayoutDisabled?: boolean;
   isDropDisabled?: boolean;
   /**
-   *  The index map is an array of the number of elements
-   *  in each index. Using it allows returning meaningful indexes
-   *  from elements that are stacked on top of one another, for example.
+   *  An array expressing the number of elements at each index. 
+   *  Using it allows returning meaningful indexes
+   *  from elements that are, for example, stacked on top of one another.
    *  eg. [1, 1, 3, 4]
    */
 
   numElementsAt: number[];
-  /** The width map is an array of the width of each elemnt */
+  /** An array describing the width factor of each element.
+   * eg. [1, 1 ,1 , 2, 1]  
+   * with an element width of 100 will be translated into [100, 100, 100, 200, 100]
+  */
   elementWidthAt?: number[];
   containerStyles?: CSSProperties;
 };
 type ComponentProps = ComponentReduxProps & DraggerContainerProps;
+/**
+ * This Component has several jobs:
+ * 1. It listens to dragEvents and updates the redux dragState (draggedOverIndex and draggedOVerId)
+ * 2. It moves its children around to give the user feedback about where they are placing the dragged item
+ * 3. to improve UX, it expands a hidden box so that dragEvents can be detected based on the dragged item position,
+ * NOT based only on the mouse position
+ */
 
-// This Component has several jobs:
-// 1. It listens to dragEvents and updates the redux dragState (draggedOverIndex and draggedOVerId)
-// 2. It moves its children around to give the user feedback about where they are placing the dragged item
-// 3. to improve UX, it expands a hidden box so that dragEvents can be detected based on the dragged item position,
-// NOT based only on the mouse position
 
 const DraggerContainer: React.FC<ComponentProps> = ({
   children,
