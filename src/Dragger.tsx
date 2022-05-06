@@ -24,8 +24,9 @@ export interface DraggerProps {
   draggerId: string;
   index: number;
   containerId: string;
-  // size: number;
-  // Whether this dragger is a child of a DraggerContainer
+  /**
+   * Whether this dragger is a child of a DraggerContainer or NoLayoutContainer
+   */
   isOutsideContainer?: boolean;
   isDragDisabled?: boolean;
   numElementsAt?: number[];

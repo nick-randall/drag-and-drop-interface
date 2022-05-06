@@ -37,7 +37,7 @@ const Hand: React.FC = () => {
                 style={{
                   position: "absolute",
                   left: provided.dragged || provided.dropping ? "" : spread * index - (spread * handCards.length) / 2,
-                  transition: provided.dragged ? "transform 300ms" : "left 300ms, width 300ms",
+                  transition: "300ms",
                 }}
               >
                 <div  
@@ -48,6 +48,7 @@ const Hand: React.FC = () => {
                   onMouseDown={provided.handleDragStart}
                   style={{
                     transform: provided.dragged || provided.dropping ? "" : `rotate(${10 * index - (handCards.length / 2 - 0.5) * 10}deg)`,
+                    transition: "300ms",
 
                     width: provided.dropping ? elementWidth : elementWidth * 1.2,
                     // Since the Dragger wrapper sets the correct left property when dragged,
