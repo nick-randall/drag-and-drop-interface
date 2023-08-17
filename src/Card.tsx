@@ -5,7 +5,6 @@ import CustomDraggable from "./Dragger";
 import GhostCard from "./GhostCard";
 // import { TransitionHandler } from "./renderPropsComponents/TransitionHandler";
 
-
 export interface CardProps {
   id: string;
   index: number;
